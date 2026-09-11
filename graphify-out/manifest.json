@@ -1008,9 +1008,9 @@
     "semantic_hash": ""
   },
   "src/app/clubs/coders-club/page.tsx": {
-    "mtime": 1789144312.1935,
-    "seen": 1789170234.0013921,
-    "ast_hash": "2deaf1684b6c3ca9188cb90ab623abd3",
+    "mtime": 1789171003.114046,
+    "seen": 1789171163.1787984,
+    "ast_hash": "2749549cdef51f44d4c4a41577c86fc2",
     "semantic_hash": ""
   },
   "src/app/clubs/dev-studio/page.tsx": {
