@@ -21,6 +21,13 @@ const CLUB_ICON: Record<Cohort, typeof Terminal> = {
   DevStudio: Rocket,
 };
 
+/** Where each club card leads. `external` opens in a new tab. */
+const CLUB_LINK: Record<Cohort, { href: string; external: boolean }> = {
+  'Coders Club': { href: '/clubs/coders-club', external: false },
+  'Crypton Club': { href: 'http://13.53.129.210/', external: true },
+  DevStudio: { href: '/clubs/dev-studio', external: false },
+};
+
 /* ────────────────────────────────────────────────────────────────
    One feature per screen.
 
@@ -340,14 +347,18 @@ function Clubs() {
           {COHORTS.map((club, i) => {
             const meta = CLUB_META[club];
             const Icon = CLUB_ICON[club];
+            const link = CLUB_LINK[club];
             return (
-              <motion.article
+              <motion.a
                 key={club}
+                href={link.href}
+                target={link.external ? '_blank' : undefined}
+                rel={link.external ? 'noopener noreferrer' : undefined}
                 initial={{ opacity: 0, y: reduce ? 0 : 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-12%' }}
                 transition={{ duration: 0.6, delay: reduce ? 0 : i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] p-7 transition-colors hover:border-white/20"
+                className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/[0.08] p-7 transition-colors hover:border-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 style={{ background: SLAB }}
               >
                 {/* A thin accent bar in the club's colour, so the three cards
@@ -364,7 +375,14 @@ function Clubs() {
                   {meta.tagline}
                 </p>
                 <p className="mt-3.5 text-sm leading-relaxed text-white/55">{meta.blurb}</p>
-              </motion.article>
+                <span
+                  className="mt-auto inline-flex items-center gap-1.5 pt-6 font-jetbrains text-[11px] font-bold uppercase tracking-[0.14em]"
+                  style={{ color: meta.accent }}
+                >
+                  {link.external ? 'Visit site' : 'Enter'}
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" strokeWidth={2.5} />
+                </span>
+              </motion.a>
             );
           })}
         </div>
