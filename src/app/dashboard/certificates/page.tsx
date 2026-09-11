@@ -209,7 +209,7 @@ export default function CertificatesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Remove this certificate from Layora? The PDF stays in your Google Drive.')) {
+    if (!confirm('Remove this certificate from Club Crumbs? The PDF stays in your Google Drive.')) {
       return;
     }
 
@@ -271,7 +271,7 @@ export default function CertificatesPage() {
             <InfoPopover label="Where is my certificate stored?" widthClass="w-64">
               <p className="flex items-start gap-2 text-[10px] font-mono text-on-surface-variant leading-relaxed">
                 <Lock className="w-3 h-3 mt-0.5 shrink-0 text-primary" />
-                <span>The PDF is stored in your own Google Drive, not on Layora. Only you and the department staff see it here.</span>
+                <span>The PDF is stored in your own Google Drive, not on Club Crumbs. Only you and the club staff see it here.</span>
               </p>
             </InfoPopover>
           </div>
@@ -500,7 +500,7 @@ export default function CertificatesPage() {
                       <button
                         onClick={() => handleDelete(cert.id)}
                         className="p-2 rounded-xl bg-red-950/40 hover:bg-red-900 border border-red-500/30 text-red-300 transition cursor-pointer"
-                        title="Remove from Layora"
+                        title="Remove from Club Crumbs"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

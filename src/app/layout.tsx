@@ -35,14 +35,14 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Layora — Student Productivity Platform",
-  description: "A student productivity workspace for the MITE CSE department: planner, tasks, resources, courses and leaderboard.",
-  // The manifest is what lets a phone install Layora to the Home Screen, which
-  // on iOS is the only way the Notification API exists at all.
+  title: "Club Crumbs — MITE Club Dashboard",
+  description: "A unified dashboard for MITE's tech clubs — Coders Club, Cryptona and DevStudio: activity tracking, leaderboards, certificates and more.",
+  // The manifest is what lets a phone install Club Crumbs to the Home Screen,
+  // which on iOS is the only way the Notification API exists at all.
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    title: "Layora",
+    title: "Club Crumbs",
     statusBarStyle: "black-translucent",
   },
   verification: {

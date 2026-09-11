@@ -44,7 +44,7 @@ export default function LayoraMark({
       style={{ backgroundColor: MARK_PURPLE, borderRadius: MARK_RADIUS }}
     >
       <span className={`font-bold leading-none tracking-tighter text-white ${glyphClassName}`}>
-        L
+        C
       </span>
     </span>
   );

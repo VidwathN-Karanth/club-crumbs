@@ -193,7 +193,7 @@ export default function ExtensionPage() {
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Layora Quick Access</h1>
           <p className="max-w-xl text-sm leading-relaxed text-on-surface-variant">
             Your quick launchers and course list, one click from any tab — without opening the
-            dashboard. Add a link straight from the popup and it appears in Layora too.
+            dashboard. Add a link straight from the popup and it appears in Club Crumbs too.
           </p>
         </header>
 

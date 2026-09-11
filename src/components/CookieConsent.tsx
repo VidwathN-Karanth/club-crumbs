@@ -63,7 +63,7 @@ export default function CookieConsent() {
           {/* Description */}
           <div className="space-y-2">
             <p className="text-[11px] leading-relaxed text-white/70">
-              Layora utilizes cookies to authenticate your session state, secure platform databases, and preserve user timetable rhythms. No marketing or tracking cookies are initialized.
+              Club Crumbs utilizes cookies to authenticate your session state, secure platform databases, and preserve user timetable rhythms. No marketing or tracking cookies are initialized.
             </p>
             <div className="flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />

@@ -90,7 +90,7 @@ export default function NotificationAgent() {
       // The browser would not even show the prompt, so ask in-app instead.
       announce({
         title: 'Turn on desktop reminders',
-        body: 'Open Settings to let Layora notify you on this device.',
+        body: 'Open Settings to let Club Crumbs notify you on this device.',
         tag: 'layora-permission-nudge',
         url: '/dashboard/settings/',
       });

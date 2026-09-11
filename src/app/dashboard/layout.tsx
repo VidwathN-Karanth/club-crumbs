@@ -238,7 +238,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-                  <span className="font-mono font-bold text-cyber-blue text-sm">Layora</span>
+                  <span className="font-mono font-bold text-cyber-blue text-sm">Club Crumbs</span>
                   <button onClick={() => setMobileMenuOpen(false)} className="text-white/50"><X className="w-5 h-5" strokeWidth={1.5} /></button>
                 </div>
                 <nav className="space-y-0.5">
@@ -267,7 +267,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="flex items-center gap-2.5 bg-white/5 p-2 rounded-lg border border-white/10">
                   <UserButton appearance={{ elements: { userButtonAvatarBox: "w-7 h-7 rounded-lg" } }} />
                   <div className="min-w-0">
-                    <div className="text-[11px] font-mono font-semibold truncate text-white">{store.user?.name || 'Layora Student'}</div>
+                    <div className="text-[11px] font-mono font-semibold truncate text-white">{store.user?.name || 'Club Crumbs Member'}</div>
                     <div className="text-[8px] font-mono text-white/40 truncate">{store.user?.email}</div>
                   </div>
                 </div>
@@ -301,7 +301,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   exit={{ opacity: 0 }}
                   className="font-bold text-sm text-white flex items-center gap-2"
                 >
-                  <LayoraMark className="h-6 w-6" glyphClassName="text-xs" /> LAYORA
+                  <LayoraMark className="h-6 w-6" glyphClassName="text-xs" /> CLUB CRUMBS
                 </motion.span>
               ) : (
                 <motion.div 
@@ -310,10 +310,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   animate={{ opacity: 1 }} 
                   exit={{ opacity: 0 }}
                   className="flex items-center justify-center"
-                  title="Layora"
+                  title="Club Crumbs"
                 >
                   <span className="w-9 h-9 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center font-mono font-black text-base text-primary">
-                    L
+                    C
                   </span>
                 </motion.div>
               )}

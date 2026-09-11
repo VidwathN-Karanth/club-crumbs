@@ -38,6 +38,13 @@ create table if not exists public.users (
   leetcode_easy_total integer not null default 0,
   leetcode_medium_total integer not null default 0,
   leetcode_hard_total integer not null default 0,
+  -- CodeChef is a third tracked platform; the index below is on this column.
+  codechef_username text unique,
+  codechef_solved_total integer not null default 0,
+  -- A student's uploaded resume (stored in their own Drive; we keep the link).
+  resume_url text,
+  resume_name text,
+  resume_uploaded_at timestamp with time zone,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
@@ -52,6 +59,9 @@ create table if not exists public.daily_activities (
   leetcode_easy_accumulated integer not null default 0,
   leetcode_medium_accumulated integer not null default 0,
   leetcode_hard_accumulated integer not null default 0,
+  -- CodeChef daily delta and running total, mirroring the LeetCode pair above.
+  codechef_solved_today integer not null default 0,
+  codechef_solved_accumulated integer not null default 0,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   constraint unique_user_date unique (user_id, date)
 );

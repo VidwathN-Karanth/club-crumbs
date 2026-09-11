@@ -141,7 +141,7 @@ export default function PlannerPage() {
       }
 
       const data = await res.json();
-      alert(`Wiped ${data.deletedCount} Layora events for this day from Google Calendar.`);
+      alert(`Wiped ${data.deletedCount} synced events for this day from Google Calendar.`);
       setShowDeleteDayConfirm(false);
       setDeleteDayInput('');
     } catch (e: any) {
@@ -166,7 +166,7 @@ export default function PlannerPage() {
       }
 
       const data = await res.json();
-      alert(`Wiped ${data.deletedCount} Layora events for the entire week from Google Calendar.`);
+      alert(`Wiped ${data.deletedCount} synced events for the entire week from Google Calendar.`);
       setShowDeleteWeekConfirm(false);
       setDeleteWeekInput('');
     } catch (e: any) {
@@ -575,7 +575,7 @@ export default function PlannerPage() {
               
               <div className="space-y-4">
                 <p className="text-xs text-outline leading-relaxed">
-                  This will remove all Layora-synced calendar events for <strong>{daysOfWeek.find(d => d.num === activeDay)?.label || ''}</strong> from your primary Google Calendar.
+                  This will remove all Club Crumbs-synced calendar events for <strong>{daysOfWeek.find(d => d.num === activeDay)?.label || ''}</strong> from your primary Google Calendar.
                 </p>
                 <div className="bg-red-950/15 border border-red-500/10 p-3 rounded-lg text-xs text-red-300">
                   Type <strong>DELETE</strong> below to confirm.
@@ -628,7 +628,7 @@ export default function PlannerPage() {
               
               <div className="space-y-4">
                 <p className="text-xs text-outline leading-relaxed font-mono">
-                  This will remove all Layora-synced calendar events for the <strong>entire week</strong> from your primary Google Calendar.
+                  This will remove all Club Crumbs-synced calendar events for the <strong>entire week</strong> from your primary Google Calendar.
                 </p>
                 <div className="bg-red-950/15 border border-red-500/10 p-3 rounded-xl text-[10px] text-red-300 font-mono">
                   Type <strong>DELETE WEEK PLANNER</strong> below to confirm.
