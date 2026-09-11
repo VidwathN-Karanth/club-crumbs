@@ -986,7 +986,7 @@ export default function AdminPage() {
           </div>
           <div className="text-center">
             <h1 className="text-xl font-bold tracking-wider text-white">
-              LAYORA BACKEND
+              CLUB CRUMBS BACKEND
             </h1>
             <p className="text-xs text-white/40 mt-1">
               Authenticating credentials & firewall rules...
@@ -1076,7 +1076,7 @@ export default function AdminPage() {
               ADMIN CONTROL CENTER
             </h1>
             <p className="text-[11px] font-mono uppercase tracking-widest text-white/40">
-              CSE Department &middot; viewing {selectedCohort}
+              Club Crumbs &middot; viewing {selectedCohort}
             </p>
           </div>
 

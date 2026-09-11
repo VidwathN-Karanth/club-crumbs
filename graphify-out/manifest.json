@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "src/app/admin/page.tsx": {
-    "mtime": 1789140867.0283992,
-    "seen": 1789142422.5937016,
-    "ast_hash": "7df2acf97f5b0ccb1ac7565e688cebb7",
+    "mtime": 1789142702.7990675,
+    "seen": 1789142871.750815,
+    "ast_hash": "45a273ceaafdfac526dc157df76cbaec",
     "semantic_hash": ""
   },
   "src/app/api/admin/certificates/overview/route.ts": {
@@ -360,9 +360,9 @@
     "semantic_hash": ""
   },
   "src/app/login/page.tsx": {
-    "mtime": 1789140867.0392952,
-    "seen": 1789142422.5938058,
-    "ast_hash": "d2cfa2ac0887d264633a94a32f0fc622",
+    "mtime": 1789142700.0482666,
+    "seen": 1789142871.7508621,
+    "ast_hash": "66b51684bb45310a491996c9ebefa395",
     "semantic_hash": ""
   },
   "src/app/onboarding/page.tsx": {
@@ -516,9 +516,9 @@
     "semantic_hash": ""
   },
   "src/lib/extensionAuth.ts": {
-    "mtime": 1789140867.0482,
-    "seen": 1789142422.5938702,
-    "ast_hash": "a93d9342e8a1d9d2c8e9e688c3c2bda9",
+    "mtime": 1789142704.056432,
+    "seen": 1789142871.750891,
+    "ast_hash": "1429c250bf4e01861aa3dcac8a66a509",
     "semantic_hash": ""
   },
   "src/lib/extensionData.ts": {

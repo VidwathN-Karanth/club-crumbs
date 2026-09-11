@@ -12,9 +12,9 @@ export default function LoginPage() {
         <div className="flex flex-col items-center mb-6">
           <LayoraMark className="w-14 h-14 mb-3" glyphClassName="text-2xl" />
           <h2 className="text-2xl font-bold tracking-wide text-on-surface">
-            LAYORA
+            CLUB CRUMBS
           </h2>
-          <p className="text-xs text-outline mt-1">CSE Department · Autonomous Student Productivity Suite</p>
+          <p className="text-xs text-outline mt-1">MITE Tech Clubs · Unified Dashboard</p>
         </div>
 
         {/* College account requirement */}
@@ -55,7 +55,7 @@ export default function LoginPage() {
         </div>
 
         <p className="mt-6 text-[11px] text-outline text-center max-w-xs leading-relaxed">
-          Signed in but can&rsquo;t get through? Your email may not be on the CSE roster yet — ask your lecturer to add it.
+          Signed in but can&rsquo;t get through? Your email may not be on your club roster yet — ask your club lead to add it.
         </p>
 
         <footer className="mt-6 text-center text-xs text-outline space-y-1.5 z-10">

@@ -87,7 +87,7 @@ export async function requireExtensionUser(request: Request): Promise<Guard> {
 
     const admin = isAdminEmail(email);
     if (!admin && !isOnRoster(email)) {
-      return deny(403, 'This account is not on the CSE roster.', 'not_on_roster');
+      return deny(403, 'This account is not on the club roster.', 'not_on_roster');
     }
 
     return {
@@ -106,7 +106,7 @@ export async function requireExtensionUser(request: Request): Promise<Guard> {
   const requester = await getRequester();
   if (!requester) return deny(401, 'Sign in to Club Crumbs first.', 'signed_out');
   if (!requester.isAdmin && !requester.allowed) {
-    return deny(403, 'This account is not on the CSE roster.', requester.denialReason || 'not_allowed');
+    return deny(403, 'This account is not on the club roster.', requester.denialReason || 'not_allowed');
   }
 
   return {
@@ -132,7 +132,7 @@ export async function requireStudentOrAdmin(): Promise<Guard> {
   const requester = await getRequester();
   if (!requester) return deny(401, 'Sign in to Club Crumbs first.', 'signed_out');
   if (!requester.isAdmin && !requester.allowed) {
-    return deny(403, 'This account is not on the CSE roster.', requester.denialReason || 'not_allowed');
+    return deny(403, 'This account is not on the club roster.', requester.denialReason || 'not_allowed');
   }
 
   return {
