@@ -1,25 +1,25 @@
 # Graph Report - club-crumbs  (2026-09-11)
 
 ## Corpus Check
-- 120 files · ~197,711 words
+- 136 files · ~206,777 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 913 nodes · 1914 edges · 56 communities (47 shown, 9 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 69 edges (avg confidence: 0.86)
+- 989 nodes · 2251 edges · 52 communities (43 shown, 9 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 69 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2305edb6`
+- Built from commit: `d43981ef`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- useStore
+- DailyActivity.ts
 - authz.ts
-- Event.ts
+- requireStudent
 - extensionAuth.ts
-- admin/page.tsx
+- apiFetch
 - useStore.ts
 - popup.js
 - notifications.ts
@@ -33,10 +33,8 @@
 - Weekly Planner Screen (landing screenshot)
 - dependencies
 - devDependencies
-- githubService.ts
-- DailyActivity.ts
-- requireStudent
-- app/page.tsx
+- syncLogic.ts
+- User.ts
 - Bearer Token Pairing (extension auth)
 - app/layout.tsx
 - syncLogic.ts (activity aggregator & points calculator)
@@ -45,12 +43,11 @@
 - leetcodeService.ts
 - Layora: Autonomous AI Student Productivity Suite
 - package.json
-- requireAdmin
+- supabaseAdmin.ts
 - Resource Vault
 - Generative Timetable Compiler
-- syncLogic.ts
 - build-zip.py
-- ExtensionInstall.tsx
+- extension.ts
 - icon.tsx
 - Main Workspace Dashboard
 - POST
@@ -61,24 +58,23 @@
 - zustand
 - tailwindcss
 - postcss.config.mjs
-- global/route.ts
+- app/page.tsx
 - getRequester
-- calendar/courses/route.ts
 - vercel.json
 - proxy.ts
 - draw_mark
 
 ## God Nodes (most connected - your core abstractions)
-1. `useStore` - 38 edges
-2. `apiFetch()` - 31 edges
-3. `getRequester()` - 24 edges
-4. `formatDate()` - 22 edges
-5. `requireStudent()` - 21 edges
-6. `requireAdminCohort()` - 18 edges
-7. `readJson()` - 17 edges
-8. `requireAdmin()` - 17 edges
-9. `requireExtensionUser()` - 17 edges
-10. `supabaseAdmin` - 17 edges
+1. `apiFetch()` - 51 edges
+2. `useStore` - 42 edges
+3. `errorMessage()` - 31 edges
+4. `readJson()` - 28 edges
+5. `formatDate()` - 28 edges
+6. `getRequester()` - 26 edges
+7. `requireStudent()` - 21 edges
+8. `requireAdminCohort()` - 20 edges
+9. `useSectionData()` - 19 edges
+10. `useAdmin()` - 17 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Bearer Token Pairing (extension auth)` --semantically_similar_to--> `Server-Side Database Proxy (/api/user/state)`  [INFERRED] [semantically similar]
@@ -115,47 +111,47 @@
 - **Zustand-to-Supabase state write path with race protection** — readme_sync_provider, readme_client_write_timestamp_queue, structure_api_user_state, structure_table_user_states, structure_supabase_admin_service_role, extension_readme_launcher_overwrite_limit [INFERRED 0.85]
 - **Shared dark dashboard shell across Layora landing screenshots** — public_images_landing_planner_weekly_planner_screen, public_images_landing_resources_resource_vault_screen, public_images_landing_shared_global_resources_screen, public_images_landing_planner_dashboard_shell [INFERRED 0.95]
 
-## Communities (56 total, 9 thin omitted)
+## Communities (52 total, 9 thin omitted)
 
-### Community 0 - "useStore"
-Cohesion: 0.22
-Nodes (17): CoursesPage(), rearmReminder(), DashboardHome(), PlannerPage(), TasksPage(), OnboardingPage(), OnboardingModal(), CLUB_META (+9 more)
+### Community 0 - "DailyActivity.ts"
+Cohesion: 0.20
+Nodes (9): dynamic, GET(), ActivityTotalsRow, DailyActivity, DailyActivityRow, DatabaseDailyActivityRow, LeaderboardUser, mapActivityRow() (+1 more)
 
 ### Community 1 - "authz.ts"
-Cohesion: 0.12
-Nodes (23): GET(), dynamic, GET(), Range, VALID_RANGES, dynamic, GET(), dynamic (+15 more)
+Cohesion: 0.05
+Nodes (63): AdminContextValue, dynamic, emptyCounts(), GET(), GET(), dynamic, GET(), Range (+55 more)
 
-### Community 2 - "Event.ts"
+### Community 2 - "requireStudent"
 Cohesion: 0.07
-Nodes (45): StaffEvent, DELETE(), dynamic, GET(), POST(), at(), CoursePayload, dynamic (+37 more)
+Nodes (47): StaffEvent, StaffEvent, DELETE(), dynamic, GET(), POST(), at(), CoursePayload (+39 more)
 
 ### Community 3 - "extensionAuth.ts"
-Cohesion: 0.13
-Nodes (32): dynamic, GET(), OPTIONS(), dynamic, GET(), OPTIONS(), DELETE(), dynamic (+24 more)
-
-### Community 4 - "admin/page.tsx"
 Cohesion: 0.08
-Nodes (39): ACTION_LABEL, ACTION_TONE, ADMIN_SECTIONS, AdminLogEntry, CertificateUploader, GlobalResource, ResumeEntry, sortByNewest() (+31 more)
+Nodes (45): dynamic, GET(), OPTIONS(), dynamic, GET(), OPTIONS(), DELETE(), dynamic (+37 more)
+
+### Community 4 - "apiFetch"
+Cohesion: 0.05
+Nodes (99): AccessDeniedPage(), Reason, AdminContext, useAdmin(), AdminCertificatesPage(), Uploader, CertificatePreview(), PanelEmpty() (+91 more)
 
 ### Community 5 - "useStore.ts"
-Cohesion: 0.09
-Nodes (40): DashboardLayout(), PHASE_ACCENT, ZenMode(), ZenModeProps, formatShortDate(), dayKey(), DEFAULT_POMODORO_SETTINGS, formatFocusDuration() (+32 more)
+Cohesion: 0.05
+Nodes (76): QuickLaunchers(), CoursesPage(), rearmReminder(), DashboardLayout(), LeaderboardPage(), RangeStats, UserStats, DashboardHome() (+68 more)
 
 ### Community 6 - "popup.js"
 Cohesion: 0.14
 Nodes (35): handleMessage(), refresh(), respond(), api(), ApiError, clearToken(), CONNECT_URL, COURSES_URL (+27 more)
 
 ### Community 7 - "notifications.ts"
-Cohesion: 0.11
-Nodes (34): NotificationAgent(), ICONS, NotificationCenter(), agendaAnnouncement(), AgendaEntry, alreadyNotified(), announce(), Announcement (+26 more)
+Cohesion: 0.09
+Nodes (37): AdminProvider(), AdminLayout(), MENU, normalise(), YEARLESS, YearSelector(), NotificationAgent(), ICONS (+29 more)
 
 ### Community 8 - "compilerOptions"
 Cohesion: 0.07
 Nodes (28): dom, dom.iterable, esnext, **/*.mts, .next/dev/types/**/*.ts, next-env.d.ts, .next/types/**/*.ts, node_modules (+20 more)
 
 ### Community 9 - "AdminLog.ts"
-Cohesion: 0.11
-Nodes (23): dynamic, GET(), POST(), maxDuration, POST(), DELETE(), describeStudent(), dynamic (+15 more)
+Cohesion: 0.12
+Nodes (22): dynamic, GET(), POST(), maxDuration, POST(), DELETE(), describeStudent(), dynamic (+14 more)
 
 ### Community 10 - "manifest.json"
 Cohesion: 0.09
@@ -189,21 +185,13 @@ Nodes (17): axios, @clerk/themes, framer-motion, lucide-react, next, dependencie
 Cohesion: 0.12
 Nodes (17): clerk, eslint, eslint-config-next, devDependencies, clerk, eslint, eslint-config-next, @tailwindcss/postcss (+9 more)
 
-### Community 18 - "githubService.ts"
-Cohesion: 0.32
-Nodes (7): AxiosErrorLike, ContributionDay, fetchActivityForDate(), GitHubUserResponse, GitHubValidationError, queryGitHub(), validateUsername()
+### Community 18 - "syncLogic.ts"
+Cohesion: 0.13
+Nodes (22): POST(), fetchProfileHtml(), fetchTotalSolves(), validateUsername(), AxiosErrorLike, ContributionDay, fetchActivityForDate(), GitHubUserResponse (+14 more)
 
-### Community 19 - "DailyActivity.ts"
-Cohesion: 0.10
-Nodes (26): dynamic, DELETE(), dynamic, GET(), POST(), dynamic, GET(), ActivityTotalsRow (+18 more)
-
-### Community 20 - "requireStudent"
-Cohesion: 0.18
-Nodes (19): AdminPage(), SettingsPage(), Connection, ConnectState, ExtensionPage(), shortLabel(), isPdf(), PickResult (+11 more)
-
-### Community 21 - "app/page.tsx"
-Cohesion: 0.15
-Nodes (13): DELETE(), dynamic, GET(), POST(), CORS_HEADERS, deny(), ExtensionRequester, Guard (+5 more)
+### Community 19 - "User.ts"
+Cohesion: 0.21
+Nodes (10): dynamic, DELETE(), dynamic, GET(), POST(), POST(), DatabaseUserRow, mapUserRow() (+2 more)
 
 ### Community 22 - "Bearer Token Pairing (extension auth)"
 Cohesion: 0.21
@@ -226,8 +214,8 @@ Cohesion: 0.27
 Nodes (10): Clerk Authentication, Local Demo Mode (missing Supabase keys fallback), Supabase Row-Level Security Isolation, Server-Side Database Proxy (/api/user/state), /api/calendar/sync (Google Calendar push), /api/user/state (secure Supabase state proxy), Clerk Middleware (route protection & token check), isAdminEmail admin allowlist (+2 more)
 
 ### Community 27 - "leetcodeService.ts"
-Cohesion: 0.27
-Nodes (10): difficultyCache, DifficultyCounts, fetchActivityForDate(), fetchTotalSolves(), getQuestionDifficulty(), LeetCodeQuestion, LeetCodeResponse, LeetCodeSubmission (+2 more)
+Cohesion: 0.29
+Nodes (9): difficultyCache, DifficultyCounts, fetchActivityForDate(), getQuestionDifficulty(), LeetCodeQuestion, LeetCodeResponse, LeetCodeSubmission, queryLeetCode() (+1 more)
 
 ### Community 28 - "Layora: Autonomous AI Student Productivity Suite"
 Cohesion: 0.28
@@ -237,8 +225,8 @@ Nodes (9): Next.js Agent Rules (breaking-change warning), CLAUDE.md AGENTS.md in
 Cohesion: 0.22
 Nodes (8): name, private, scripts, build, dev, lint, start, version
 
-### Community 30 - "requireAdmin"
-Cohesion: 0.31
+### Community 30 - "supabaseAdmin.ts"
+Cohesion: 0.38
 Nodes (3): dynamic, GET(), supabaseAdmin
 
 ### Community 31 - "Resource Vault"
@@ -249,17 +237,13 @@ Nodes (8): Courses panel, Known limit: a course without a link opens Layora inst
 Cohesion: 0.29
 Nodes (8): Google site-verification token file, Generative Timetable Compiler, Google Calendar Sync, Groq API (LLM inference), Study Copilot (LLM assistant), /api/ai/planner (weekly timetable generator), /api/ai/proactive (AI academic mentor), Duality Rule (task + timetable block bound together)
 
-### Community 33 - "syncLogic.ts"
-Cohesion: 0.17
-Nodes (12): AccessDeniedPage(), Reason, LeaderboardPage(), RangeStats, UserStats, ResourcesPage(), ApiError, apiFetch() (+4 more)
-
 ### Community 34 - "build-zip.py"
 Cohesion: 0.47
 Nodes (5): build(), firefox_manifest(), main(), Package the extension for distribution. Writes two zips from the one source…, The Chromium manifest, with the three Gecko differences applied.
 
-### Community 35 - "ExtensionInstall.tsx"
-Cohesion: 0.21
-Nodes (14): Build, BUILDS, ExtensionInstall(), ExtensionPrompt(), snoozed(), BrowserFamily, CHROME_STORE_URL, detectBrowser() (+6 more)
+### Community 35 - "extension.ts"
+Cohesion: 0.18
+Nodes (16): Build, BUILDS, ExtensionInstall(), dismissedRecently(), ExtensionNudge(), ExtensionPrompt(), snoozed(), BrowserFamily (+8 more)
 
 ### Community 36 - "icon.tsx"
 Cohesion: 0.40
@@ -269,17 +253,13 @@ Nodes (3): contentType, runtime, size
 Cohesion: 0.67
 Nodes (3): Milestone Tracker & Global Stopwatch, Onboarding Portal (7-step routine wizard), Main Workspace Dashboard
 
-### Community 48 - "global/route.ts"
-Cohesion: 0.07
-Nodes (30): DELETE(), dynamic, GET(), POST(), readResourceList(), StoredResource, visibleTo(), writeResourceList() (+22 more)
+### Community 48 - "app/page.tsx"
+Cohesion: 0.09
+Nodes (7): CLUB_ICON, GALLERY, STEPS, LayoraMark(), LayoraMarkProps, MARK_PURPLE, CLUB_META
 
 ### Community 50 - "getRequester"
-Cohesion: 0.16
-Nodes (16): dynamic, GET(), dynamic, GET(), POST(), POST(), POST(), ADMIN_EMAILS (+8 more)
-
-### Community 51 - "calendar/courses/route.ts"
-Cohesion: 0.19
-Nodes (15): buildGrid(), EventsPage(), toKey(), WEEKDAYS, DateField(), Props, toDisplay(), DateInput (+7 more)
+Cohesion: 0.29
+Nodes (8): dynamic, GET(), dynamic, GET(), POST(), ADMIN_EMAILS, isAdminEmail(), getRequester()
 
 ### Community 54 - "proxy.ts"
 Cohesion: 0.38
@@ -294,7 +274,7 @@ Nodes (5): Image, draw_mark(), main(), Generate every Layora raster mark from on
   AGENTS.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **258 isolated node(s):** `eslintConfig`, `manifest_version`, `name`, `version`, `description` (+253 more)
+- **276 isolated node(s):** `eslintConfig`, `manifest_version`, `name`, `version`, `description` (+271 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -303,15 +283,15 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `Layora Architecture & System Structure` and `Next.js Agent Rules (breaking-change warning)`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `Cohort` connect `global/route.ts` to `authz.ts`, `Event.ts`, `admin/page.tsx`, `useStore.ts`, `getRequester`?**
-  _High betweenness centrality (0.049) - this node is a cross-community bridge._
-- **Why does `supabaseAdmin` connect `requireAdmin` to `authz.ts`, `Event.ts`, `extensionAuth.ts`, `admin/page.tsx`, `AdminLog.ts`, `global/route.ts`, `getRequester`, `DailyActivity.ts`, `app/page.tsx`?**
+- **Why does `Cohort` connect `authz.ts` to `app/page.tsx`, `requireStudent`, `apiFetch`, `useStore.ts`?**
+  _High betweenness centrality (0.040) - this node is a cross-community bridge._
+- **Why does `apiFetch()` connect `apiFetch` to `authz.ts`, `extension.ts`, `useStore.ts`, `notifications.ts`, `app/layout.tsx`?**
   _High betweenness centrality (0.026) - this node is a cross-community bridge._
-- **Why does `getRequester()` connect `getRequester` to `authz.ts`, `Event.ts`, `extensionAuth.ts`, `AdminLog.ts`, `global/route.ts`, `DailyActivity.ts`, `app/page.tsx`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **Why does `supabaseAdmin` connect `supabaseAdmin.ts` to `DailyActivity.ts`, `authz.ts`, `requireStudent`, `extensionAuth.ts`, `useStore.ts`, `AdminLog.ts`, `getRequester`, `User.ts`, `syncLogic.ts`?**
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **What connects `eslintConfig`, `manifest_version`, `name` to the rest of the system?**
-  _258 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _276 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `authz.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.12183908045977011 - nodes in this community are weakly interconnected._
-- **Should `Event.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.07205513784461152 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05201292976785189 - nodes in this community are weakly interconnected._
+- **Should `requireStudent` be split into smaller, more focused modules?**
+  _Cohesion score 0.06779661016949153 - nodes in this community are weakly interconnected._
