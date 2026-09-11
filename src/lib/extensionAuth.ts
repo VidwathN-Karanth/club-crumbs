@@ -79,7 +79,7 @@ export async function requireExtensionUser(request: Request): Promise<Guard> {
 
   if (token) {
     const userId = await ExtensionToken.resolve(token);
-    if (!userId) return deny(401, 'This extension is not connected to a Layora account.', 'bad_token');
+    if (!userId) return deny(401, 'This extension is not connected to a Club Crumbs account.', 'bad_token');
 
     const user = await User.findById(userId);
     const email = (user?.email || '').trim();
@@ -104,7 +104,7 @@ export async function requireExtensionUser(request: Request): Promise<Guard> {
 
   // No token: fall back to a signed-in Layora tab.
   const requester = await getRequester();
-  if (!requester) return deny(401, 'Sign in to Layora first.', 'signed_out');
+  if (!requester) return deny(401, 'Sign in to Club Crumbs first.', 'signed_out');
   if (!requester.isAdmin && !requester.allowed) {
     return deny(403, 'This account is not on the CSE roster.', requester.denialReason || 'not_allowed');
   }
@@ -130,7 +130,7 @@ export async function requireExtensionUser(request: Request): Promise<Guard> {
  */
 export async function requireStudentOrAdmin(): Promise<Guard> {
   const requester = await getRequester();
-  if (!requester) return deny(401, 'Sign in to Layora first.', 'signed_out');
+  if (!requester) return deny(401, 'Sign in to Club Crumbs first.', 'signed_out');
   if (!requester.isAdmin && !requester.allowed) {
     return deny(403, 'This account is not on the CSE roster.', requester.denialReason || 'not_allowed');
   }

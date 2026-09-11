@@ -11,6 +11,7 @@ import {
 import Link from 'next/link';
 import { formatTimeStr } from '@/lib/timeUtils';
 import { getPlatformDisplay } from '@/lib/courseUtils';
+import { CLUB_META, isCohort } from '@/lib/cohorts';
 
 export default function DashboardHome() {
   const store = useStore();
@@ -21,6 +22,7 @@ export default function DashboardHome() {
   const courses = store.courses;
   const websites = store.websites;
   const timetable = store.timetable;
+  const club = store.cohort;
 
   const [mounted, setMounted] = useState(false);
   const [isAddingInstantTask, setIsAddingInstantTask] = useState(false);
@@ -299,9 +301,26 @@ export default function DashboardHome() {
       {/* Welcome Banner */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-4">
         <div>
-          <h2 className="text-xl font-geist font-bold tracking-tight text-white">
-            Welcome Back, <span className="text-primary font-semibold">{user?.name || 'Student'}</span>
-          </h2>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h2 className="text-xl font-geist font-bold tracking-tight text-white">
+              Welcome Back, <span className="text-primary font-semibold">{user?.name || 'Student'}</span>
+            </h2>
+            {/* The one club a member belongs to — set from the roster, never
+                switchable here. Coloured by the club's own accent. */}
+            {isCohort(club) && (
+              <span
+                className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-[0.12em]"
+                style={{
+                  color: CLUB_META[club].accent,
+                  borderColor: `${CLUB_META[club].accent}55`,
+                  background: `${CLUB_META[club].accent}14`,
+                }}
+              >
+                <span className="h-1.5 w-1.5 rounded-full" style={{ background: CLUB_META[club].accent }} />
+                {club}
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-2 mt-3">
             <a
               href="https://chatgpt.com"

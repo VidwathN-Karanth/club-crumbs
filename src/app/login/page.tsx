@@ -28,7 +28,7 @@ export default function LoginPage() {
             <h4 className="font-semibold text-on-surface mb-0.5">Use your college Google account</h4>
             <p className="text-on-surface-variant leading-relaxed">
               Sign in with the <span className="text-primary font-semibold">@{COLLEGE_EMAIL_DOMAIN}</span> account issued by
-              the college. Your year group, leaderboard, and shared notes are all set up from it.
+              the college. Your club, leaderboard, and shared notes are all set up from it.
             </p>
           </div>
         </div>

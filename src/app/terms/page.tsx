@@ -36,7 +36,7 @@ export default function TermsAndConditionsPage() {
         <div className="border border-white/10 rounded-xl p-6 md:p-8 space-y-8 bg-[#1A1D22]/40 text-sm text-white/80 leading-relaxed">
           
           <p className="text-white/70 italic">
-            These Terms and Conditions ("Terms") govern your access to and use of Layora (the "Service"), including its daily coding activity tracker and leaderboard. By creating an account or using Layora, you agree to be bound by these Terms.
+            These Terms and Conditions ("Terms") govern your access to and use of Club Crumbs (the "Service"), including its daily coding activity tracker and leaderboard. By creating an account or using Club Crumbs, you agree to be bound by these Terms.
           </p>
 
           <section className="space-y-3">
@@ -45,7 +45,7 @@ export default function TermsAndConditionsPage() {
               <span>1. Acceptance of Terms</span>
             </div>
             <p>
-              By accessing or using Layora, you confirm that you have read, understood, and agree to these Terms and our Privacy Policy. If you do not agree, please do not use the Service.
+              By accessing or using Club Crumbs, you confirm that you have read, understood, and agree to these Terms and our Privacy Policy. If you do not agree, please do not use the Service.
             </p>
           </section>
 
@@ -55,14 +55,14 @@ export default function TermsAndConditionsPage() {
               <span>2. Description of Service</span>
             </div>
             <p>
-              Layora tracks users' daily coding activity by connecting to:
+              Club Crumbs tracks users' daily coding activity by connecting to:
             </p>
             <ul className="list-disc pl-5 space-y-2 text-white/70">
               <li><strong className="text-white">GitHub:</strong> via GitHub's official GraphQL API, to read your contribution and commit activity.</li>
               <li><strong className="text-white">LeetCode:</strong> via an unofficial, publicly accessible GraphQL endpoint, to read your public submission activity.</li>
             </ul>
             <p>
-              Layora uses this data to calculate daily coding points and display them on a public leaderboard. Layora is <strong className="text-white">not affiliated with GitHub or LeetCode</strong>. Since the LeetCode integration relies on an API that LeetCode has not officially published for third-party use, it may be modified, rate-limited, or discontinued at any time without notice, which could affect point calculation or sync accuracy.
+              Club Crumbs uses this data to calculate daily coding points and display them on a public leaderboard. Club Crumbs is <strong className="text-white">not affiliated with GitHub or LeetCode</strong>. Since the LeetCode integration relies on an API that LeetCode has not officially published for third-party use, it may be modified, rate-limited, or discontinued at any time without notice, which could affect point calculation or sync accuracy.
             </p>
           </section>
 
@@ -72,7 +72,7 @@ export default function TermsAndConditionsPage() {
               <span>3. Eligibility</span>
             </div>
             <p>
-              Layora does not impose a minimum age requirement to use the Service. However, under the Indian Contract Act, 1872, a person under the age of 18 is not considered competent to enter into a binding contract. <strong className="text-white">If you are under 18, you may only use Layora with the consent and involvement of a parent or legal guardian</strong>, who must agree to these Terms on your behalf and takes responsibility for your use of the Service.
+              Club Crumbs does not impose a minimum age requirement to use the Service. However, under the Indian Contract Act, 1872, a person under the age of 18 is not considered competent to enter into a binding contract. <strong className="text-white">If you are under 18, you may only use Club Crumbs with the consent and involvement of a parent or legal guardian</strong>, who must agree to these Terms on your behalf and takes responsibility for your use of the Service.
             </p>
           </section>
 
@@ -95,7 +95,7 @@ export default function TermsAndConditionsPage() {
               <span>5. Third-Party Integrations</span>
             </div>
             <p>
-              By connecting your GitHub or LeetCode account, you authorize Layora to access the relevant public activity data for the purpose of calculating coding points. You are responsible for ensuring your use of these integrations complies with GitHub's and LeetCode's own terms of service. Layora is not responsible for any disruption, suspension, or restriction imposed on your GitHub or LeetCode account as a result of using our integration, nor for any inaccuracy resulting from changes to either platform's API.
+              By connecting your GitHub or LeetCode account, you authorize Club Crumbs to access the relevant public activity data for the purpose of calculating coding points. You are responsible for ensuring your use of these integrations complies with GitHub's and LeetCode's own terms of service. Club Crumbs is not responsible for any disruption, suspension, or restriction imposed on your GitHub or LeetCode account as a result of using our integration, nor for any inaccuracy resulting from changes to either platform's API.
             </p>
           </section>
 
@@ -121,7 +121,7 @@ export default function TermsAndConditionsPage() {
             <p>You agree not to:</p>
             <ul className="list-disc pl-5 space-y-2 text-white/70">
               <li>Use the Service for any unlawful purpose.</li>
-              <li>Attempt to gain unauthorized access to other users' accounts or to Layora's systems.</li>
+              <li>Attempt to gain unauthorized access to other users' accounts or to Club Crumbs's systems.</li>
               <li>Interfere with or disrupt the Service, including the sync jobs or leaderboard infrastructure.</li>
               <li>Harass, abuse, or impersonate other users via your username or profile.</li>
               <li>Scrape, copy, or republish leaderboard data at scale without our permission.</li>
@@ -135,8 +135,8 @@ export default function TermsAndConditionsPage() {
               <span>8. Intellectual Property</span>
             </div>
             <ul className="list-disc pl-5 space-y-2 text-white/70">
-              <li>Layora's branding, design, codebase, and content (excluding user-generated data) are the property of Layora and may not be copied or reproduced without permission.</li>
-              <li>Your own code, repositories, and submissions remain your property. Layora does not claim ownership over your code — we only access and display activity metadata (such as commit counts and points) necessary to operate the leaderboard.</li>
+              <li>Club Crumbs's branding, design, codebase, and content (excluding user-generated data) are the property of Club Crumbs and may not be copied or reproduced without permission.</li>
+              <li>Your own code, repositories, and submissions remain your property. Club Crumbs does not claim ownership over your code — we only access and display activity metadata (such as commit counts and points) necessary to operate the leaderboard.</li>
             </ul>
           </section>
 
@@ -159,7 +159,7 @@ export default function TermsAndConditionsPage() {
               <span>10. Limitation of Liability</span>
             </div>
             <p>
-              To the maximum extent permitted by applicable law, Layora and its operators shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of, or inability to use, the Service — including any loss of data, points, or ranking.
+              To the maximum extent permitted by applicable law, Club Crumbs and its operators shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of, or inability to use, the Service — including any loss of data, points, or ranking.
             </p>
           </section>
 

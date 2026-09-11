@@ -190,7 +190,7 @@ export async function POST(request: Request) {
         }
 
         if (response.status === 401 || response.status === 403) {
-          detail = 'Layora is not allowed to write to your Google Calendar. Sign out and back in with Google to grant calendar access.';
+          detail = 'Club Crumbs is not allowed to write to your Google Calendar. Sign out and back in with Google to grant calendar access.';
         }
 
         skipped += 1;

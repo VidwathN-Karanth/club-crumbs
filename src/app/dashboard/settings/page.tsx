@@ -58,7 +58,7 @@ export default function SettingsPage() {
     setNotifPermission(state);
     if (state === 'granted') {
       store.setNotificationsEnabled(true);
-      announce({ title: 'Reminders are on', body: 'This is what a Layora reminder looks like.', tag: 'layora-test' });
+      announce({ title: 'Reminders are on', body: 'This is what a Club Crumbs reminder looks like.', tag: 'layora-test' });
     }
   };
 
@@ -181,9 +181,9 @@ export default function SettingsPage() {
               <InfoPopover label="What reminders does this cover?">
                 <div className="space-y-2.5">
                   <p className="text-[10px] font-mono text-on-surface-variant leading-relaxed">
-                    One switch for every reminder Layora sends. Turning it off silences all of
+                    One switch for every reminder Club Crumbs sends. Turning it off silences all of
                     them. Turn it on separately on every device you use — reminders appear on
-                    whichever device has Layora open, and nothing is emailed.
+                    whichever device has Club Crumbs open, and nothing is emailed.
                   </p>
                   <ul className="space-y-1.5 text-[9px] font-mono text-outline leading-relaxed">
                     <li className="flex items-start gap-2">
@@ -230,7 +230,7 @@ export default function SettingsPage() {
                 <Lock className="w-3 h-3 text-outline shrink-0" />
               </div>
               <p className="text-[9px] font-mono text-outline mt-1">
-                Your year group is set from this address by the department roster.
+                Your club is set from this address by the club roster.
               </p>
             </div>
 
@@ -244,7 +244,7 @@ export default function SettingsPage() {
                   </span>
                   <span className="text-[9px] font-mono text-outline">
                     {notifPermission === 'unsupported'
-                      ? 'In-app only here — add Layora to your Home Screen for phone alerts'
+                      ? 'In-app only here — add Club Crumbs to your Home Screen for phone alerts'
                       : notifPermission === 'denied'
                         ? 'System alerts blocked — allow them in your browser settings'
                         : notifPermission === 'granted'
@@ -316,7 +316,7 @@ export default function SettingsPage() {
                   {notifPermission === 'unsupported' ? (
                     <p className="text-[9px] font-mono text-amber-400/80 leading-relaxed pt-1">
                       This browser has no system notifications. On iPhone, use Share → Add to Home
-                      Screen and open Layora from there. Reminders still appear inside the app.
+                      Screen and open Club Crumbs from there. Reminders still appear inside the app.
                     </p>
                   ) : notifPermission === 'denied' ? (
                     <p className="text-[9px] font-mono text-amber-400/80 leading-relaxed pt-1">

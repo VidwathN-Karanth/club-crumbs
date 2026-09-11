@@ -38,7 +38,7 @@ export default function Icon() {
           borderRadius: '8px',
         }}
       >
-        L
+        C
       </div>
     ),
     {

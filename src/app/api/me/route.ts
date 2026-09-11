@@ -4,9 +4,9 @@ import { getRequester } from '@/lib/authz';
 /**
  * Who am I, and am I allowed in?
  *
- * The single place the browser learns its own cohort. The roster is server-only,
+ * The single place the browser learns its own club. The roster is server-only,
  * so this endpoint exists to hand back the one derived fact the UI needs
- * ("3rd Year") without shipping every student's email into the JS bundle.
+ * ("Coders Club") without shipping every student's email into the JS bundle.
  */
 export async function GET() {
   const requester = await getRequester();

@@ -78,7 +78,7 @@ export async function requireStudent(): Promise<Guard<Requester & { cohort: Coho
     return deny(403, 'Admins use the admin console, not the student workspace.');
   }
   if (requester.denialReason === 'wrong_domain') {
-    return deny(403, 'Layora is open only to college accounts.', 'wrong_domain');
+    return deny(403, 'Club Crumbs is open only to college accounts.', 'wrong_domain');
   }
   if (!requester.cohort) {
     return deny(403, 'Your email is not on the department roster yet.', 'not_on_roster');

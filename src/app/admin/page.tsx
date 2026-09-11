@@ -199,7 +199,7 @@ export default function AdminPage() {
    * reads this, and every request carries it, so a 2nd-year view can never
    * contain a 3rd-year row.
    */
-  const [selectedCohort, setSelectedCohort] = useState<Cohort>('2nd Year');
+  const [selectedCohort, setSelectedCohort] = useState<Cohort>('Coders Club');
 
   // Shared Library (global resources) moderation
   const [globalResources, setGlobalResources] = useState<GlobalResource[]>([]);

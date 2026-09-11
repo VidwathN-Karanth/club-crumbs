@@ -238,7 +238,7 @@ export default function OnboardingPage() {
         {/* Onboarding Header */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
-            <span className="text-xl text-primary font-bold">Layora Onboarding</span>
+            <span className="text-xl text-primary font-bold">Club Crumbs Onboarding</span>
             <span className="text-xs text-outline-variant">| v1.0.4</span>
           </div>
           <div className="text-xs font-bold text-on-surface bg-surface-container-high border border-outline-variant px-2.5 py-0.5 rounded-full whitespace-nowrap shrink-0">

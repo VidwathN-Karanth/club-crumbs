@@ -79,12 +79,12 @@ export default function AccessDeniedPage() {
   const copy = {
     wrong_domain: {
       title: 'Use your college account',
-      body: `Layora is open only to CSE department accounts ending in @${COLLEGE_EMAIL_DOMAIN}. Sign out and sign back in with your college Google account.`,
+      body: `Club Crumbs is open only to college accounts ending in @${COLLEGE_EMAIL_DOMAIN}. Sign out and sign back in with your college Google account.`,
       action: 'Sign out and try again',
     },
     not_on_roster: {
       title: 'You are not on the roster yet',
-      body: 'Your college account is valid, but your email has not been added to a year group yet. Ask your lecturer to add it to the CSE roster, then sign in again.',
+      body: 'Your college account is valid, but your email has not been added to a club yet. Ask your club lead to add it to the roster, then sign in again.',
       action: 'Sign out',
     },
     signed_out: {

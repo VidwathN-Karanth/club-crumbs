@@ -1,7 +1,7 @@
 {
-  "name": "Layora",
-  "short_name": "Layora",
-  "description": "CSE Department student productivity workspace",
+  "name": "Club Crumbs",
+  "short_name": "Club Crumbs",
+  "description": "MITE tech-club dashboard — Coders Club, Cryptona and DevStudio",
   "start_url": "/dashboard/",
   "scope": "/",
   "display": "standalone",

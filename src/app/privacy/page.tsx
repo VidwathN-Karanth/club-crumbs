@@ -40,7 +40,7 @@ export default function PrivacyPolicyPage() {
               <span>1. Overview</span>
             </div>
             <p>
-              Welcome to Layora ("Service"). We respect your privacy and are committed to protecting the personal data of our users. This Privacy Policy describes how we collect, use, store, and share your information when you access or use Layora, its companion features, and daily scoreboard tracking.
+              Welcome to Club Crumbs ("Service"). We respect your privacy and are committed to protecting the personal data of our users. This Privacy Policy describes how we collect, use, store, and share your information when you access or use Club Crumbs, its companion features, and daily scoreboard tracking.
             </p>
           </section>
 
@@ -50,7 +50,7 @@ export default function PrivacyPolicyPage() {
               <span>2. Information We Collect</span>
             </div>
             <p>
-              To run the daily study schedules, calendar exports, and leaderboard features, Layora collects and processes limited categories of information:
+              To run the daily study schedules, calendar exports, and leaderboard features, Club Crumbs collects and processes limited categories of information:
             </p>
             <ul className="list-disc pl-5 space-y-2 text-white/70">
               <li>
@@ -78,7 +78,7 @@ export default function PrivacyPolicyPage() {
               <li>Formulating daily rhythm templates and academic schedule planners.</li>
               <li>Aggregating and posting points on the global scoreboard/leaderboard.</li>
               <li>Automating scheduling changes and exports to your Google Calendar.</li>
-              <li>Analyzing global progress metrics to improve Layora's features.</li>
+              <li>Analyzing global progress metrics to improve Club Crumbs's features.</li>
             </ul>
           </section>
 
@@ -99,17 +99,17 @@ export default function PrivacyPolicyPage() {
               <span>5. Browser Extension</span>
             </div>
             <p>
-              The <strong className="text-white">Layora Quick Access</strong> browser extension for Chrome, Edge, Brave and Firefox is covered by this same policy. It is an optional companion to your Layora account, and it works only after you sign in on this site and press Connect on the Extension page.
+              The <strong className="text-white">Layora Quick Access</strong> browser extension for Chrome, Edge, Brave and Firefox is covered by this same policy. It is an optional companion to your Club Crumbs account, and it works only after you sign in on this site and press Connect on the Extension page.
             </p>
             <ul className="list-disc pl-5 space-y-2 text-white/70">
               <li>
                 <strong className="text-white">What it reads:</strong> only your own account name and email address, your saved quick launchers, and your course list with their platform and progress. It requests nothing else.
               </li>
               <li>
-                <strong className="text-white">What it never reads:</strong> your browsing history, your open tabs, or the content of any page you visit. The extension runs a script on exactly one page &mdash; Layora&apos;s own Extension page &mdash; and that script does nothing but pass the pairing token to the extension.
+                <strong className="text-white">What it never reads:</strong> your browsing history, your open tabs, or the content of any page you visit. The extension runs a script on exactly one page &mdash; Club Crumbs&apos;s own Extension page &mdash; and that script does nothing but pass the pairing token to the extension.
               </li>
               <li>
-                <strong className="text-white">Where it sends data:</strong> only to Layora at <span className="text-white/90">layora239.vercel.app</span>. It contacts no analytics service, no advertiser, and no other third party.
+                <strong className="text-white">Where it sends data:</strong> only to Club Crumbs at <span className="text-white/90">layora239.vercel.app</span>. It contacts no analytics service, no advertiser, and no other third party.
               </li>
               <li>
                 <strong className="text-white">What it stores on your device:</strong> a pairing token and a cached copy of your own launchers and courses, kept in the browser&apos;s local extension storage so the popup opens instantly. Uninstalling the extension deletes both.

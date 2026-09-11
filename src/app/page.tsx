@@ -5,13 +5,21 @@ import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@clerk/nextjs';
 import {
   ArrowRight, ArrowDown, ShieldCheck, Award, Terminal,
-  FolderLock, Globe, BookMarked, Smartphone, Check,
+  FolderLock, Globe, BookMarked, Smartphone, Check, Rocket,
 } from 'lucide-react';
 import {
   motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion,
 } from 'framer-motion';
 
 import LayoraMark from '@/components/LayoraMark';
+import { CLUB_META, COHORTS, type Cohort } from '@/lib/cohorts';
+
+/** Which lucide glyph fronts each club card. */
+const CLUB_ICON: Record<Cohort, typeof Terminal> = {
+  'Coders Club': Terminal,
+  Cryptona: ShieldCheck,
+  DevStudio: Rocket,
+};
 
 /* ────────────────────────────────────────────────────────────────
    One feature per screen.
@@ -40,7 +48,7 @@ const STEPS = [
   {
     label: 'Browser extension',
     title: 'Your links and courses, from any tab.',
-    body: 'Published on the Firefox Add-ons site. Pin it once and your quick launchers and course list are a click away without opening the dashboard — and a link you add from the popup shows up in Layora too.',
+    body: 'Published on the Firefox Add-ons site. Pin it once and your quick launchers and course list are a click away without opening the dashboard — and a link you add from the popup shows up in Club Crumbs too.',
     src: '/images/landing/extension.webp',
     alt: 'The Layora extension popup, twice: the quick launcher grid with LeetCode, GitHub, NPTEL, Drive, Classroom and CodeChef, and the courses tab with progress meters.',
     facts: ['One press to connect, no keys to paste', 'Opens the course itself, not a page about it', 'Firefox now, Chromium by hand'],
@@ -48,7 +56,7 @@ const STEPS = [
   {
     label: 'Weekly planner',
     title: 'The week builds itself around your classes.',
-    body: 'Add your subjects once — code, credits, how hard they are. Layora fills the gaps between lectures with focus sessions sized to your Pomodoro rhythm, and calls out any deadline it could not find time for.',
+    body: 'Add your subjects once — code, credits, how hard they are. Club Crumbs fills the gaps between lectures with focus sessions sized to your Pomodoro rhythm, and calls out any deadline it could not find time for.',
     src: '/images/landing/planner.webp',
     alt: 'The weekly planner with Friday selected: a Computer Networks revision block, a break, and two more study sessions.',
     facts: ['Sized to your focus timer', 'Reorder or delete any block', 'Regenerates when subjects change'],
@@ -56,7 +64,7 @@ const STEPS = [
   {
     label: 'Google Calendar',
     title: 'It lands in the calendar you already check.',
-    body: 'One button writes the week into Google Calendar in your own time zone. Change a block and sync again — Layora clears the copies it wrote before, so a fortnight of edits never becomes a fortnight of duplicates.',
+    body: 'One button writes the week into Google Calendar in your own time zone. Change a block and sync again — Club Crumbs clears the copies it wrote before, so a fortnight of edits never becomes a fortnight of duplicates.',
     src: '/images/landing/sync-detail.webp',
     alt: 'The planner action bar: planner alerts on, sync to Google Calendar, and wipe week from Google Calendar.',
     panel: 'calendar',
@@ -72,19 +80,19 @@ const STEPS = [
   },
   {
     label: 'Events',
-    title: 'Department notices and your own reminders, one calendar.',
-    body: 'Assessments, project reviews and placement drives are posted by the department to your year. Your own reminders sit on the same grid in a different colour, and repeat weekly if you tell them to.',
+    title: 'Club notices and your own reminders, one calendar.',
+    body: 'Meetups, workshops, project reviews and contests are posted by your club leads to your club. Your own reminders sit on the same grid in a different colour, and repeat weekly if you tell them to.',
     src: '/images/landing/events.webp',
-    alt: 'The events month grid for August with department events in amber and personal reminders in violet.',
-    facts: ['Posted to your year only', 'Daily, weekly or monthly repeats', 'Push notification on the day'],
+    alt: 'The events month grid for August with club events in amber and personal reminders in violet.',
+    facts: ['Posted to your club only', 'Daily, weekly or monthly repeats', 'Push notification on the day'],
   },
   {
     label: 'Leaderboard',
-    title: 'Your coding week, ranked inside your year.',
-    body: 'Connect LeetCode, GitHub and CodeChef. Every night at 10 PM Layora reads the public profiles, scores solves and contributions, and ranks you against your own year group — nobody else.',
+    title: 'Your coding week, ranked inside your club.',
+    body: 'Connect LeetCode, GitHub and CodeChef. Every night at 10 PM Club Crumbs reads the public profiles, scores solves and contributions, and ranks you against your own club — nobody else.',
     src: '/images/landing/leaderboard.webp',
-    alt: 'The third-year scoreboard with points for today, the last seven days and the last thirty days, above a ranked table.',
-    facts: ['Synced nightly at 22:00 IST', 'Public profile data only', 'Ranked within your year'],
+    alt: 'The club scoreboard with points for today, the last seven days and the last thirty days, above a ranked table.',
+    facts: ['Synced nightly at 22:00 IST', 'Public profile data only', 'Ranked within your club'],
   },
 ] as const;
 
@@ -117,10 +125,10 @@ const GALLERY: {
   },
   {
     icon: Globe, label: 'Shared library',
-    title: 'What your year has already found',
-    body: 'Question papers and cheat sheets uploaded by classmates, with the uploader on every row.',
+    title: 'What your club has already found',
+    body: 'Notes, cheat sheets and write-ups uploaded by clubmates, with the uploader on every row.',
     src: '/images/landing/shared.webp',
-    alt: 'The shared library listing question papers uploaded by classmates.',
+    alt: 'The shared library listing resources uploaded by clubmates.',
   },
 ];
 
@@ -190,10 +198,11 @@ function Nav({ onSignIn }: { onSignIn: () => void }) {
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-5 sm:px-8">
         <a href="#top" className="flex items-center gap-2.5 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2E95FF]">
           <LayoraMark className="h-6 w-6" glyphClassName="text-[11px]" />
-          <span className="font-jetbrains text-[13px] font-bold tracking-[0.18em] text-white">LAYORA</span>
+          <span className="font-jetbrains text-[13px] font-bold tracking-[0.18em] text-white">CLUB CRUMBS</span>
         </a>
 
         <nav className="hidden items-center gap-8 font-jetbrains text-[11px] uppercase tracking-[0.15em] text-white/45 md:flex">
+          <a href="#clubs" className="transition hover:text-white">Clubs</a>
           <a href="#features" className="transition hover:text-white">Features</a>
           <a href="#workspace" className="transition hover:text-white">Workspace</a>
           <a href="#access" className="transition hover:text-white">Access</a>
@@ -225,21 +234,21 @@ function Hero({ onSignIn }: { onSignIn: () => void }) {
     <section id="top" className="relative px-5 pt-28 sm:px-8 sm:pt-36">
       <div className="mx-auto max-w-7xl">
         <motion.div {...rise(0)}>
-          <Eyebrow>MITE · Dept. of Computer Science &amp; Engineering</Eyebrow>
+          <Eyebrow>MITE · Coders Club · Cryptona · DevStudio</Eyebrow>
         </motion.div>
 
         <motion.h1
           {...rise(0.08)}
           className="mt-6 max-w-4xl font-hanken text-[2.6rem] font-extrabold leading-[1.02] tracking-[-0.035em] text-white sm:text-6xl lg:text-[4.75rem]"
         >
-          Your semester, planned
-          <br className="hidden sm:block" /> down to the hour.
+          Three clubs.
+          <br className="hidden sm:block" /> One dashboard.
         </motion.h1>
 
         <motion.p {...rise(0.16)} className="mt-7 max-w-xl text-[15px] leading-relaxed text-white/55 sm:text-base">
-          Add your subjects once. Layora lays out the week around your classes, pushes it to
-          Google Calendar, and keeps every deadline, note and certificate where you can find
-          it at 2 AM the night before.
+          Club Crumbs is the shared home for MITE&rsquo;s tech clubs. Sign in with your college
+          account and land straight in your club&rsquo;s workspace — a live leaderboard from your
+          GitHub and LeetCode, a planner, your certificates and everything your club is working on.
         </motion.p>
 
         <motion.div {...rise(0.24)} className="mt-9 flex flex-wrap items-center gap-3">
@@ -260,7 +269,7 @@ function Hero({ onSignIn }: { onSignIn: () => void }) {
         </motion.div>
 
         <motion.p {...rise(0.3)} className="mt-6 font-jetbrains text-[11px] leading-relaxed tracking-wide text-white/35">
-          @mite.ac.in accounts on the CSE roster · 2nd, 3rd and 4th year
+          @mite.ac.in accounts on a club roster · Coders Club · Cryptona · DevStudio
         </motion.p>
 
         {/* The screenshot is cropped at the fold on purpose: the workspace
@@ -280,14 +289,14 @@ function Hero({ onSignIn }: { onSignIn: () => void }) {
                 the detail stays legible and the frame keeps its scale. */}
             <img
               src="/images/landing/overview.webp"
-              alt="The Layora dashboard: today's schedule, active courses with progress meters, and quick launchers."
+              alt="The Club Crumbs dashboard: today's schedule, active courses with progress meters, and quick launchers."
               width={1680}
               height={880}
               decoding="async"
               className="w-[190%] max-w-none sm:w-full"
             />
           </div>
-          <figcaption className="sr-only">The Layora dashboard for a third-year student.</figcaption>
+          <figcaption className="sr-only">The Club Crumbs dashboard for a club member.</figcaption>
         </motion.figure>
       </div>
 
@@ -296,7 +305,7 @@ function Hero({ onSignIn }: { onSignIn: () => void }) {
         <dl className="grid grid-cols-2 gap-y-7 font-jetbrains text-[11px] lg:grid-cols-4">
           {[
             ['Sync target', 'Google Calendar'],
-            ['Ranked against', 'Your year group'],
+            ['Ranked against', 'Your club'],
             ['Files live in', 'Your own Drive'],
             ['Email sent to you', 'None, ever'],
           ].map(([k, v]) => (
@@ -306,6 +315,59 @@ function Hero({ onSignIn }: { onSignIn: () => void }) {
             </div>
           ))}
         </dl>
+      </div>
+    </section>
+  );
+}
+
+/* ── The three clubs ──────────────────────────────────────────── */
+
+function Clubs() {
+  const reduce = useReducedMotion();
+  return (
+    <section id="clubs" className="px-5 pt-24 sm:px-8 sm:pt-32">
+      <div className="mx-auto max-w-7xl">
+        <Eyebrow tone="violet">Who it is for</Eyebrow>
+        <h2 className="mt-5 max-w-2xl font-hanken text-3xl font-extrabold leading-[1.1] tracking-[-0.03em] text-white sm:text-[2.6rem]">
+          One roof for three clubs.
+        </h2>
+        <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/55">
+          You are added to exactly one club. Your leaderboard, shared library and events are all
+          scoped to it — you see your club and no one else&rsquo;s.
+        </p>
+
+        <div className="mt-14 grid gap-5 md:grid-cols-3">
+          {COHORTS.map((club, i) => {
+            const meta = CLUB_META[club];
+            const Icon = CLUB_ICON[club];
+            return (
+              <motion.article
+                key={club}
+                initial={{ opacity: 0, y: reduce ? 0 : 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-12%' }}
+                transition={{ duration: 0.6, delay: reduce ? 0 : i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] p-7 transition-colors hover:border-white/20"
+                style={{ background: SLAB }}
+              >
+                {/* A thin accent bar in the club's colour, so the three cards
+                    read as three identities at a glance. */}
+                <span className="absolute inset-x-0 top-0 h-[3px]" style={{ background: meta.accent }} aria-hidden />
+                <div
+                  className="flex h-11 w-11 items-center justify-center rounded-xl"
+                  style={{ background: `${meta.accent}1F`, color: meta.accent }}
+                >
+                  <Icon className="h-5 w-5" strokeWidth={1.9} />
+                </div>
+                <h3 className="mt-5 font-hanken text-xl font-bold tracking-[-0.02em] text-white">{club}</h3>
+                <p className="mt-1 font-jetbrains text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: meta.accent }}>
+                  {meta.tagline}
+                </p>
+                <p className="mt-3.5 text-sm leading-relaxed text-white/55">{meta.blurb}</p>
+              </motion.article>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
@@ -563,13 +625,13 @@ function Gallery() {
                 Add it to your home screen and reminders arrive like any other app.
               </h3>
               <p className="mt-2.5 max-w-md text-sm leading-relaxed text-white/50">
-                Layora installs as a web app, so a block starting in ten minutes shows up as a
+                Club Crumbs installs as a web app, so a block starting in ten minutes shows up as a
                 notification on the phone in your pocket — no email, no inbox rules.
               </p>
             </div>
             <div className="flex justify-center gap-5">
               {[
-                ['/images/landing/phone-overview.webp', 'The Layora dashboard on a phone screen.'],
+                ['/images/landing/phone-overview.webp', 'The Club Crumbs dashboard on a phone screen.'],
                 ['/images/landing/phone-zen.webp', 'Zen mode on a phone: a large focus countdown on black.'],
               ].map(([src, alt]) => (
                 <img
@@ -600,12 +662,12 @@ function Access({ onSignIn }: { onSignIn: () => void }) {
           <div>
             <Eyebrow tone="brass">Who gets in</Eyebrow>
             <h2 className="mt-5 font-hanken text-3xl font-extrabold leading-[1.1] tracking-[-0.03em] text-white sm:text-[2.6rem]">
-              A closed workspace for one department.
+              A closed workspace for club members.
             </h2>
             <p className="mt-5 text-[15px] leading-relaxed text-white/55">
-              Layora is not open to the internet. Your lecturer keeps the roster, and only the
-              addresses on it can sign in — checked before a single page of the workspace is sent
-              to your browser.
+              Club Crumbs is not open to the internet. Each club lead keeps their roster, and only
+              the addresses on it can sign in — checked before a single page of the workspace is
+              sent to your browser.
             </p>
             <button
               onClick={onSignIn}
@@ -619,8 +681,8 @@ function Access({ onSignIn }: { onSignIn: () => void }) {
           <div className="space-y-px overflow-hidden rounded-2xl border border-white/[0.08]" style={{ background: SLAB }}>
             {[
               ['01', 'Your college account', 'Sign in with the @mite.ac.in Google account the college issued you. There is no password to make and no other way in.'],
-              ['02', 'Your year, from the roster', 'The roster decides whether you are 2nd, 3rd or 4th year. That is what the scoreboard, the shared library and department events are scoped to.'],
-              ['03', 'Not on it yet?', 'Ask your lecturer to add your address. Until then the workspace answers with a page that tells you exactly that.'],
+              ['02', 'Your club, from the roster', 'The roster decides whether you are in Coders Club, Cryptona or DevStudio. That is what the scoreboard, the shared library and club events are scoped to.'],
+              ['03', 'Not on it yet?', 'Ask your club lead to add your address. Until then the workspace answers with a page that tells you exactly that.'],
             ].map(([n, t, b]) => (
               <div key={n} className="flex gap-6 border-b border-white/[0.06] p-7 last:border-b-0">
                 <span className="font-jetbrains text-[11px] font-bold tabular-nums text-[#E0A93B]">{n}</span>
@@ -648,13 +710,13 @@ function Access({ onSignIn }: { onSignIn: () => void }) {
               <code className="mt-3 block select-all break-all rounded-lg border border-white/10 bg-black p-3 font-jetbrains text-[11px] text-[#2E95FF]">
                 https://www.googleapis.com/auth/calendar.events
               </code>
-              <p className="mt-3 text-xs leading-relaxed text-white/40">Sensitive scope · create and remove the events Layora itself wrote.</p>
+              <p className="mt-3 text-xs leading-relaxed text-white/40">Sensitive scope · create and remove the events Club Crumbs itself wrote.</p>
             </div>
             <div>
               <h4 className="font-jetbrains text-[10px] font-bold uppercase tracking-[0.18em] text-white/40">What it is used for</h4>
               <p className="mt-3 text-xs leading-relaxed text-white/55">
                 Writing your timetable blocks and course deadlines into your calendar, and deleting
-                those same events when you re-sync or wipe a week. Layora&rsquo;s use of information
+                those same events when you re-sync or wipe a week. Club Crumbs&rsquo;s use of information
                 received from Google APIs adheres to the{' '}
                 <span className="text-white/80">Google API Services User Data Policy</span>, including
                 the Limited Use requirements.
@@ -665,7 +727,7 @@ function Access({ onSignIn }: { onSignIn: () => void }) {
               <p className="mt-3 text-xs leading-relaxed text-white/55">
                 It does not read your existing events, does not store your calendar on our servers,
                 and does not sell, rent or transfer your Google user data to anyone. Files you upload
-                go to your own Drive — Layora keeps the link, not the file.
+                go to your own Drive — Club Crumbs keeps the link, not the file.
               </p>
             </div>
           </div>
@@ -685,10 +747,10 @@ function Footer() {
           <div>
             <div className="flex items-center gap-2.5">
               <LayoraMark className="h-6 w-6" glyphClassName="text-[11px]" />
-              <span className="font-jetbrains text-[13px] font-bold tracking-[0.18em] text-white">LAYORA</span>
+              <span className="font-jetbrains text-[13px] font-bold tracking-[0.18em] text-white">CLUB CRUMBS</span>
             </div>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/40">
-              Built for the CSE department at Mangalore Institute of Technology &amp; Engineering.
+              Built for the tech clubs of Mangalore Institute of Technology &amp; Engineering.
             </p>
           </div>
 
@@ -751,12 +813,13 @@ export default function RootPage() {
         <style>{`body { overflow-x: clip; }`}</style>
         <Nav onSignIn={goToLogin} />
         <Hero onSignIn={goToLogin} />
+        <Clubs />
 
-        <section id="features" className="px-5 pb-6 pt-28 sm:px-8 sm:pt-36">
+        <section id="features" className="px-5 pb-6 pt-24 sm:px-8 sm:pt-32">
           <div className="mx-auto max-w-7xl">
             <Eyebrow>Inside the workspace</Eyebrow>
             <h2 className="mt-5 max-w-2xl font-hanken text-3xl font-extrabold leading-[1.1] tracking-[-0.03em] text-white sm:text-[2.6rem]">
-              Six features, one screen at a time.
+              What every club member gets.
             </h2>
           </div>
         </section>
@@ -779,10 +842,10 @@ export default function RootPage() {
           transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
           className="flex h-14 w-14 items-center justify-center rounded-[22%] bg-[#C56BF5]"
         >
-          <span className="text-2xl font-bold tracking-tighter text-white">L</span>
+          <span className="text-2xl font-bold tracking-tighter text-white">C</span>
         </motion.div>
         <div className="text-center">
-          <h1 className="font-jetbrains text-lg font-bold tracking-[0.2em] text-white">LAYORA</h1>
+          <h1 className="font-jetbrains text-lg font-bold tracking-[0.2em] text-white">CLUB CRUMBS</h1>
           <p className="mt-2 font-jetbrains text-[11px] uppercase tracking-[0.18em] text-white/35">Opening your workspace</p>
         </div>
       </div>

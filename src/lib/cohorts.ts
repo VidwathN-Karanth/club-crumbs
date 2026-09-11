@@ -1,13 +1,17 @@
 /**
- * Cohort vocabulary shared by the browser and the server.
+ * Club vocabulary shared by the browser and the server.
  *
  * This file deliberately holds NO email addresses — it is safe to import from
  * client components. The roster itself lives in `roster.ts`, which is
  * server-only so that student email addresses never reach the JS bundle.
+ *
+ * NOTE ON NAMING: the internal identifiers still read `cohort` / `Cohort` for
+ * historical reasons (Club Crumbs grew out of a year-cohort app). A "cohort"
+ * here means one of the three clubs below — nothing to do with academic year.
  */
 
-/** The CSE department runs from 2nd year onward, so there is no 1st-year cohort. */
-export const COHORTS = ['2nd Year', '3rd Year', '4th Year'] as const;
+/** The three clubs a student can belong to. Exactly one club per student. */
+export const COHORTS = ['Coders Club', 'Cryptona', 'DevStudio'] as const;
 
 export type Cohort = (typeof COHORTS)[number];
 
@@ -15,15 +19,40 @@ export type Cohort = (typeof COHORTS)[number];
 export const COLLEGE_EMAIL_DOMAIN = 'mite.ac.in';
 
 /**
- * Shared-resource tag meaning "every year should see this" — department
- * handbooks, exam calendars, and the like.
+ * Shared-resource tag meaning "every club should see this" — general
+ * handbooks, cross-club announcements, and the like.
  */
 export const SHARED_RESOURCE_TAG = 'Others';
 
-/** Every tag a shared resource may carry: one per cohort, plus the shared shelf. */
+/** Every tag a shared resource may carry: one per club, plus the shared shelf. */
 export const RESOURCE_TAGS = [...COHORTS, SHARED_RESOURCE_TAG] as const;
 
 export type ResourceTag = Cohort | typeof SHARED_RESOURCE_TAG;
+
+/**
+ * Presentation-only metadata for each club — a one-line blurb and an accent
+ * colour. Used by the landing page and the dashboard club badge. Safe for the
+ * browser; contains no roster data.
+ *
+ * The blurbs are sensible placeholders — a club lead can reword them freely.
+ */
+export const CLUB_META: Record<Cohort, { tagline: string; blurb: string; accent: string }> = {
+  'Coders Club': {
+    tagline: 'Competitive programming & DSA',
+    blurb: 'Daily problem solving, contest prep and a leaderboard that rewards the grind — LeetCode and CodeChef streaks made visible.',
+    accent: '#2E95FF',
+  },
+  Cryptona: {
+    tagline: 'Cybersecurity & CTF',
+    blurb: 'Capture-the-flag practice, security reading groups and write-ups, for the people who like to break things to understand them.',
+    accent: '#C56BF5',
+  },
+  DevStudio: {
+    tagline: 'Building & shipping projects',
+    blurb: 'Ship real things — web, apps and open source. Track GitHub contributions and turn side projects into a portfolio.',
+    accent: '#E0A93B',
+  },
+};
 
 export function normalizeEmail(email: string | null | undefined): string {
   return (email || '').trim().toLowerCase();
@@ -34,12 +63,12 @@ export function isCohort(value: unknown): value is Cohort {
 }
 
 /**
- * Coerces a stored `year` value into a tag we still recognise.
+ * Coerces a stored tag value into a tag we still recognise.
  *
- * Resources uploaded before cohort isolation carry free-form tags, including
- * the retired '1st Year'. Folding anything unrecognised into the shared shelf
- * keeps those uploads visible instead of orphaning them behind a tag no
- * student can ever match.
+ * Resources uploaded before the move to clubs carry free-form tags, including
+ * the retired year labels ('2nd Year', etc.). Folding anything unrecognised
+ * into the shared shelf keeps those uploads visible instead of orphaning them
+ * behind a tag no student can ever match.
  */
 export function resolveResourceTag(year: unknown): ResourceTag {
   return isCohort(year) ? year : SHARED_RESOURCE_TAG;
@@ -66,9 +95,10 @@ export function normalizeResourceName(name: string): string {
 /**
  * Whether two resource tags ever appear in the same list.
  *
- * Two years never see each other, so 2nd Year and 3rd Year may each hold their
- * own "Unit 1 Notes" without confusing anyone. The shared shelf is different:
- * it shows up in every cohort's library, so it collides with all of them.
+ * Two clubs never see each other, so Coders Club and Cryptona may each hold
+ * their own "Unit 1 Notes" without confusing anyone. The shared shelf is
+ * different: it shows up in every club's library, so it collides with all of
+ * them.
  */
 export function resourceTagsOverlap(a: unknown, b: unknown): boolean {
   const left = resolveResourceTag(a);
@@ -96,7 +126,7 @@ export function findResourceNameClash<T extends { name: string; year?: unknown }
   );
 }
 
-/** "2nd Year" → "2nd Yr", for tight spaces like table headers and chips. */
+/** "Coders Club" → "Coders", for tight spaces like table headers and chips. */
 export function shortCohortLabel(cohort: Cohort): string {
-  return cohort.replace('Year', 'Yr');
+  return cohort.replace(/\s+Club$/, '');
 }
