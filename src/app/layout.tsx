@@ -36,7 +36,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Club Crumbs — MITE Club Dashboard",
-  description: "A unified dashboard for MITE's tech clubs — Coders Club, Cryptona and DevStudio: activity tracking, leaderboards, certificates and more.",
+  description: "A unified dashboard for MITE's tech clubs — Coders Club, Crypton Club and DevStudio: activity tracking, leaderboards, certificates and more.",
   // The manifest is what lets a phone install Club Crumbs to the Home Screen,
   // which on iOS is the only way the Notification API exists at all.
   manifest: "/manifest.webmanifest",

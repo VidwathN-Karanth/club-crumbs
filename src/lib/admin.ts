@@ -21,7 +21,8 @@ import 'server-only';
 export const ADMIN_EMAILS = [
   'vidwathkaranth@gmail.com',
   'shreejith@mite.ac.in',
-  'ravinarayana@mite.ac.in'
+  'ravinarayana@mite.ac.in',
+  'vidhithpai@gmail.com'
 ];
 
 export function isAdminEmail(email: string | null | undefined): boolean {

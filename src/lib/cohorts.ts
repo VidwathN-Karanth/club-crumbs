@@ -11,7 +11,7 @@
  */
 
 /** The three clubs a student can belong to. Exactly one club per student. */
-export const COHORTS = ['Coders Club', 'Cryptona', 'DevStudio'] as const;
+export const COHORTS = ['Coders Club', 'Crypton Club', 'DevStudio'] as const;
 
 export type Cohort = (typeof COHORTS)[number];
 
@@ -42,7 +42,7 @@ export const CLUB_META: Record<Cohort, { tagline: string; blurb: string; accent:
     blurb: 'Daily problem solving, contest prep and a leaderboard that rewards the grind — LeetCode and CodeChef streaks made visible.',
     accent: '#2E95FF',
   },
-  Cryptona: {
+  'Crypton Club': {
     tagline: 'Cybersecurity & CTF',
     blurb: 'Capture-the-flag practice, security reading groups and write-ups, for the people who like to break things to understand them.',
     accent: '#C56BF5',
@@ -95,7 +95,7 @@ export function normalizeResourceName(name: string): string {
 /**
  * Whether two resource tags ever appear in the same list.
  *
- * Two clubs never see each other, so Coders Club and Cryptona may each hold
+ * Two clubs never see each other, so Coders Club and Crypton Club may each hold
  * their own "Unit 1 Notes" without confusing anyone. The shared shelf is
  * different: it shows up in every club's library, so it collides with all of
  * them.

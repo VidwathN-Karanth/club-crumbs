@@ -17,7 +17,7 @@ import { CLUB_META, COHORTS, type Cohort } from '@/lib/cohorts';
 /** Which lucide glyph fronts each club card. */
 const CLUB_ICON: Record<Cohort, typeof Terminal> = {
   'Coders Club': Terminal,
-  Cryptona: ShieldCheck,
+  'Crypton Club': ShieldCheck,
   DevStudio: Rocket,
 };
 
@@ -234,7 +234,7 @@ function Hero({ onSignIn }: { onSignIn: () => void }) {
     <section id="top" className="relative px-5 pt-28 sm:px-8 sm:pt-36">
       <div className="mx-auto max-w-7xl">
         <motion.div {...rise(0)}>
-          <Eyebrow>MITE · Coders Club · Cryptona · DevStudio</Eyebrow>
+          <Eyebrow>MITE · Coders Club · Crypton Club · DevStudio</Eyebrow>
         </motion.div>
 
         <motion.h1
@@ -269,7 +269,7 @@ function Hero({ onSignIn }: { onSignIn: () => void }) {
         </motion.div>
 
         <motion.p {...rise(0.3)} className="mt-6 font-jetbrains text-[11px] leading-relaxed tracking-wide text-white/35">
-          @mite.ac.in accounts on a club roster · Coders Club · Cryptona · DevStudio
+          @mite.ac.in accounts on a club roster · Coders Club · Crypton Club · DevStudio
         </motion.p>
 
         {/* The screenshot is cropped at the fold on purpose: the workspace
@@ -681,7 +681,7 @@ function Access({ onSignIn }: { onSignIn: () => void }) {
           <div className="space-y-px overflow-hidden rounded-2xl border border-white/[0.08]" style={{ background: SLAB }}>
             {[
               ['01', 'Your college account', 'Sign in with the @mite.ac.in Google account the college issued you. There is no password to make and no other way in.'],
-              ['02', 'Your club, from the roster', 'The roster decides whether you are in Coders Club, Cryptona or DevStudio. That is what the scoreboard, the shared library and club events are scoped to.'],
+              ['02', 'Your club, from the roster', 'The roster decides whether you are in Coders Club, Crypton Club or DevStudio. That is what the scoreboard, the shared library and club events are scoped to.'],
               ['03', 'Not on it yet?', 'Ask your club lead to add your address. Until then the workspace answers with a page that tells you exactly that.'],
             ].map(([n, t, b]) => (
               <div key={n} className="flex gap-6 border-b border-white/[0.06] p-7 last:border-b-0">

@@ -45,15 +45,15 @@ import {
  */
 export const COHORT_ROSTER: Record<Cohort, string[]> = {
   "Coders Club": [
-    "4mt24cs239@mite.ac.in",
     "4mt24cs130@mite.ac.in",
     "4mt24cs140@mite.ac.in",
     "4mt24cs076@mite.ac.in",
     "4mt24cs077@mite.ac.in",
   ],
 
-  Cryptona: [
-    // e.g. '4mt24cs001@mite.ac.in',
+  "Crypton Club": [
+    "4mt24cs239@mite.ac.in",
+    "4mt23cs249@mite.ac.in",
   ],
 
   DevStudio: [
@@ -134,7 +134,7 @@ export function emailsForCohort(cohort: Cohort): string[] {
 export function rosterCounts(): Record<Cohort, number> {
   return {
     "Coders Club": emailsForCohort("Coders Club").length,
-    Cryptona: emailsForCohort("Cryptona").length,
+    "Crypton Club": emailsForCohort("Crypton Club").length,
     DevStudio: emailsForCohort("DevStudio").length,
   };
 }

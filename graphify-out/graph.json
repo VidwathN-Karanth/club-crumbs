@@ -4328,7 +4328,7 @@
       "file_type": "code",
       "norm_label": "isadminemail()",
       "source_file": "src/lib/admin.ts",
-      "source_location": "L27"
+      "source_location": "L28"
     },
     {
       "id": "src_lib_authz_getrequester",
@@ -6788,7 +6788,7 @@
       "file_type": "code",
       "norm_label": "public.admin_logs",
       "source_file": "supabase/schema.sql",
-      "source_location": "L166"
+      "source_location": "L176"
     },
     {
       "id": "supabase_schema_public_certificates",
@@ -6799,7 +6799,7 @@
       "file_type": "code",
       "norm_label": "public.certificates",
       "source_file": "supabase/schema.sql",
-      "source_location": "L119"
+      "source_location": "L129"
     },
     {
       "id": "supabase_schema_public_daily_activities",
@@ -6810,7 +6810,7 @@
       "file_type": "code",
       "norm_label": "public.daily_activities",
       "source_file": "supabase/schema.sql",
-      "source_location": "L45"
+      "source_location": "L52"
     },
     {
       "id": "supabase_schema_public_events",
@@ -6821,7 +6821,7 @@
       "file_type": "code",
       "norm_label": "public.events",
       "source_file": "supabase/schema.sql",
-      "source_location": "L139"
+      "source_location": "L149"
     },
     {
       "id": "supabase_schema_public_extension_tokens",
@@ -6832,7 +6832,7 @@
       "file_type": "code",
       "norm_label": "public.extension_tokens",
       "source_file": "supabase/schema.sql",
-      "source_location": "L231"
+      "source_location": "L241"
     },
     {
       "id": "supabase_schema_public_leaderboard_activity_totals",
@@ -6843,7 +6843,7 @@
       "file_type": "code",
       "norm_label": "public.leaderboard_activity_totals()",
       "source_file": "supabase/schema.sql",
-      "source_location": "L78"
+      "source_location": "L88"
     },
     {
       "id": "supabase_schema_public_user_states",
@@ -27871,7 +27871,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/admin.ts",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -30676,7 +30676,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "supabase/schema.sql",
-      "source_location": "L119",
+      "source_location": "L129",
       "weight": 1.0
     },
     {
@@ -30687,7 +30687,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "supabase/schema.sql",
-      "source_location": "L139",
+      "source_location": "L149",
       "weight": 1.0
     },
     {
@@ -30698,7 +30698,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "supabase/schema.sql",
-      "source_location": "L166",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -30709,7 +30709,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "supabase/schema.sql",
-      "source_location": "L231",
+      "source_location": "L241",
       "weight": 1.0
     },
     {
@@ -30731,7 +30731,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "supabase/schema.sql",
-      "source_location": "L45",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -30753,7 +30753,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "supabase/schema.sql",
-      "source_location": "L78",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
@@ -31292,7 +31292,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "supabase/schema.sql",
-      "source_location": "L101",
+      "source_location": "L111",
       "weight": 1.0
     },
     {
@@ -31303,7 +31303,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "supabase/schema.sql",
-      "source_location": "L119",
+      "source_location": "L129",
       "weight": 1.0
     },
     {
@@ -31314,7 +31314,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "supabase/schema.sql",
-      "source_location": "L45",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -31325,7 +31325,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "supabase/schema.sql",
-      "source_location": "L45",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -33930,5 +33930,5 @@
       "source_file": "public/images/landing/planner.webp"
     }
   ],
-  "built_at_commit": "bb5274ce5822029abb0b3cd0d35c4033ef806ede"
+  "built_at_commit": "2305edb6b4f76d062b76ebf9d2bcacb7a15676b6"
 }
