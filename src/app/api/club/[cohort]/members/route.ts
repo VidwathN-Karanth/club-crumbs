@@ -5,6 +5,7 @@ import { addGrant, memberEmailsForCohort, removeGrant } from '@/lib/accessGrants
 import { purgeMemberByEmail } from '@/lib/purge';
 import { isCollegeEmail } from '@/lib/roster';
 import { isCohort, normalizeEmail, type Cohort } from '@/lib/cohorts';
+import { collectEmails } from '@/lib/emails';
 import { AdminLog } from '@/lib/models/AdminLog';
 
 /**
@@ -84,7 +85,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ coho
   }
 }
 
-/** POST — add a member by email. */
+/**
+ * POST — add one or many members.
+ *
+ * Accepts `{ email }` (one) or `{ emails: [...] }` (bulk paste). Every address
+ * is validated on its own, so one bad entry in a pasted block does not sink the
+ * rest: the response reports what was added and what was skipped and why.
+ */
 export async function POST(request: Request, { params }: { params: Promise<{ cohort: string }> }) {
   const cohort = await resolveCohort(params);
   if (!cohort) return NextResponse.json({ error: 'Unknown club.' }, { status: 400 });
@@ -93,28 +100,38 @@ export async function POST(request: Request, { params }: { params: Promise<{ coh
   if (!guard.ok) return guard.response;
 
   const body = await request.json().catch(() => ({}));
-  const email = normalizeEmail((body as { email?: string }).email);
-
-  if (!email) return NextResponse.json({ error: 'An email is required.' }, { status: 400 });
-  if (!isCollegeEmail(email)) {
-    return NextResponse.json({ error: 'Members must have an @mite.ac.in college address.' }, { status: 400 });
+  const list = collectEmails(body);
+  if (list.length === 0) {
+    return NextResponse.json({ error: 'At least one email is required.' }, { status: 400 });
   }
 
-  const result = await addGrant({ email, role: 'member', cohort }, guard.requester.email);
-  if (!result.ok) {
-    const status = result.error === 'staff_member_conflict' ? 409 : 400;
-    return NextResponse.json({ error: result.message }, { status });
+  const added: string[] = [];
+  const skipped: { email: string; reason: string }[] = [];
+
+  for (const email of list) {
+    if (!isCollegeEmail(email)) {
+      skipped.push({ email, reason: 'Not an @mite.ac.in address' });
+      continue;
+    }
+    const result = await addGrant({ email, role: 'member', cohort }, guard.requester.email);
+    if (result.ok) added.push(email);
+    else skipped.push({ email, reason: result.message || 'Could not add' });
   }
 
-  await AdminLog.record({
-    actor: guard.requester,
-    action: 'member.add',
-    summary: `Added ${email} to ${cohort}`,
-    target: email,
-    cohort,
-  });
+  if (added.length > 0) {
+    await AdminLog.record({
+      actor: guard.requester,
+      action: 'member.add',
+      summary:
+        added.length === 1
+          ? `Added ${added[0]} to ${cohort}`
+          : `Added ${added.length} members to ${cohort}`,
+      target: added.length === 1 ? added[0] : `${added.length} members`,
+      cohort,
+    });
+  }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, added, skipped });
 }
 
 /** DELETE — remove a member and purge all of their data. */

@@ -6,6 +6,7 @@ import { AlertTriangle, RefreshCw, Search, Trash2, UserPlus, Users } from 'lucid
 
 import { apiFetch, errorMessage, readJson } from '@/lib/apiClient';
 import { formatDateTime } from '@/lib/dateFormat';
+import { parseEmailList } from '@/lib/emails';
 import { useLeader } from '../LeaderContext';
 
 interface Member {
@@ -25,9 +26,10 @@ export default function LeaderMembersPage() {
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
 
-  const [newEmail, setNewEmail] = useState('');
+  const [newEmails, setNewEmails] = useState('');
   const [adding, setAdding] = useState(false);
-  const [addNote, setAddNote] = useState('');
+  const [addResult, setAddResult] = useState<{ added: string[]; skipped: { email: string; reason: string }[] } | null>(null);
+  const [addError, setAddError] = useState('');
 
   const [confirmRemove, setConfirmRemove] = useState<Member | null>(null);
   const [removing, setRemoving] = useState(false);
@@ -47,26 +49,33 @@ export default function LeaderMembersPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const addMember = async () => {
-    const email = newEmail.trim().toLowerCase();
-    if (!email) return;
+  const addMembers = async () => {
+    const emails = parseEmailList(newEmails);
+    if (emails.length === 0) return;
     setAdding(true);
-    setAddNote('');
+    setAddError('');
+    setAddResult(null);
     try {
-      await readJson(await apiFetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      }));
-      setNewEmail('');
-      setAddNote(`Added ${email}.`);
+      const res = await readJson<{ added: string[]; skipped: { email: string; reason: string }[] }>(
+        await apiFetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ emails }),
+        })
+      );
+      const result = { added: res.added ?? [], skipped: res.skipped ?? [] };
+      setAddResult(result);
+      // Leave only the failures in the box so they can be fixed and retried.
+      setNewEmails(result.skipped.map((s) => s.email).join('\n'));
       load();
     } catch (err) {
-      setAddNote(errorMessage(err, 'Could not add that member.'));
+      setAddError(errorMessage(err, 'Could not add those members.'));
     } finally {
       setAdding(false);
     }
   };
+
+  const parsedCount = parseEmailList(newEmails).length;
 
   const removeMember = async (member: Member) => {
     setRemoving(true);
@@ -121,25 +130,45 @@ export default function LeaderMembersPage() {
         </div>
       </div>
 
-      {/* Add member */}
-      <section className="glass-panel border border-white/10 rounded-2xl p-4">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <input
-            value={newEmail}
-            onChange={(e) => setNewEmail(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') addMember(); }}
-            placeholder="student@mite.ac.in"
-            className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/30"
-          />
+      {/* Add member(s) — bulk paste supported */}
+      <section className="glass-panel border border-white/10 rounded-2xl p-4 space-y-2">
+        <textarea
+          value={newEmails}
+          onChange={(e) => setNewEmails(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) addMembers(); }}
+          placeholder={'student@mite.ac.in\nPaste many at once — commas, spaces or new lines.'}
+          rows={2}
+          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/30 resize-y font-mono"
+        />
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-[10px] font-mono text-white/30">
+            {parsedCount > 0 ? `${parsedCount} email${parsedCount === 1 ? '' : 's'} ready · ⌘/Ctrl+Enter` : ''}
+          </span>
           <button
-            onClick={addMember}
-            disabled={adding || !newEmail.trim()}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 border border-white/15 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer disabled:opacity-40"
+            onClick={addMembers}
+            disabled={adding || parsedCount === 0}
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/15 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer disabled:opacity-40"
           >
-            <UserPlus className="w-4 h-4" /> Add member
+            <UserPlus className="w-4 h-4" /> {adding ? 'Adding…' : parsedCount > 1 ? `Add ${parsedCount}` : 'Add member'}
           </button>
         </div>
-        {addNote && <p className="mt-2 text-[11px] font-mono text-white/50">{addNote}</p>}
+        {addError && <p className="text-[11px] font-mono text-rose-300">{addError}</p>}
+        {addResult && (
+          <div className="text-[11px] font-mono space-y-1">
+            {addResult.added.length > 0 && <p className="text-emerald-400">Added {addResult.added.length}.</p>}
+            {addResult.skipped.length > 0 && (
+              <div className="text-amber-300">
+                <p>Skipped {addResult.skipped.length}:</p>
+                <ul className="mt-0.5 space-y-0.5 text-amber-300/80">
+                  {addResult.skipped.slice(0, 8).map((s) => (
+                    <li key={s.email} className="truncate">• {s.email} — {s.reason}</li>
+                  ))}
+                  {addResult.skipped.length > 8 && <li>• …and {addResult.skipped.length - 8} more</li>}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
       </section>
 
       {/* Roster */}

@@ -8,6 +8,7 @@ import {
 
 import { apiFetch, errorMessage, readJson } from '@/lib/apiClient';
 import { COHORTS, shortCohortLabel, type Cohort } from '@/lib/cohorts';
+import { parseEmailList } from '@/lib/emails';
 import { SectionHeader } from '../_components/PanelState';
 
 type Role = 'admin' | 'leader' | 'member';
@@ -24,46 +25,79 @@ interface PendingRemove {
   cohort: Cohort | null;
 }
 
-/** A one-field email adder used by every "add" control on this page. */
-function AddEmail({ placeholder, onAdd }: { placeholder: string; onAdd: (email: string) => Promise<void> }) {
-  const [email, setEmail] = useState('');
+interface AddResult { added: string[]; skipped: { email: string; reason: string }[] }
+
+/**
+ * A bulk email adder — paste one or many addresses (commas, spaces or new
+ * lines) and add them in one go. Reports how many landed and why any were
+ * skipped, so a bad line in a pasted block does not hide the rest.
+ */
+function AddEmails({ placeholder, onAdd }: { placeholder: string; onAdd: (emails: string[]) => Promise<AddResult> }) {
+  const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
-  const [note, setNote] = useState('');
+  const [result, setResult] = useState<AddResult | null>(null);
+  const [error, setError] = useState('');
+
+  const parsed = parseEmailList(text);
 
   const submit = async () => {
-    const value = email.trim().toLowerCase();
-    if (!value) return;
+    if (parsed.length === 0) return;
     setBusy(true);
-    setNote('');
+    setError('');
+    setResult(null);
     try {
-      await onAdd(value);
-      setEmail('');
+      const res = await onAdd(parsed);
+      setResult(res);
+      // Keep only the ones that failed, so the box shows what still needs fixing.
+      setText(res.skipped.map((s) => s.email).join('\n'));
     } catch (err) {
-      setNote(errorMessage(err, 'Could not add that.'));
+      setError(errorMessage(err, 'Could not add those.'));
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row gap-2">
-        <input
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') submit(); }}
-          placeholder={placeholder}
-          className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-cyber-blue"
-        />
+    <div className="space-y-2">
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) submit(); }}
+        placeholder={`${placeholder}\nPaste many at once — commas, spaces or new lines.`}
+        rows={2}
+        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-cyber-blue resize-y font-mono"
+      />
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-[10px] font-mono text-white/30">
+          {parsed.length > 0 ? `${parsed.length} email${parsed.length === 1 ? '' : 's'} ready · ⌘/Ctrl+Enter` : ''}
+        </span>
         <button
           onClick={submit}
-          disabled={busy || !email.trim()}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 border border-white/15 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer disabled:opacity-40"
+          disabled={busy || parsed.length === 0}
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/15 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer disabled:opacity-40"
         >
-          <UserPlus className="w-4 h-4" /> Add
+          <UserPlus className="w-4 h-4" /> {busy ? 'Adding…' : parsed.length > 1 ? `Add ${parsed.length}` : 'Add'}
         </button>
       </div>
-      {note && <p className="mt-2 text-[11px] font-mono text-rose-300">{note}</p>}
+      {error && <p className="text-[11px] font-mono text-rose-300">{error}</p>}
+      {result && (
+        <div className="text-[11px] font-mono space-y-1">
+          {result.added.length > 0 && (
+            <p className="text-emerald-400">Added {result.added.length}.</p>
+          )}
+          {result.skipped.length > 0 && (
+            <div className="text-amber-300">
+              <p>Skipped {result.skipped.length}:</p>
+              <ul className="mt-0.5 space-y-0.5 text-amber-300/80">
+                {result.skipped.slice(0, 8).map((s) => (
+                  <li key={s.email} className="truncate">• {s.email} — {s.reason}</li>
+                ))}
+                {result.skipped.length > 8 && <li>• …and {result.skipped.length - 8} more</li>}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -91,11 +125,12 @@ export default function AdminAccessPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const post = async (body: object) => {
-    await readJson(await apiFetch('/api/access/grants', {
+  const post = async (body: object): Promise<AddResult> => {
+    const res = await readJson<AddResult>(await apiFetch('/api/access/grants', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
     }));
     await load();
+    return { added: res.added ?? [], skipped: res.skipped ?? [] };
   };
 
   const patch = async (body: object) => {
@@ -184,7 +219,7 @@ export default function AdminAccessPage() {
             </div>
           ))}
         </div>
-        <AddEmail placeholder="new-admin@example.com" onAdd={(email) => post({ email, role: 'admin' })} />
+        <AddEmails placeholder="new-admin@example.com" onAdd={(emails) => post({ emails, role: 'admin' })} />
       </section>
 
       {/* --- Per-club leaders & members --- */}
@@ -240,7 +275,7 @@ export default function AdminAccessPage() {
               </div>
             ))}
           </div>
-          <AddEmail placeholder="lead@mite.ac.in" onAdd={(email) => post({ email, role: 'leader', cohort: club })} />
+          <AddEmails placeholder="lead@mite.ac.in" onAdd={(emails) => post({ emails, role: 'leader', cohort: club })} />
         </div>
 
         {/* Members */}
@@ -275,7 +310,7 @@ export default function AdminAccessPage() {
               </div>
             ))}
           </div>
-          <AddEmail placeholder="student@mite.ac.in" onAdd={(email) => post({ email, role: 'member', cohort: club })} />
+          <AddEmails placeholder="student@mite.ac.in" onAdd={(emails) => post({ emails, role: 'member', cohort: club })} />
         </div>
       </section>
 

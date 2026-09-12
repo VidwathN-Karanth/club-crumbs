@@ -27,22 +27,10 @@ insert into public.access_grants (email, role, cohort, granted_by) values
   ('shreejith@mite.ac.in',     'admin', null, 'seed')
 on conflict (email, role, cohort) do nothing;
 
--- ── Coders Club members ────────────────────────────────────────────────────
-insert into public.access_grants (email, role, cohort, granted_by) values
-  ('4mt24cs130@mite.ac.in', 'member', 'Coders Club', 'seed'),
-  ('4mt24cs140@mite.ac.in', 'member', 'Coders Club', 'seed'),
-  ('4mt24cs076@mite.ac.in', 'member', 'Coders Club', 'seed'),
-  ('4mt24cs077@mite.ac.in', 'member', 'Coders Club', 'seed')
-on conflict (email, role, cohort) do nothing;
-
--- ── Crypton Club members ───────────────────────────────────────────────────
-insert into public.access_grants (email, role, cohort, granted_by) values
-  ('4mt24cs239@mite.ac.in', 'member', 'Crypton Club', 'seed'),
-  ('4mt23cs249@mite.ac.in', 'member', 'Crypton Club', 'seed')
-on conflict (email, role, cohort) do nothing;
-
--- ── DevStudio members ──────────────────────────────────────────────────────
--- (none yet — add through the app)
+-- ── Leaders and members ────────────────────────────────────────────────────
+-- Intentionally empty. Add all leaders and members from the app — the admin's
+-- Access Management screen, or a leader's Members screen. Both accept a bulk
+-- paste of addresses (commas, spaces or new lines).
 
 -- Verify:
 --   select role, cohort, count(*) from public.access_grants group by 1, 2 order by 1, 2;
