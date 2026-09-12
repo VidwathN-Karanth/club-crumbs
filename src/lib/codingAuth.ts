@@ -2,7 +2,7 @@ import 'server-only';
 
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from './supabaseAdmin';
-import { requireClubManager, type Requester } from './authz';
+import { requireClubManager, requireStudent, type Requester } from './authz';
 import { isCohort, type Cohort } from './cohorts';
 
 /**
@@ -83,4 +83,45 @@ export async function guardProblem(
     data: data as ProblemRow,
     contest: contestGuard.data,
   };
+}
+
+/* ── Member (solver) guards ────────────────────────────────────────────────
+   A member may only see a PUBLISHED contest in their OWN club. The club comes
+   from the session, so a member cannot reach another club's contest by id. */
+
+type MemberOk<T> = { ok: true; requester: Requester & { cohort: Cohort }; data: T };
+
+/** Guards a published contest for a member of its club. */
+export async function guardMemberContest(contestId: string): Promise<MemberOk<ContestRow> | Err> {
+  const guard = await requireStudent();
+  if (!guard.ok) return { ok: false, response: guard.response };
+
+  const { data, error } = await supabaseAdmin
+    .from('coding_contests')
+    .select('*')
+    .eq('id', contestId)
+    .eq('status', 'published')
+    .maybeSingle();
+  if (error || !data) return notFound('Contest');
+
+  const contest = data as ContestRow;
+  if (contest.cohort !== guard.requester.cohort) return notFound('Contest');
+  return { ok: true, requester: guard.requester, data: contest };
+}
+
+/** Guards a problem for a member, via its published parent contest. */
+export async function guardMemberProblem(
+  problemId: string
+): Promise<(MemberOk<ProblemRow> & { contest: ContestRow }) | Err> {
+  const { data, error } = await supabaseAdmin
+    .from('coding_problems')
+    .select('*')
+    .eq('id', problemId)
+    .maybeSingle();
+  if (error || !data) return notFound('Problem');
+
+  const contestGuard = await guardMemberContest((data as ProblemRow).contest_id);
+  if (!contestGuard.ok) return contestGuard;
+
+  return { ok: true, requester: contestGuard.requester, data: data as ProblemRow, contest: contestGuard.data };
 }
