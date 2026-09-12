@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { supabaseAdmin } from './supabaseAdmin';
-import { ADMIN_EMAILS, ROOT_ADMIN, isRootAdmin } from './admin';
+import { ROOT_ADMIN, isRootAdmin } from './admin';
 import { COHORTS, isCohort, normalizeEmail, type Cohort } from './cohorts';
 
 /**
@@ -27,9 +27,10 @@ import { COHORTS, isCohort, normalizeEmail, type Cohort } from './cohorts';
  *   • a leader may create/remove member grants only for a club THEY lead
  *   • the root admin can never be demoted or removed
  *
- *  The in-code ROOT_ADMIN / ADMIN_EMAILS are folded in as a fallback so the app
- *  keeps working even before the seed migration runs and even if the database
- *  is briefly unreachable for the admin check.
+ *  ONLY the in-code ROOT_ADMIN is folded in as a fallback, so the app always
+ *  has one way in even before the seed migration runs or if the database is
+ *  briefly unreachable. Every other admin lives purely in the table and can be
+ *  added or removed from the console.
  * ============================================================================
  */
 
@@ -70,10 +71,16 @@ function coerceCohort(value: string | null): Cohort | null {
   return isCohort(value) ? value : null;
 }
 
-/** Fold the in-code admin fallback into a set of DB rows. */
+/**
+ * Fold the one permanent in-code admin into a set of DB rows.
+ *
+ * ONLY the root admin is hardcoded — every other admin lives in the database
+ * and can be added or removed from the console. This guarantees the app always
+ * has at least one way in even if the table is empty or unreachable, without
+ * making anyone else un-removable.
+ */
 function withCodeAdminFallback(email: string, grants: Grant[]): Grant[] {
-  const isCodeAdmin = isRootAdmin(email) || ADMIN_EMAILS.includes(email);
-  if (!isCodeAdmin) return grants;
+  if (!isRootAdmin(email)) return grants;
   if (grants.some((g) => g.role === 'admin')) return grants;
   return [{ email, role: 'admin', cohort: null }, ...grants];
 }
