@@ -1,7 +1,7 @@
 # Graph Report - club-crumbs  (2026-09-12)
 
 ## Corpus Check
-- 138 files · ~132,780 words
+- 138 files · ~132,799 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2708de0a`
+- Built from commit: `0093a614`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

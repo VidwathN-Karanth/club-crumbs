@@ -1768,7 +1768,7 @@
       "file_type": "code",
       "norm_label": "rootpage()",
       "source_file": "src/app/page.tsx",
-      "source_location": "L569"
+      "source_location": "L575"
     },
     {
       "id": "src_app_admin_admincontext_adminprovider",
@@ -31711,7 +31711,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/page.tsx",
-      "source_location": "L569",
+      "source_location": "L575",
       "weight": 1.0
     },
     {
@@ -36881,5 +36881,5 @@
       "source_file": "structure.md"
     }
   ],
-  "built_at_commit": "2708de0abff6c6c4bbfc18e25db170b0b0be5a14"
+  "built_at_commit": "0093a6149f3b9d8ee4d229159f02b2de7c2dd08b"
 }

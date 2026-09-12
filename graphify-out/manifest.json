@@ -342,8 +342,8 @@
     "semantic_hash": ""
   },
   "src/app/extension/page.tsx": {
-    "mtime": 1789206128.5653758,
-    "seen": 1789206637.178987,
+    "mtime": 1789224857.0010245,
+    "seen": 1789227123.8911693,
     "ast_hash": "e91e032587b2240454a3215679641361",
     "semantic_hash": ""
   },
@@ -372,14 +372,14 @@
     "semantic_hash": ""
   },
   "src/app/page.tsx": {
-    "mtime": 1789188251.8118474,
-    "seen": 1789188320.4786937,
-    "ast_hash": "bebc04c9b0409da2dcc15b9227a96c54",
+    "mtime": 1789226897.7679086,
+    "seen": 1789227123.8911748,
+    "ast_hash": "d728ab4aadb22ad2697b75a5b07b268f",
     "semantic_hash": ""
   },
   "src/app/privacy/page.tsx": {
-    "mtime": 1789206158.9507616,
-    "seen": 1789206637.179007,
+    "mtime": 1789224857.002026,
+    "seen": 1789227123.8911762,
     "ast_hash": "e962aa457ead9f29fbfca6b4259d5191",
     "semantic_hash": ""
   },
@@ -414,8 +414,8 @@
     "semantic_hash": ""
   },
   "src/components/ExtensionInstall.tsx": {
-    "mtime": 1789206151.658326,
-    "seen": 1789206637.1790257,
+    "mtime": 1789224857.002026,
+    "seen": 1789227123.8911815,
     "ast_hash": "3f93990cc66ff1b1e4c097c4c0f47ab5",
     "semantic_hash": ""
   },
@@ -450,8 +450,8 @@
     "semantic_hash": ""
   },
   "src/components/SyncProvider.tsx": {
-    "mtime": 1789206059.5805755,
-    "seen": 1789206637.1790545,
+    "mtime": 1789224857.004168,
+    "seen": 1789227123.8911903,
     "ast_hash": "49c2a15adcb2a332d5edacd03cac5d01",
     "semantic_hash": ""
   },
@@ -816,8 +816,8 @@
     "semantic_hash": ""
   },
   "src/components/ExtensionPrompt.tsx": {
-    "mtime": 1789206140.4070785,
-    "seen": 1789206637.1790323,
+    "mtime": 1789224857.0030253,
+    "seen": 1789227123.8911836,
     "ast_hash": "ca14a78e2bd86d576496e5a2db4e51e8",
     "semantic_hash": ""
   },
