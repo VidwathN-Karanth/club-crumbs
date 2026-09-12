@@ -20,11 +20,11 @@ const CLUB_ICON: Record<Cohort, typeof Terminal> = {
   DevStudio: Rocket,
 };
 
-/** Where each club card leads. `external` opens in a new tab. */
-const CLUB_LINK: Record<Cohort, { href: string; external: boolean }> = {
-  'Coders Club': { href: '/clubs/coders-club', external: false },
-  'Crypton Club': { href: 'http://13.53.129.210/', external: true },
-  DevStudio: { href: '/clubs/dev-studio', external: false },
+/** Where each club card leads. `external` opens in a new tab; `download` saves a file. */
+const CLUB_LINK: Record<Cohort, { href: string; external?: boolean; download?: string; cta: string }> = {
+  'Coders Club': { href: '/clubs/coders-club', cta: 'Enter' },
+  'Crypton Club': { href: 'https://club-crumbs.vercel.app/#clubs', cta: 'Explore' },
+  DevStudio: { href: '/dev-studio.pdf', download: 'DevStudio.pdf', cta: 'Download deck' },
 };
 
 /* ────────────────────────────────────────────────────────────────
@@ -253,6 +253,7 @@ function Clubs() {
                 href={link.href}
                 target={link.external ? '_blank' : undefined}
                 rel={link.external ? 'noopener noreferrer' : undefined}
+                download={link.download}
                 initial={{ opacity: 0, y: reduce ? 0 : 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-12%' }}
@@ -278,8 +279,10 @@ function Clubs() {
                   className="mt-auto inline-flex items-center gap-1.5 pt-6 font-jetbrains text-[11px] font-bold uppercase tracking-[0.14em]"
                   style={{ color: meta.accent }}
                 >
-                  {link.external ? 'Visit site' : 'Enter'}
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" strokeWidth={2.5} />
+                  {link.cta}
+                  {link.download
+                    ? <ArrowDown className="h-3.5 w-3.5 transition-transform group-hover:translate-y-0.5" strokeWidth={2.5} />
+                    : <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" strokeWidth={2.5} />}
                 </span>
               </motion.a>
             );
