@@ -1,24 +1,24 @@
 # Graph Report - club-crumbs  (2026-09-12)
 
 ## Corpus Check
-- 138 files · ~208,584 words
+- 138 files · ~131,360 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1000 nodes · 2262 edges · 61 communities (52 shown, 9 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 69 edges (avg confidence: 0.86)
+- 908 nodes · 2144 edges · 56 communities (47 shown, 9 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 31 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5c4c237d`
+- Built from commit: `1f8d2cc9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- DailyActivity.ts
+- syncLogic.ts
 - cohorts.ts
 - recurrence.ts
-- getRequester
+- extensionAuth.ts
 - apiFetch
 - pomodoro.ts
 - popup.js
@@ -26,17 +26,15 @@
 - compilerOptions
 - AdminLog.ts
 - manifest.json
-- Dashboard Overview Screen (Light Theme)
-- Layora Desktop Dashboard Screenshot
+- global/route.ts
+- proxy.ts
 - Zen Focus Mode Fullscreen Timer
-- Upload New Certificate Card (UI)
-- Weekly Planner Screen (landing screenshot)
+- DateField.tsx
 - dependencies
 - devDependencies
-- syncLogic.ts
-- User.ts
+- requireStudent
 - useStore.ts
-- requireAdminCohort
+- roster.ts
 - Bearer Token Pairing (extension auth)
 - app/layout.tsx
 - syncLogic.ts (activity aggregator & points calculator)
@@ -45,7 +43,6 @@
 - leetcodeService.ts
 - Layora: Autonomous AI Student Productivity Suite
 - package.json
-- supabaseAdmin.ts
 - Resource Vault
 - Generative Timetable Compiler
 - download/route.ts
@@ -62,14 +59,12 @@
 - tailwindcss
 - postcss.config.mjs
 - calendar/courses/route.ts
-- dashboard/certificates/page.tsx
-- onboarding/page.tsx
+- supabaseAdmin.ts
+- courses/page.tsx
 - vercel.json
 - authz.ts
 - draw_mark
 - useStore
-- githubService.ts
-- planner/page.tsx
 - SyncProvider.tsx
 - coders-club/page.tsx
 
@@ -103,48 +98,33 @@
 ## Hyperedges (group relationships)
 - **Developer-activity ingestion and points ledger** — structure_cron_daily_sync, structure_sync_logic, structure_leetcode_graphql, structure_codechef_scraper, structure_github_events_api, structure_table_daily_activities, structure_gamification_points_ledger [EXTRACTED 1.00]
 - **Extension pairing and authenticated-request flow** — extension_popup_connect_gate, extension_readme_connect_js, extension_readme_background_js, extension_readme_lib_js, extension_readme_bearer_token_pairing, extension_readme_token_hashing [EXTRACTED 1.00]
-- **Google Calendar Sync Surface** — public_images_landing_sync_detail_planner_alerts_toggle, public_images_landing_sync_detail_sync_to_google_calendar, public_images_landing_sync_detail_wipe_week_from_google_calendar, public_images_landing_sync_detail_calendar_sync_controls [EXTRACTED 1.00]
-- **Dashboard Panel Composition (two-column desktop workspace)** — public_images_landing_overview_sidebar_navigation, public_images_landing_overview_daily_schedule_panel, public_images_landing_overview_tomorrows_schedule_panel, public_images_landing_overview_active_courses_panel, public_images_landing_overview_quick_launchers, public_images_landing_overview_workspace_topbar_clock [EXTRACTED 1.00]
-- **Gamified points pipeline: external public activity synced daily, scored by rules, shown as rolling stats and a cohort ranking** — public_images_landing_leaderboard_daily_public_profile_sync, public_images_landing_leaderboard_points_allotment_rules, public_images_landing_leaderboard_points_stat_cards, public_images_landing_leaderboard_cohort_scoped_ranking, public_images_landing_leaderboard_privacy_mode [EXTRACTED 1.00]
-- **Layora Dark UI Design Language** — public_images_landing_tasks_dark_terminal_aesthetic, public_images_landing_zen_distraction_free_chrome_removal, public_images_landing_sync_detail_destructive_action_color_coding, public_images_landing_tasks_sidebar_navigation [INFERRED 0.75]
-- **Student deadline and milestone tracking flow (course due dates, department events, certificate proof)** — public_images_landing_courses_course_card, public_images_landing_events_month_calendar_grid, public_images_landing_certificates_upload_certificate_card, public_images_landing_events_personal_vs_department_events [INFERRED 0.75]
-- **Task-to-Focus-Session Flow** — public_images_landing_tasks_start_task_action, public_images_landing_tasks_zen_entry_button, public_images_landing_zen_zen_focus_mode, public_images_landing_zen_pomodoro_cycle_indicator, public_images_landing_tasks_time_budget_tracking, public_images_landing_zen_session_stats_footer [INFERRED 0.85]
-- **Layora dark console design language (violet accent, monospace labels, rounded cards)** — public_images_landing_certificates_upload_certificate_card, public_images_landing_courses_active_courses_page, public_images_landing_events_events_page, public_images_landing_courses_app_shell [INFERRED 0.85]
-- **Document lifecycle: upload, subject indexing, cohort sharing** — public_images_landing_resources_upload_resource_form, public_images_landing_resources_storage_destination, public_images_landing_resources_vault_index_by_subject, public_images_landing_shared_share_document_action, public_images_landing_shared_audience_scope_filter [INFERRED 0.85]
-- **Focus Session Flow: schedule block to Zen timer to logged session stats** — public_images_landing_overview_daily_schedule_panel, public_images_landing_overview_start_session_action, public_images_landing_overview_zen_entry_button, public_images_landing_phone_zen_zen_focus_timer_screenshot, public_images_landing_phone_zen_session_stats_footer, public_images_landing_overview_active_streak_widget [INFERRED 0.85]
-- **Google Workspace integration surface (Drive storage + Calendar sync of reminders and events)** — public_images_landing_certificates_user_owned_drive_storage, public_images_landing_courses_google_calendar_sync, public_images_landing_events_google_calendar_sync, public_images_landing_courses_daily_notification_toggle [INFERRED 0.85]
-- **Planner scheduling flow: guide advice, timeline blocks, calendar sync, alerts** — public_images_landing_planner_planning_guide, public_images_landing_planner_sequence_timeline, public_images_landing_planner_google_calendar_sync, public_images_landing_planner_planner_alerts [INFERRED 0.85]
-- **Desktop/Mobile Feature Parity Set** — public_images_landing_overview_desktop_dashboard_screenshot, public_images_landing_phone_overview_mobile_dashboard_screenshot, public_images_landing_phone_overview_responsive_stacking, public_images_landing_phone_zen_zen_focus_timer_screenshot [INFERRED 0.85]
-- **Study block scheduling flow: deadlines nudge planner blocks that surface on the dashboard as focus sessions** — public_images_landing_light_planner_planning_guide, public_images_landing_light_planner_sequence_timeline, public_images_landing_light_planner_google_calendar_sync, public_images_landing_light_overview_daily_schedule, public_images_landing_light_overview_focus_session [INFERRED 0.85]
-- **Screens sharing the Layora workspace shell (sidebar nav, live clock, theme toggle, Zen mode)** — public_images_landing_leaderboard_screen, public_images_landing_light_overview_screen, public_images_landing_light_planner_screen, public_images_landing_light_overview_workspace_shell [INFERRED 0.85]
 - **Zustand-to-Supabase state write path with race protection** — readme_sync_provider, readme_client_write_timestamp_queue, structure_api_user_state, structure_table_user_states, structure_supabase_admin_service_role, extension_readme_launcher_overwrite_limit [INFERRED 0.85]
-- **Shared dark dashboard shell across Layora landing screenshots** — public_images_landing_planner_weekly_planner_screen, public_images_landing_resources_resource_vault_screen, public_images_landing_shared_global_resources_screen, public_images_landing_planner_dashboard_shell [INFERRED 0.95]
 
-## Communities (61 total, 9 thin omitted)
+## Communities (56 total, 9 thin omitted)
 
-### Community 0 - "DailyActivity.ts"
-Cohesion: 0.19
-Nodes (10): dynamic, dynamic, GET(), ActivityTotalsRow, DailyActivity, DailyActivityRow, DatabaseDailyActivityRow, LeaderboardUser (+2 more)
+### Community 0 - "syncLogic.ts"
+Cohesion: 0.09
+Nodes (24): dynamic, GET(), maxDuration, dynamic, Range, VALID_RANGES, dynamic, GET() (+16 more)
 
 ### Community 1 - "cohorts.ts"
 Cohesion: 0.06
-Nodes (33): AdminContextValue, YearSelector(), DELETE(), dynamic, GET(), POST(), readResourceList(), StoredResource (+25 more)
+Nodes (25): AdminProvider(), AdminLayout(), MENU, normalise(), YEARLESS, YearSelector(), GlobalResource, GlobalResourcesPage() (+17 more)
 
 ### Community 2 - "recurrence.ts"
 Cohesion: 0.10
-Nodes (28): StaffEvent, StaffEvent, dynamic, POST(), DELETE(), dynamic, GET(), POST() (+20 more)
+Nodes (32): StaffEvent, StaffEvent, DELETE(), dynamic, GET(), POST(), dynamic, POST() (+24 more)
 
-### Community 3 - "getRequester"
-Cohesion: 0.06
-Nodes (58): dynamic, GET(), OPTIONS(), dynamic, GET(), OPTIONS(), DELETE(), dynamic (+50 more)
+### Community 3 - "extensionAuth.ts"
+Cohesion: 0.08
+Nodes (45): dynamic, GET(), OPTIONS(), dynamic, GET(), OPTIONS(), DELETE(), dynamic (+37 more)
 
 ### Community 4 - "apiFetch"
 Cohesion: 0.06
-Nodes (87): AdminContext, useAdmin(), AdminCertificatesPage(), PanelEmpty(), PanelError(), PanelLoading(), SectionHeader(), useSectionData() (+79 more)
+Nodes (94): AdminContext, useAdmin(), AdminCertificatesPage(), Uploader, CertificatePreview(), PanelEmpty(), PanelError(), PanelLoading() (+86 more)
 
 ### Community 5 - "pomodoro.ts"
-Cohesion: 0.28
-Nodes (13): PHASE_ACCENT, ZenMode(), ZenModeProps, dayKey(), formatFocusDuration(), LOG_RETENTION_DAYS, nextPhase(), PHASE_LABEL (+5 more)
+Cohesion: 0.26
+Nodes (14): PHASE_ACCENT, ZenMode(), ZenModeProps, dayKey(), formatFocusDuration(), LOG_RETENTION_DAYS, nextPhase(), PHASE_LABEL (+6 more)
 
 ### Community 6 - "popup.js"
 Cohesion: 0.14
@@ -152,39 +132,35 @@ Nodes (35): handleMessage(), refresh(), respond(), api(), ApiError, clearToken()
 
 ### Community 7 - "notifications.ts"
 Cohesion: 0.09
-Nodes (39): AdminProvider(), AdminLayout(), MENU, normalise(), YEARLESS, NotificationAgent(), ICONS, NotificationCenter() (+31 more)
+Nodes (44): AdminSettingsPage(), Connection, shortLabel(), SettingsPage(), InfoPopover(), Props, NotificationAgent(), ICONS (+36 more)
 
 ### Community 8 - "compilerOptions"
 Cohesion: 0.07
 Nodes (28): dom, dom.iterable, esnext, **/*.mts, .next/dev/types/**/*.ts, next-env.d.ts, .next/types/**/*.ts, node_modules (+20 more)
 
 ### Community 9 - "AdminLog.ts"
-Cohesion: 0.13
-Nodes (19): DELETE(), dynamic, GET(), POST(), DELETE(), describeStudent(), dynamic, POST() (+11 more)
+Cohesion: 0.12
+Nodes (22): dynamic, GET(), dynamic, GET(), POST(), maxDuration, POST(), DELETE() (+14 more)
 
 ### Community 10 - "manifest.json"
 Cohesion: 0.09
 Nodes (22): action, default_popup, default_title, background, service_worker, type, content_scripts, description (+14 more)
 
-### Community 11 - "Dashboard Overview Screen (Light Theme)"
-Cohesion: 0.15
-Nodes (20): Cohort-Scoped Ranking, Daily Public Profile Sync (LeetCode / CodeChef / GitHub), Points Allotment Rules, Rolling Points Stat Cards (Today / Yesterday / 7d / 30d), Leaderboard Privacy Mode, Leaderboard Screen (Year Scoreboard), Active Courses Progress Tracker, Active Streak Counter (+12 more)
+### Community 11 - "global/route.ts"
+Cohesion: 0.40
+Nodes (10): DELETE(), dynamic, GET(), POST(), readResourceList(), StoredResource, visibleTo(), writeResourceList() (+2 more)
 
-### Community 12 - "Layora Desktop Dashboard Screenshot"
-Cohesion: 0.15
-Nodes (20): Active Courses Panel with Progress Bars, Active Streak Widget (12 Days), AI Assistant Launch Chips (ChatGPT, Gemini, Claude), Daily Schedule Panel, Dark Monospace Terminal-Inspired Visual Language, Layora Desktop Dashboard Screenshot, Quick Launchers Tile (LeetCode, GitHub, NPTEL, Drive), Persistent Sidebar Navigation (Dashboard, Weekly Planner, Tasks, Events, Courses, Resources, Certificates, Leaderboard, Global Resources, Settings) (+12 more)
+### Community 12 - "proxy.ts"
+Cohesion: 0.38
+Nodes (5): redirectForRole(), config, emailFromClaims(), isProtectedRoute, resolveEmail()
 
 ### Community 13 - "Zen Focus Mode Fullscreen Timer"
-Cohesion: 0.13
-Nodes (20): Google Calendar Sync Control Bar, Destructive Action Color Coding, Planner Alerts On Toggle, Sync to Google Calendar Action, Wipe Week from Google Calendar Action, Course Tagging of Tasks, Dark Monospace Terminal Aesthetic, Layora Sidebar Navigation (+12 more)
+Cohesion: 0.40
+Nodes (6): Distraction-Free Chrome Removal, Space to Pause / Esc to Leave Hints, Pomodoro Session Cycle Indicator, Daily and 7-Day Focus Session Stats, Pause / Reset / Skip Timer Controls, Zen Focus Mode Fullscreen Timer
 
-### Community 14 - "Upload New Certificate Card (UI)"
-Cohesion: 0.12
-Nodes (18): Certificate Category (NPTEL / SWAYAM), PDF Drag-Drop / Paste / Browse Dropzone, Upload New Certificate Card (UI), Upload PDF vs Paste Link Input Modes, Certificates Stored in the Student's Own Google Drive, Active Courses Page (UI), Layora App Shell (sidebar nav, workspace header, clock, Zen mode), Online Course Card (platform, progress, target, due date) (+10 more)
-
-### Community 15 - "Weekly Planner Screen (landing screenshot)"
-Cohesion: 0.15
-Nodes (18): Course Code Tag on Study Block (BCS502/BCS501/BCSL504), Layora Dashboard Shell (sidebar, workspace clock, Zen mode), Google Calendar Sync / Wipe Week / Clear Day, Planner Alerts Toggle, Planning Guide (deadline-gap advisory panel), Sequence Timeline (day block list), Weekly Planner Screen (landing screenshot), Resource Vault Screen (landing screenshot) (+10 more)
+### Community 14 - "DateField.tsx"
+Cohesion: 0.60
+Nodes (4): DateField(), Props, toDisplay(), parseTypedDate()
 
 ### Community 16 - "dependencies"
 Cohesion: 0.12
@@ -194,21 +170,17 @@ Nodes (17): axios, @clerk/themes, framer-motion, lucide-react, next, dependencie
 Cohesion: 0.12
 Nodes (17): clerk, eslint, eslint-config-next, devDependencies, clerk, eslint, eslint-config-next, @tailwindcss/postcss (+9 more)
 
-### Community 18 - "syncLogic.ts"
-Cohesion: 0.15
-Nodes (17): maxDuration, POST(), dynamic, maxDuration, fetchProfileHtml(), fetchTotalSolves(), validateUsername(), DEFAULT_SLICE_BUDGET_MS (+9 more)
-
-### Community 19 - "User.ts"
-Cohesion: 0.25
-Nodes (7): POST(), POST(), POST(), DatabaseUserRow, mapUserRow(), User, UserRow
+### Community 19 - "requireStudent"
+Cohesion: 0.26
+Nodes (9): DELETE(), dynamic, GET(), POST(), requireStudent(), DatabaseUserRow, mapUserRow(), User (+1 more)
 
 ### Community 20 - "useStore.ts"
 Cohesion: 0.13
-Nodes (24): DEFAULT_POMODORO_SETTINGS, normalizeSettings(), PomodoroDay, PomodoroSettings, Activity, Course, courseBlockFor(), DEFAULT_ROUTINE (+16 more)
+Nodes (25): PlannerPage(), DEFAULT_POMODORO_SETTINGS, normalizeSettings(), PomodoroDay, Activity, Course, courseBlockFor(), DEFAULT_ROUTINE (+17 more)
 
-### Community 21 - "requireAdminCohort"
-Cohesion: 0.16
-Nodes (16): dynamic, GET(), POST(), GET(), dynamic, GET(), Range, VALID_RANGES (+8 more)
+### Community 21 - "roster.ts"
+Cohesion: 0.13
+Nodes (23): dynamic, emptyCounts(), GET(), dynamic, GET(), dynamic, GET(), Range (+15 more)
 
 ### Community 22 - "Bearer Token Pairing (extension auth)"
 Cohesion: 0.21
@@ -231,8 +203,8 @@ Cohesion: 0.27
 Nodes (10): Clerk Authentication, Local Demo Mode (missing Supabase keys fallback), Supabase Row-Level Security Isolation, Server-Side Database Proxy (/api/user/state), /api/calendar/sync (Google Calendar push), /api/user/state (secure Supabase state proxy), Clerk Middleware (route protection & token check), isAdminEmail admin allowlist (+2 more)
 
 ### Community 27 - "leetcodeService.ts"
-Cohesion: 0.27
-Nodes (10): difficultyCache, DifficultyCounts, fetchActivityForDate(), fetchTotalSolves(), getQuestionDifficulty(), LeetCodeQuestion, LeetCodeResponse, LeetCodeSubmission (+2 more)
+Cohesion: 0.13
+Nodes (22): POST(), fetchProfileHtml(), fetchTotalSolves(), validateUsername(), AxiosErrorLike, ContributionDay, fetchActivityForDate(), GitHubUserResponse (+14 more)
 
 ### Community 28 - "Layora: Autonomous AI Student Productivity Suite"
 Cohesion: 0.28
@@ -241,10 +213,6 @@ Nodes (9): Next.js Agent Rules (breaking-change warning), CLAUDE.md AGENTS.md in
 ### Community 29 - "package.json"
 Cohesion: 0.22
 Nodes (8): name, private, scripts, build, dev, lint, start, version
-
-### Community 30 - "supabaseAdmin.ts"
-Cohesion: 0.31
-Nodes (4): dynamic, GET(), dynamic, supabaseAdmin
 
 ### Community 31 - "Resource Vault"
 Cohesion: 0.29
@@ -255,16 +223,16 @@ Cohesion: 0.29
 Nodes (8): Google site-verification token file, Generative Timetable Compiler, Google Calendar Sync, Groq API (LLM inference), Study Copilot (LLM assistant), /api/ai/planner (weekly timetable generator), /api/ai/proactive (AI academic mentor), Duality Rule (task + timetable block bound together)
 
 ### Community 33 - "download/route.ts"
-Cohesion: 0.17
-Nodes (11): downloadUrl(), dynamic, EXTENSION_BY_TYPE, extensionFor(), GET(), entries(), CRC_TABLE, DirectoryRecord (+3 more)
+Cohesion: 0.16
+Nodes (12): downloadUrl(), dynamic, EXTENSION_BY_TYPE, extensionFor(), GET(), entries(), driveFileId(), CRC_TABLE (+4 more)
 
 ### Community 34 - "build-zip.py"
 Cohesion: 0.47
 Nodes (5): build(), firefox_manifest(), main(), Package the extension for distribution. Writes two zips from the one source…, The Chromium manifest, with the three Gecko differences applied.
 
 ### Community 35 - "extension.ts"
-Cohesion: 0.21
-Nodes (13): Build, BUILDS, ExtensionInstall(), ExtensionPrompt(), snoozed(), BrowserFamily, CHROME_STORE_URL, detectBrowser() (+5 more)
+Cohesion: 0.18
+Nodes (16): Build, BUILDS, ExtensionInstall(), dismissedRecently(), ExtensionNudge(), ExtensionPrompt(), snoozed(), BrowserFamily (+8 more)
 
 ### Community 36 - "icon.tsx"
 Cohesion: 0.40
@@ -278,33 +246,25 @@ Nodes (3): Milestone Tracker & Global Stopwatch, Onboarding Portal (7-step routi
 Cohesion: 0.39
 Nodes (7): at(), CoursePayload, dynamic, POST(), toDateKey(), untilStamp(), wallClock()
 
-### Community 50 - "dashboard/certificates/page.tsx"
-Cohesion: 0.09
-Nodes (36): Uploader, CertificatePreview(), CertificateUploader, dynamic, emptyCounts(), GET(), DELETE(), dynamic (+28 more)
+### Community 50 - "supabaseAdmin.ts"
+Cohesion: 0.25
+Nodes (7): DELETE(), dynamic, GET(), isMissingTable(), POST(), isCertificateCategory(), supabaseAdmin
 
-### Community 51 - "onboarding/page.tsx"
-Cohesion: 0.45
-Nodes (6): DashboardHome(), OnboardingPage(), OnboardingModal(), formatCourseLink(), getPlatformDisplay(), formatTimeStr()
+### Community 51 - "courses/page.tsx"
+Cohesion: 0.33
+Nodes (9): CoursesPage(), rearmReminder(), DashboardHome(), OnboardingPage(), OnboardingModal(), formatCourseLink(), getPlatformDisplay(), clearNotificationMark() (+1 more)
 
 ### Community 54 - "authz.ts"
-Cohesion: 0.17
-Nodes (16): dynamic, Range, VALID_RANGES, DELETE(), dynamic, GET(), AccessDenialReason, deny() (+8 more)
+Cohesion: 0.18
+Nodes (14): AdminContextValue, dynamic, GET(), dynamic, GET(), POST(), POST(), ADMIN_EMAILS (+6 more)
 
 ### Community 55 - "draw_mark"
 Cohesion: 0.40
 Nodes (5): Image, draw_mark(), main(), Generate every Layora raster mark from one definition. The mark is a rounded…, One mark, drawn at `size` pixels square.
 
 ### Community 56 - "useStore"
-Cohesion: 0.19
-Nodes (11): AccessDeniedPage(), Reason, QuickLaunchers(), DashboardLayout(), LeaderboardPage(), RangeStats, UserStats, TasksPage() (+3 more)
-
-### Community 57 - "githubService.ts"
-Cohesion: 0.32
-Nodes (7): AxiosErrorLike, ContributionDay, fetchActivityForDate(), GitHubUserResponse, GitHubValidationError, queryGitHub(), validateUsername()
-
-### Community 58 - "planner/page.tsx"
-Cohesion: 0.60
-Nodes (4): PlannerPage(), NotificationPermissionState, permissionState(), isBlockForCourse()
+Cohesion: 0.18
+Nodes (12): AccessDeniedPage(), Reason, QuickLaunchers(), DashboardLayout(), LeaderboardPage(), RangeStats, UserStats, TasksPage() (+4 more)
 
 ### Community 59 - "SyncProvider.tsx"
 Cohesion: 0.29
@@ -319,7 +279,7 @@ Nodes (5): Challenge, CHALLENGES, FACILITATOR_NOTES, MASTHEAD, metadata
   AGENTS.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **282 isolated node(s):** `eslintConfig`, `manifest_version`, `name`, `version`, `description` (+277 more)
+- **267 isolated node(s):** `eslintConfig`, `manifest_version`, `name`, `version`, `description` (+262 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -328,15 +288,15 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `Layora Architecture & System Structure` and `Next.js Agent Rules (breaking-change warning)`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `Cohort` connect `cohorts.ts` to `recurrence.ts`, `apiFetch`, `useStore.ts`, `authz.ts`?**
-  _High betweenness centrality (0.040) - this node is a cross-community bridge._
-- **Why does `apiFetch()` connect `apiFetch` to `cohorts.ts`, `notifications.ts`, `dashboard/certificates/page.tsx`, `useStore`, `planner/page.tsx`, `SyncProvider.tsx`?**
-  _High betweenness centrality (0.025) - this node is a cross-community bridge._
-- **Why does `supabaseAdmin` connect `supabaseAdmin.ts` to `DailyActivity.ts`, `cohorts.ts`, `recurrence.ts`, `getRequester`, `AdminLog.ts`, `dashboard/certificates/page.tsx`, `User.ts`, `syncLogic.ts`, `SyncProvider.tsx`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+- **Why does `Cohort` connect `authz.ts` to `cohorts.ts`, `recurrence.ts`, `apiFetch`, `global/route.ts`, `useStore.ts`, `roster.ts`?**
+  _High betweenness centrality (0.047) - this node is a cross-community bridge._
+- **Why does `apiFetch()` connect `apiFetch` to `cohorts.ts`, `extension.ts`, `notifications.ts`, `courses/page.tsx`, `useStore.ts`, `useStore`, `SyncProvider.tsx`?**
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._
+- **Why does `supabaseAdmin` connect `supabaseAdmin.ts` to `syncLogic.ts`, `recurrence.ts`, `extensionAuth.ts`, `AdminLog.ts`, `global/route.ts`, `requireStudent`, `roster.ts`, `authz.ts`, `SyncProvider.tsx`?**
+  _High betweenness centrality (0.029) - this node is a cross-community bridge._
 - **What connects `eslintConfig`, `manifest_version`, `name` to the rest of the system?**
-  _282 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _267 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `syncLogic.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.0907563025210084 - nodes in this community are weakly interconnected._
 - **Should `cohorts.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.06015037593984962 - nodes in this community are weakly interconnected._
-- **Should `recurrence.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.09815078236130868 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06382978723404255 - nodes in this community are weakly interconnected._

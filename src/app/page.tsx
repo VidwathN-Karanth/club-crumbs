@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@clerk/nextjs';
 import {
-  ArrowRight, ArrowDown, ShieldCheck, Award, Terminal,
-  FolderLock, Globe, BookMarked, Smartphone, Check, Rocket,
+  ArrowRight, ArrowDown, ShieldCheck, Terminal, Check, Rocket,
 } from 'lucide-react';
 import {
   motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion,
@@ -57,87 +56,11 @@ const STEPS = [
     title: 'Your links and courses, from any tab.',
     body: 'Published on the Firefox Add-ons site. Pin it once and your quick launchers and course list are a click away without opening the dashboard — and a link you add from the popup shows up in Club Crumbs too.',
     src: '/images/landing/extension.webp',
-    alt: 'The Layora extension popup, twice: the quick launcher grid with LeetCode, GitHub, NPTEL, Drive, Classroom and CodeChef, and the courses tab with progress meters.',
+    alt: 'The extension popup: a quick-launcher grid with LeetCode, GitHub, NPTEL, Drive, Classroom and CodeChef, and a courses tab with progress meters.',
     facts: ['One press to connect, no keys to paste', 'Opens the course itself, not a page about it', 'Firefox now, Chromium by hand'],
-  },
-  {
-    label: 'Weekly planner',
-    title: 'The week builds itself around your classes.',
-    body: 'Add your subjects once — code, credits, how hard they are. Club Crumbs fills the gaps between lectures with focus sessions sized to your Pomodoro rhythm, and calls out any deadline it could not find time for.',
-    src: '/images/landing/planner.webp',
-    alt: 'The weekly planner with Friday selected: a Computer Networks revision block, a break, and two more study sessions.',
-    facts: ['Sized to your focus timer', 'Reorder or delete any block', 'Regenerates when subjects change'],
-  },
-  {
-    label: 'Google Calendar',
-    title: 'It lands in the calendar you already check.',
-    body: 'One button writes the week into Google Calendar in your own time zone. Change a block and sync again — Club Crumbs clears the copies it wrote before, so a fortnight of edits never becomes a fortnight of duplicates.',
-    src: '/images/landing/sync-detail.webp',
-    alt: 'The planner action bar: planner alerts on, sync to Google Calendar, and wipe week from Google Calendar.',
-    panel: 'calendar',
-    facts: ['Writes with an IANA time zone', 'Wipe a day or the whole week', 'Course deadlines sync too'],
-  },
-  {
-    label: 'Tasks',
-    title: 'Every deadline, with the time it actually took.',
-    body: 'Give a task an estimate and start the timer when you sit down. The planner uses what you log to decide how much room the next one needs.',
-    src: '/images/landing/tasks.webp',
-    alt: 'The tasks page showing pending, in-progress and completed work with estimates and logged minutes.',
-    facts: ['Estimate vs. logged minutes', 'Grouped by subject', 'Feeds the next timetable'],
-  },
-  {
-    label: 'Events',
-    title: 'Club notices and your own reminders, one calendar.',
-    body: 'Meetups, workshops, project reviews and contests are posted by your club leads to your club. Your own reminders sit on the same grid in a different colour, and repeat weekly if you tell them to.',
-    src: '/images/landing/events.webp',
-    alt: 'The events month grid for August with club events in amber and personal reminders in violet.',
-    facts: ['Posted to your club only', 'Daily, weekly or monthly repeats', 'Push notification on the day'],
-  },
-  {
-    label: 'Leaderboard',
-    title: 'Your coding week, ranked inside your club.',
-    body: 'Connect LeetCode, GitHub and CodeChef. Every night at 10 PM Club Crumbs reads the public profiles, scores solves and contributions, and ranks you against your own club — nobody else.',
-    src: '/images/landing/leaderboard.webp',
-    alt: 'The club scoreboard with points for today, the last seven days and the last thirty days, above a ranked table.',
-    facts: ['Synced nightly at 22:00 IST', 'Public profile data only', 'Ranked within your club'],
   },
 ] as const;
 
-/** The quieter half of the workspace — shown as plates, not stages. */
-const GALLERY: {
-  icon: typeof BookMarked; label: string; title: string; body: string;
-  src: string; alt: string; portrait?: boolean;
-}[] = [
-  {
-    icon: BookMarked, label: 'Courses',
-    title: 'Online courses with a weekly target',
-    body: 'NPTEL, Coursera, Udemy — progress, hours per week and a reminder before the deadline.',
-    src: '/images/landing/courses.webp',
-    alt: 'The courses page with progress meters for four online courses.',
-  },
-  {
-    icon: Award, label: 'Certificates',
-    title: 'Certificates, sorted for placement season',
-    body: 'NPTEL, courses and competitions, each a link to the file in your own Google Drive.',
-    src: '/images/landing/certificates.webp',
-    alt: 'The upload card: certificate title, an NPTEL category, upload PDF or paste link, and a drop zone capped at 4.5 MB.',
-    portrait: true,
-  },
-  {
-    icon: FolderLock, label: 'Resources',
-    title: 'Notes filed by subject',
-    body: 'Every PDF indexed under the subject it belongs to, stored in your Drive, not on our server.',
-    src: '/images/landing/resources.webp',
-    alt: 'The personal resource vault with notes grouped by subject.',
-  },
-  {
-    icon: Globe, label: 'Shared library',
-    title: 'What your club has already found',
-    body: 'Notes, cheat sheets and write-ups uploaded by clubmates, with the uploader on every row.',
-    src: '/images/landing/shared.webp',
-    alt: 'The shared library listing resources uploaded by clubmates.',
-  },
-];
 
 /* ── Small pieces ─────────────────────────────────────────────── */
 
@@ -281,34 +204,10 @@ function Hero({ onSignIn }: { onSignIn: () => void }) {
 
         {/* The screenshot is cropped at the fold on purpose: the workspace
             continues past the edge, which is the invitation to scroll. */}
-        <motion.figure
-          initial={{ opacity: 0, y: reduce ? 0 : 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.34, ease: [0.16, 1, 0.3, 1] }}
-          className="relative mt-16 sm:mt-20"
-        >
-          <div
-            className="overflow-hidden rounded-t-2xl border border-b-0 border-white/10"
-            style={{ maskImage: 'linear-gradient(to bottom, #000 62%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, #000 62%, transparent 100%)' }}
-          >
-            {/* On a phone the whole dashboard at 390px is unreadable mush, so
-                the shot runs wider than the screen and crops at the right —
-                the detail stays legible and the frame keeps its scale. */}
-            <img
-              src="/images/landing/overview.webp"
-              alt="The Club Crumbs dashboard: today's schedule, active courses with progress meters, and quick launchers."
-              width={1680}
-              height={880}
-              decoding="async"
-              className="w-[190%] max-w-none sm:w-full"
-            />
-          </div>
-          <figcaption className="sr-only">The Club Crumbs dashboard for a club member.</figcaption>
-        </motion.figure>
       </div>
 
       {/* Fact strip — the four things people ask before signing in. */}
-      <div className="mx-auto -mt-8 max-w-7xl border-t border-white/[0.07] pt-8 sm:-mt-16">
+      <div className="mx-auto mt-14 max-w-7xl border-t border-white/[0.07] pt-8 sm:mt-16">
         <dl className="grid grid-cols-2 gap-y-7 font-jetbrains text-[11px] lg:grid-cols-4">
           {[
             ['Sync target', 'Google Calendar'],
@@ -537,139 +436,6 @@ function Cinema() {
   );
 }
 
-/* ── Daylight: the page itself changes theme ──────────────────── */
-
-function Daylight() {
-  const reduce = useReducedMotion();
-  return (
-    <section className="px-5 py-24 sm:px-8 sm:py-32" style={{ background: '#FAF8F5' }}>
-      <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-16">
-        <div>
-          <Eyebrow tone="paper">Daylight</Eyebrow>
-          <h2 className="mt-5 font-hanken text-3xl font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[2.6rem]" style={{ color: '#2B2723' }}>
-            A light mode that is warm paper, not a white wall.
-          </h2>
-          <p className="mt-5 text-[15px] leading-relaxed" style={{ color: '#6A625A' }}>
-            The whole workspace switches for a bright classroom: paper ground, brass labels,
-            a highlighter wash on the page you are working from. Every label was checked
-            against the background it sits on, so nothing turns to grey mist at noon.
-          </p>
-          <p className="mt-6 border-t pt-6 font-jetbrains text-[11px] leading-relaxed tracking-wide" style={{ borderColor: '#DAD2C7', color: '#7A7065' }}>
-            Four accent colours · dd/mm/yyyy dates everywhere · 24-hour clock optional
-          </p>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: reduce ? 0 : 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-15%' }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="overflow-hidden rounded-xl border"
-          style={{ borderColor: '#DAD2C7', boxShadow: '0 24px 60px -35px rgba(74,58,42,0.45)' }}
-        >
-          <img
-            src="/images/landing/light-planner.webp"
-            alt="The weekly planner in light mode: warm paper background with violet study blocks and a green break."
-            loading="lazy"
-            decoding="async"
-            className="w-full"
-          />
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-/* ── The rest of the workspace ────────────────────────────────── */
-
-function Gallery() {
-  const reduce = useReducedMotion();
-  return (
-    <section id="workspace" className="px-5 py-24 sm:px-8 sm:py-32">
-      <div className="mx-auto max-w-7xl">
-        <Eyebrow tone="blue">The rest of the workspace</Eyebrow>
-        <h2 className="mt-5 max-w-2xl font-hanken text-3xl font-extrabold leading-[1.1] tracking-[-0.03em] text-white sm:text-[2.6rem]">
-          Four more pages you will actually open.
-        </h2>
-
-        <div className="mt-14 grid gap-5 sm:grid-cols-2">
-          {GALLERY.map((g, i) => {
-            const Icon = g.icon;
-            return (
-              <motion.article
-                key={g.label}
-                initial={{ opacity: 0, y: reduce ? 0 : 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-12%' }}
-                transition={{ duration: 0.6, delay: reduce ? 0 : (i % 2) * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] transition-colors hover:border-white/20"
-                style={{ background: SLAB }}
-              >
-                <div className="p-7 pb-6">
-                  <div className="flex items-center gap-2.5">
-                    <Icon className="h-4 w-4 text-[#C56BF5]" strokeWidth={1.75} />
-                    <span className="font-jetbrains text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">{g.label}</span>
-                  </div>
-                  <h3 className="mt-4 font-hanken text-xl font-bold tracking-[-0.02em] text-white">{g.title}</h3>
-                  <p className="mt-2.5 text-sm leading-relaxed text-white/50">{g.body}</p>
-                </div>
-                <div className={`mt-auto overflow-hidden border-t border-white/[0.06] px-7 ${g.portrait ? 'flex justify-center pt-7' : ''}`}>
-                  <img
-                    src={g.src}
-                    alt={g.alt}
-                    loading="lazy"
-                    decoding="async"
-                    className={
-                      g.portrait
-                        ? 'w-[62%] translate-y-3 rounded-t-lg border border-b-0 border-white/[0.08] transition-transform duration-700 group-hover:translate-y-1'
-                        : 'w-full translate-y-3 rounded-t-lg border border-b-0 border-white/[0.08] transition-transform duration-700 group-hover:translate-y-1'
-                    }
-                  />
-                </div>
-              </motion.article>
-            );
-          })}
-        </div>
-
-        {/* Phone band */}
-        <div className="mt-5 overflow-hidden rounded-2xl border border-white/[0.08]" style={{ background: SLAB }}>
-          <div className="grid items-center gap-10 p-7 sm:p-10 lg:grid-cols-[minmax(0,1fr)_auto]">
-            <div>
-              <div className="flex items-center gap-2.5">
-                <Smartphone className="h-4 w-4 text-[#C56BF5]" strokeWidth={1.75} />
-                <span className="font-jetbrains text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">On your phone</span>
-              </div>
-              <h3 className="mt-4 max-w-md font-hanken text-xl font-bold tracking-[-0.02em] text-white">
-                Add it to your home screen and reminders arrive like any other app.
-              </h3>
-              <p className="mt-2.5 max-w-md text-sm leading-relaxed text-white/50">
-                Club Crumbs installs as a web app, so a block starting in ten minutes shows up as a
-                notification on the phone in your pocket — no email, no inbox rules.
-              </p>
-            </div>
-            <div className="flex justify-center gap-5">
-              {[
-                ['/images/landing/phone-overview.webp', 'The Club Crumbs dashboard on a phone screen.'],
-                ['/images/landing/phone-zen.webp', 'Zen mode on a phone: a large focus countdown on black.'],
-              ].map(([src, alt]) => (
-                <img
-                  key={src}
-                  src={src}
-                  alt={alt}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-[124px] rounded-[18px] border border-white/12 sm:w-[150px]"
-                  style={{ boxShadow: '0 24px 60px -30px rgba(0,0,0,0.95)' }}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 /* ── Access + Google transparency ─────────────────────────────── */
 
 function Access({ onSignIn }: { onSignIn: () => void }) {
@@ -843,8 +609,6 @@ export default function RootPage() {
         </section>
 
         <Cinema />
-        <Daylight />
-        <Gallery />
         <Access onSignIn={goToLogin} />
         <Footer />
       </main>

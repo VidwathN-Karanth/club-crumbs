@@ -372,9 +372,9 @@
     "semantic_hash": ""
   },
   "src/app/page.tsx": {
-    "mtime": 1789144300.3597147,
-    "seen": 1789170234.0014088,
-    "ast_hash": "bdd4c98420d04f9668e3b19aa511b7b1",
+    "mtime": 1789174428.4679105,
+    "seen": 1789174556.2175725,
+    "ast_hash": "f0e2521c45875ab24c7089684328712c",
     "semantic_hash": ""
   },
   "src/app/privacy/page.tsx": {
@@ -701,90 +701,6 @@
     "ast_hash": "b46e14c3e01236524ae3b56502007279",
     "semantic_hash": ""
   },
-  "public/images/landing/certificates.webp": {
-    "mtime": 1789118188.6672795,
-    "seen": 1789132232.886605,
-    "ast_hash": "3df645aff59f29093c5ab149746d28a5",
-    "semantic_hash": "3df645aff59f29093c5ab149746d28a5"
-  },
-  "public/images/landing/courses.webp": {
-    "mtime": 1789118188.6672795,
-    "seen": 1789132232.8866057,
-    "ast_hash": "0e52759a949ed1d70f2bfd8cbbf531e0",
-    "semantic_hash": "0e52759a949ed1d70f2bfd8cbbf531e0"
-  },
-  "public/images/landing/events.webp": {
-    "mtime": 1789118188.6756117,
-    "seen": 1789132232.886607,
-    "ast_hash": "3f7bc06f4054fbb44d23bcd012a076c4",
-    "semantic_hash": "3f7bc06f4054fbb44d23bcd012a076c4"
-  },
-  "public/images/landing/leaderboard.webp": {
-    "mtime": 1789118188.6756117,
-    "seen": 1789132232.8866084,
-    "ast_hash": "cc13d5380e5ccdfbea89fc14c470428c",
-    "semantic_hash": "cc13d5380e5ccdfbea89fc14c470428c"
-  },
-  "public/images/landing/light-overview.webp": {
-    "mtime": 1789118188.6756117,
-    "seen": 1789132232.8866093,
-    "ast_hash": "2ae4dbe2c30251074788a0cee39aed97",
-    "semantic_hash": "2ae4dbe2c30251074788a0cee39aed97"
-  },
-  "public/images/landing/light-planner.webp": {
-    "mtime": 1789118188.6756117,
-    "seen": 1789132232.8866105,
-    "ast_hash": "ede96b4905e88ff8430e8e5f41abd7ae",
-    "semantic_hash": "ede96b4905e88ff8430e8e5f41abd7ae"
-  },
-  "public/images/landing/overview.webp": {
-    "mtime": 1789118188.6838586,
-    "seen": 1789132232.8866112,
-    "ast_hash": "8ccbf3a2833c7b1099c5a1137cf2cdec",
-    "semantic_hash": "8ccbf3a2833c7b1099c5a1137cf2cdec"
-  },
-  "public/images/landing/phone-overview.webp": {
-    "mtime": 1789118188.6842098,
-    "seen": 1789132232.886612,
-    "ast_hash": "dcfad8edbd464a759a311c8b57e32004",
-    "semantic_hash": "dcfad8edbd464a759a311c8b57e32004"
-  },
-  "public/images/landing/phone-zen.webp": {
-    "mtime": 1789118188.6842098,
-    "seen": 1789132232.8866127,
-    "ast_hash": "f4119e6a2dc3d481e1c2f5f9eb663767",
-    "semantic_hash": "f4119e6a2dc3d481e1c2f5f9eb663767"
-  },
-  "public/images/landing/planner.webp": {
-    "mtime": 1789118188.6842098,
-    "seen": 1789132232.8866136,
-    "ast_hash": "cc02630b27872fd581dfe4fd581e5c1b",
-    "semantic_hash": "cc02630b27872fd581dfe4fd581e5c1b"
-  },
-  "public/images/landing/resources.webp": {
-    "mtime": 1789118188.6842098,
-    "seen": 1789132232.8866143,
-    "ast_hash": "62fdb256d7d3159f8a23d970cdda4365",
-    "semantic_hash": "62fdb256d7d3159f8a23d970cdda4365"
-  },
-  "public/images/landing/shared.webp": {
-    "mtime": 1789118188.6842098,
-    "seen": 1789132232.886615,
-    "ast_hash": "28089df6573beb7db9b8bb724e2eebcb",
-    "semantic_hash": "28089df6573beb7db9b8bb724e2eebcb"
-  },
-  "public/images/landing/sync-detail.webp": {
-    "mtime": 1789118188.6842098,
-    "seen": 1789132232.886616,
-    "ast_hash": "593dcba19714c8788cef2e7df543d292",
-    "semantic_hash": "593dcba19714c8788cef2e7df543d292"
-  },
-  "public/images/landing/tasks.webp": {
-    "mtime": 1789118188.6842098,
-    "seen": 1789132232.886617,
-    "ast_hash": "43a31caadfd50293d629f0617479fab8",
-    "semantic_hash": "43a31caadfd50293d629f0617479fab8"
-  },
   "public/images/landing/zen.webp": {
     "mtime": 1789118188.6842098,
     "seen": 1789132232.8866177,
@@ -846,9 +762,9 @@
     "semantic_hash": ""
   },
   "public/images/landing/extension.webp": {
-    "mtime": 1789118188.6756117,
-    "seen": 1789132232.8866076,
-    "ast_hash": "5b641b9447752dc81342c96029180361",
+    "mtime": 1789174170.8609505,
+    "seen": 1789174556.2176647,
+    "ast_hash": "1a1680bedb48b1b254fc1ff1ef035947",
     "semantic_hash": ""
   },
   "public/layora-logo.png": {
