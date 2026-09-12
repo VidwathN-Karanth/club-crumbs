@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@clerk/nextjs';
 import {
-  ArrowRight, ArrowDown, ShieldCheck, Terminal, Check, Rocket,
+  ArrowRight, ArrowDown, ShieldCheck, Terminal, Check, Rocket, Mail,
 } from 'lucide-react';
 import {
   motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion,
@@ -549,6 +549,12 @@ function Footer() {
                 <Terminal className="h-3 w-3" strokeWidth={2} /> Next.js · Supabase · Clerk
               </span>
             </div>
+            <a
+              href="mailto:4mt24cs239@mite.ac.in"
+              className="flex items-center gap-1.5 font-jetbrains text-[11px] text-white/40 transition hover:text-white/70"
+            >
+              <Mail className="h-3 w-3" strokeWidth={2} /> 4mt24cs239@mite.ac.in
+            </a>
           </div>
         </div>
 
