@@ -19,11 +19,12 @@
 -- ============================================================================
 
 -- ── Admins (cohort is NULL for staff) ──────────────────────────────────────
+-- No admin is hardcoded anywhere; these are the initial two, managed from the
+-- console thereafter. The last remaining admin cannot be removed, so the app
+-- can never be locked out.
 insert into public.access_grants (email, role, cohort, granted_by) values
-  ('vidwathkaranth@gmail.com', 'admin', null, 'seed'),   -- root admin (also hardcoded)
-  ('shreejith@mite.ac.in',     'admin', null, 'seed'),
-  ('ravinarayana@mite.ac.in',  'admin', null, 'seed'),
-  ('vidhithpai@gmail.com',     'admin', null, 'seed')
+  ('vidwathkaranth@gmail.com', 'admin', null, 'seed'),
+  ('shreejith@mite.ac.in',     'admin', null, 'seed')
 on conflict (email, role, cohort) do nothing;
 
 -- ── Coders Club members ────────────────────────────────────────────────────

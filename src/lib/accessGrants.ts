@@ -1,7 +1,6 @@
 import 'server-only';
 
 import { supabaseAdmin } from './supabaseAdmin';
-import { ROOT_ADMIN, isRootAdmin } from './admin';
 import { COHORTS, isCohort, normalizeEmail, type Cohort } from './cohorts';
 
 /**
@@ -21,16 +20,14 @@ import { COHORTS, isCohort, normalizeEmail, type Cohort } from './cohorts';
  *      { role: 'leader', cohort: 'Coders Club'  }
  *      { role: 'member', cohort: 'Crypton Club' }
  *
+ *  There is NO hardcoded access of any kind — not even a root admin. Every
+ *  admin, leader and member lives in the table and is managed from the console.
+ *
  *  INVARIANTS (enforced here, on every write — never trust the caller):
  *   • staff (admin/leader) and member are mutually exclusive on one email
  *   • only an admin may create/remove admin or leader grants
  *   • a leader may create/remove member grants only for a club THEY lead
- *   • the root admin can never be demoted or removed
- *
- *  ONLY the in-code ROOT_ADMIN is folded in as a fallback, so the app always
- *  has one way in even before the seed migration runs or if the database is
- *  briefly unreachable. Every other admin lives purely in the table and can be
- *  added or removed from the console.
+ *   • the LAST admin can never be removed, so the app can never be locked out
  * ============================================================================
  */
 
@@ -71,21 +68,7 @@ function coerceCohort(value: string | null): Cohort | null {
   return isCohort(value) ? value : null;
 }
 
-/**
- * Fold the one permanent in-code admin into a set of DB rows.
- *
- * ONLY the root admin is hardcoded — every other admin lives in the database
- * and can be added or removed from the console. This guarantees the app always
- * has at least one way in even if the table is empty or unreachable, without
- * making anyone else un-removable.
- */
-function withCodeAdminFallback(email: string, grants: Grant[]): Grant[] {
-  if (!isRootAdmin(email)) return grants;
-  if (grants.some((g) => g.role === 'admin')) return grants;
-  return [{ email, role: 'admin', cohort: null }, ...grants];
-}
-
-/** Every grant an email holds, DB + code fallback, memoised briefly. */
+/** Every grant an email holds, straight from the table, memoised briefly. */
 export async function getGrantsForEmail(email: string | null | undefined): Promise<Grant[]> {
   const normalized = normalizeEmail(email);
   if (!normalized) return [];
@@ -102,10 +85,9 @@ export async function getGrantsForEmail(email: string | null | undefined): Promi
     if (error) throw error;
     rows = (data as RawGrantRow[]) || [];
   } catch (err) {
-    // The database is unreachable. Returning only the code fallback means the
-    // root admin can still get in to fix things; everyone else is denied until
-    // the table is readable again, which is the safe direction to fail.
-    console.error('[accessGrants] Could not read grants, using code fallback only:', err);
+    // The database is unreachable. With no hardcoded access, everyone is denied
+    // until the table is readable again — the safe direction to fail.
+    console.error('[accessGrants] Could not read grants; denying until readable:', err);
     rows = [];
   }
 
@@ -120,9 +102,8 @@ export async function getGrantsForEmail(email: string | null | undefined): Promi
     // rather than trusted — a renamed club must not silently grant access.
     .filter((g) => g.role === 'admin' || g.cohort !== null);
 
-  const grants = withCodeAdminFallback(normalized, parsed);
-  cache.set(normalized, { at: Date.now(), grants });
-  return grants;
+  cache.set(normalized, { at: Date.now(), grants: parsed });
+  return parsed;
 }
 
 /** Drop the cached grants for one email (after a write). */
@@ -204,7 +185,6 @@ export async function memberEmailsForCohort(cohort: Cohort): Promise<string[]> {
 
 export type GrantError =
   | 'invalid'
-  | 'root_admin_protected'
   | 'staff_member_conflict'
   | 'db_error';
 
@@ -266,17 +246,16 @@ export async function addGrant(
   return { ok: true };
 }
 
-/** Removes one grant, refusing to strip the root admin. */
+/**
+ * Removes one grant. The last-admin guard lives in the route (it needs the
+ * live count), so this is a plain delete.
+ */
 export async function removeGrant(
   input: { email: string; role: Role; cohort: Cohort | null },
   _actorEmail: string
 ): Promise<GrantResult> {
   const email = normalizeEmail(input.email);
   if (!email) return fail('invalid', 'An email is required.');
-
-  if (input.role === 'admin' && isRootAdmin(email)) {
-    return fail('root_admin_protected', 'The root admin cannot be removed.');
-  }
 
   try {
     let q = supabaseAdmin.from('access_grants').delete().eq('email', email).eq('role', input.role);
@@ -292,7 +271,7 @@ export async function removeGrant(
   return { ok: true };
 }
 
-/** How many admins exist right now (root admin always counts). Guards the last-admin case. */
+/** How many distinct admins exist right now. Guards the last-admin case. */
 export async function adminCount(): Promise<number> {
   try {
     const { data, error } = await supabaseAdmin
@@ -301,11 +280,11 @@ export async function adminCount(): Promise<number> {
       .eq('role', 'admin');
     if (error) throw error;
     const emails = new Set((data || []).map((r) => normalizeEmail((r as { email: string }).email)));
-    emails.add(ROOT_ADMIN);
     return emails.size;
   } catch (err) {
     console.error('[accessGrants] adminCount failed:', err);
-    // At least the root admin exists.
-    return 1;
+    // Report more-than-one on failure so a delete is refused rather than
+    // risking the removal of a genuine last admin against a bad read.
+    return 2;
   }
 }

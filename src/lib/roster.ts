@@ -25,8 +25,8 @@ import {
  *   - An address with no grant cannot sign in.
  *   - Each student belongs to exactly one club (one member grant).
  *
- *  NOTE: admins live in access_grants too (role 'admin'); the in-code
- *  ROOT_ADMIN in admin.ts remains as an un-removable fallback.
+ *  NOTE: admins live in access_grants too (role 'admin'). There is no hardcoded
+ *  access of any kind — the last admin simply cannot be removed.
  * ============================================================================
  */
 

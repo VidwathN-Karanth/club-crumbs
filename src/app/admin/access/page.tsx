@@ -10,13 +10,6 @@ import { apiFetch, errorMessage, readJson } from '@/lib/apiClient';
 import { COHORTS, shortCohortLabel, type Cohort } from '@/lib/cohorts';
 import { SectionHeader } from '../_components/PanelState';
 
-/**
- * The root admin, mirrored from src/lib/admin.ts (which is server-only and so
- * cannot be imported here). Used only to hide the remove control — the API is
- * the real guard and refuses to remove it regardless.
- */
-const ROOT_ADMIN_EMAIL = 'vidwathkaranth@gmail.com';
-
 type Role = 'admin' | 'leader' | 'member';
 
 interface Grant {
@@ -176,8 +169,8 @@ export default function AdminAccessPage() {
           {admins.map((email) => (
             <div key={email} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5">
               <span className="text-sm text-white truncate">{email}</span>
-              {email === ROOT_ADMIN_EMAIL ? (
-                <span className="text-[9px] font-mono uppercase tracking-widest text-cyber-purple shrink-0">Root · locked</span>
+              {admins.length <= 1 ? (
+                <span className="text-[9px] font-mono uppercase tracking-widest text-white/40 shrink-0">Last admin · locked</span>
               ) : (
                 <button
                   onClick={() => requestRemove({ email, role: 'admin', cohort: null })}

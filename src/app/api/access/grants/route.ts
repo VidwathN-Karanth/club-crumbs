@@ -6,7 +6,6 @@ import { purgeMemberByEmail } from '@/lib/purge';
 import { isCollegeEmail } from '@/lib/roster';
 import { isCohort, normalizeEmail, type Cohort } from '@/lib/cohorts';
 import { AdminLog } from '@/lib/models/AdminLog';
-import { isRootAdmin } from '@/lib/admin';
 
 /**
  * Access management — the admin-only screen for who is an admin, who leads a
@@ -107,19 +106,13 @@ export async function DELETE(request: Request) {
   if (!email) return NextResponse.json({ error: 'An email is required.' }, { status: 400 });
   if (!role) return NextResponse.json({ error: 'A valid role is required.' }, { status: 400 });
 
-  if (role === 'admin') {
-    if (isRootAdmin(email)) {
-      return NextResponse.json({ error: 'The root admin cannot be removed.' }, { status: 403 });
-    }
-    if ((await adminCount()) <= 1) {
-      return NextResponse.json({ error: 'At least one admin must remain.' }, { status: 409 });
-    }
+  if (role === 'admin' && (await adminCount()) <= 1) {
+    return NextResponse.json({ error: 'At least one admin must remain.' }, { status: 409 });
   }
 
   const result = await removeGrant({ email, role, cohort }, guard.requester.email);
   if (!result.ok) {
-    const status = result.error === 'root_admin_protected' ? 403 : 400;
-    return NextResponse.json({ error: result.message }, { status });
+    return NextResponse.json({ error: result.message }, { status: 400 });
   }
 
   let purged = false;
