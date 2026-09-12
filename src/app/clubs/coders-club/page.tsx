@@ -4,281 +4,270 @@ import type { Metadata } from 'next';
  * Coders Club event page — "How Does Instagram Actually Do That?"
  *
  * Public (not gated by proxy.ts) so a prospective member can read the
- * challenges before signing in. Content is the club's Instagram-challenges
- * brief, laid out as a single scrolling page.
+ * challenges before signing in.
+ *
+ * Laid out as an engineering teardown: five feature reverse-engineerings,
+ * numbered in the margin with the CS concept each one exercises, rather than a
+ * stack of identical cards.
  */
 
 export const metadata: Metadata = {
   title: 'Coders Club — How Does Instagram Actually Do That?',
   description:
-    'Coders Club event: build tiny working versions of real Instagram features — feed ranking, friend suggestions, trending hashtags, and more.',
+    'A Coders Club workshop: build tiny working versions of real Instagram features — feed ranking, friend suggestions, trending hashtags, approximate counts and bot detection.',
 };
 
 const ACCENT = '#2E95FF'; // Coders Club
-const INK = '#0A0B0D';
-const SLAB = '#14161A';
 
 type Challenge = {
-  n: number;
   title: string;
+  /** The CS idea it exercises — shown in the margin, so it reads as an index. */
+  concept: string;
+  /** The driving question. Set as the lead. */
   curiosity: string;
   task: React.ReactNode;
   thinking: string[];
 };
 
+/** Inline code, tuned quiet so prose stays readable. */
+function Code({ children }: { children: React.ReactNode }) {
+  return (
+    <code className="rounded bg-white/[0.06] px-1.5 py-0.5 font-jetbrains text-[0.85em]" style={{ color: ACCENT }}>
+      {children}
+    </code>
+  );
+}
+
 const CHALLENGES: Challenge[] = [
   {
-    n: 1,
-    title: 'Build a Mini Feed Ranking Algorithm',
+    title: 'A mini feed-ranking algorithm',
+    concept: 'Sorting · scoring',
     curiosity:
-      "Instagram doesn't show posts in the order they were posted. It ranks them based on how likely you are to engage with them. That's the whole reason two people scrolling at the same time see completely different feeds.",
+      "Instagram doesn't show posts in the order they were posted. It ranks them by how likely you are to engage — which is why two people scrolling at the same moment see completely different feeds.",
     task: (
       <>
         <p>You have a list of 15 posts. Each post has:</p>
-        <ul className="list-disc space-y-1.5 pl-5 marker:text-white/30">
+        <ul className="my-3 list-disc space-y-1.5 pl-5 marker:text-white/25">
           <li>likes, comments (numbers)</li>
           <li>recency (hours since posted)</li>
           <li>is_from_close_friend (yes/no)</li>
-          <li>is_video (yes/no &mdash; video tends to be watched longer, so it&rsquo;s often boosted)</li>
+          <li>is_video (yes/no — video tends to be watched longer, so it&rsquo;s often boosted)</li>
         </ul>
         <p>
-          Write a program that calculates a score for each post using a formula you design (e.g.{' '}
-          <code className="rounded bg-white/[0.06] px-1.5 py-0.5 font-jetbrains text-[13px]" style={{ color: ACCENT }}>
-            score = likes*0.3 + comments*0.5 + closeness_bonus - recency_penalty
-          </code>
-          ), then sorts and prints the feed in ranked order.
+          Write a program that scores each post with a formula you design — say{' '}
+          <Code>score = likes*0.3 + comments*0.5 + closeness_bonus - recency_penalty</Code> — then sorts and prints
+          the feed in ranked order.
         </p>
       </>
     ),
     thinking: [
-      'Try changing the weights in your formula. Show your group how the feed order completely changes just by valuing "comments" more than "likes."',
-      'Why might Instagram not want a feed that’s 100% ranked by engagement? (Hint: think about what kind of content wins if engagement is the only signal — outrage bait, extreme content...)',
-      'Add a "penalize posts you’ve already seen too many times from the same account" rule. This is a real thing platforms do to avoid one person flooding your feed.',
+      'Change the weights. Show your group how the feed order flips just by valuing "comments" over "likes."',
+      'Why might Instagram not want a feed ranked 100% by engagement? (Think about what wins when engagement is the only signal — outrage bait, extreme content.)',
+      'Add a rule that penalises posts you’ve already seen too many times from the same account. Platforms really do this, to stop one person flooding your feed.',
     ],
   },
   {
-    n: 2,
-    title: '"People You May Know" — Friend Suggestions via Graphs',
+    title: '"People You May Know"',
+    concept: 'Graphs · BFS',
     curiosity:
-      "Ever wonder how Instagram suggests people you've literally never searched for, but somehow know in real life? It's graph theory — specifically, looking at mutual connections.",
+      "Ever wonder how Instagram suggests people you've never searched for but genuinely know in real life? It's graph theory — reading the mutual connections around you.",
     task: (
       <>
         <p>
-          Represent a small social network as a graph (adjacency list) &mdash; say 10 users, each following a few
-          others. Write a program that, for a given user, finds:
+          Represent a small social network as a graph (adjacency list) — say 10 users, each following a few others.
+          For a given user, find:
         </p>
-        <ul className="list-disc space-y-1.5 pl-5 marker:text-white/30">
-          <li>All users they&rsquo;re not already following</li>
-          <li>Ranked by number of mutual friends (i.e., how many people they both follow)</li>
+        <ul className="my-3 list-disc space-y-1.5 pl-5 marker:text-white/25">
+          <li>everyone they&rsquo;re not already following,</li>
+          <li>ranked by number of mutual friends (people they both follow).</li>
         </ul>
         <p>Print the top 3 suggestions with their mutual-friend counts.</p>
       </>
     ),
     thinking: [
-      'What if two suggested users have the same mutual friend count — how do you break the tie? (Instagram uses signals like shared location, contacts synced from your phone, etc. — can you add one more signal?)',
-      'This is basically "friend-of-a-friend" — which graph traversal technique are you using? Could you do this with BFS starting from the user’s node?',
-      "What breaks about this approach at Instagram's actual scale (2 billion users)? Why can't you just brute-force check every user's mutual friends?",
+      'Two suggestions tie on mutual-friend count — how do you break it? (Instagram leans on shared location, synced contacts, and more. Add one more signal of your own.)',
+      'This is "friend-of-a-friend." Which traversal are you using? Could you do it with BFS from the user’s node?',
+      "What breaks at Instagram's real scale — 2 billion users? Why can't you just brute-force every user's mutual friends?",
     ],
   },
   {
-    n: 3,
-    title: 'Trending Hashtags in Real Time',
+    title: 'Trending hashtags, in real time',
+    concept: 'Streaming · sliding window',
     curiosity:
-      'How does Instagram know a hashtag is "trending" right now, out of millions of hashtags being posted every minute?',
+      'How does Instagram know a hashtag is trending right now, out of millions being posted every minute?',
     task: (
       <p>
-        Simulate a stream of 200 incoming posts, each tagged with a random hashtag from a small pool (e.g. #travel,
-        #foodie, #reels, #ipl2026, etc.), each with a timestamp. Implement a sliding window counter &mdash; only
-        hashtags used in the &ldquo;last 5 minutes&rdquo; (simulated) count toward trending. Print the top 3 trending
-        hashtags at a few different simulated points in time.
+        Simulate a stream of 200 posts, each tagged with a random hashtag from a small pool (<Code>#travel</Code>,{' '}
+        <Code>#foodie</Code>, <Code>#reels</Code>, <Code>#ipl2026</Code>…) and a timestamp. Build a sliding-window
+        counter — only hashtags used in the last 5 (simulated) minutes count — and print the top 3 trending at a few
+        different points in time.
       </p>
     ),
     thinking: [
-      'Why a sliding window instead of just counting all-time usage? What would go wrong with an all-time counter?',
-      'What data structure did you use to efficiently drop old posts as time moves forward? Could a queue help here?',
-      'Real platforms also weight velocity — a hashtag jumping from 5 to 500 uses in 10 minutes is more "trending" than one sitting steady at 10,000. Can you add a spike-detection bonus?',
+      'Why a sliding window instead of an all-time count? What goes wrong with counting forever?',
+      'What structure lets you drop old posts efficiently as time moves forward? Would a queue help?',
+      'Real platforms weight velocity too — 5 → 500 uses in ten minutes is more "trending" than a steady 10,000. Add a spike-detection bonus.',
     ],
   },
   {
-    n: 4,
-    title: 'Approximate Like Counts (Why It Says "24.3K" Not "24,317")',
+    title: 'Approximate like counts',
+    concept: 'Number formatting',
     curiosity:
-      "Instagram almost never shows you the exact like count once it gets large — it rounds to “24.3K” or “1.2M”. This isn't laziness — it's a deliberate choice for both UX and performance reasons at massive scale.",
+      "Once a post gets big, Instagram never shows the exact like count — it rounds to “24.3K” or “1.2M.” That isn't laziness; it's a deliberate call, for both the reader and the servers, at scale.",
     task: (
       <p>
-        Write a function that takes a raw integer (e.g.{' '}
-        <code className="rounded bg-white/[0.06] px-1.5 py-0.5 font-jetbrains text-[13px]" style={{ color: ACCENT }}>
-          1284392
-        </code>
-        ) and converts it to Instagram-style display format (
-        <code className="rounded bg-white/[0.06] px-1.5 py-0.5 font-jetbrains text-[13px]" style={{ color: ACCENT }}>
-          1.3M
-        </code>
-        ). Handle thousands (K), millions (M), and billions (B), with one decimal of rounding.
+        Write a function that turns a raw integer — e.g. <Code>1284392</Code> — into Instagram&rsquo;s display format,{' '}
+        <Code>1.3M</Code>. Handle thousands (K), millions (M) and billions (B), rounded to one decimal.
       </p>
     ),
     thinking: [
-      "Why might showing the exact number in real time actually be technically expensive at Instagram's scale? (Hint: think about how many \"likes\" happen per second on a viral post, and what it'd mean to update an exact counter for millions of viewers simultaneously.)",
-      'Look up "eventual consistency" — how does this idea connect to why the like count you see might lag behind reality by a few seconds or minutes?',
+      'Why is showing the exact number, live, actually expensive at Instagram’s scale? (How many likes per second land on a viral post — and what would updating an exact counter for millions of viewers cost?)',
+      'Read up on "eventual consistency." How does it explain the like count lagging reality by a few seconds?',
     ],
   },
   {
-    n: 5,
-    title: 'Catching Bots — A Tiny Spam Detector',
+    title: 'Catching bots',
+    concept: 'Heuristics · signals',
     curiosity:
-      'Instagram has to constantly guess which accounts are real people vs. bots/spam — using patterns, not certainty.',
+      'Instagram is constantly guessing which accounts are real people and which are bots — from patterns, never certainty.',
     task: (
       <p>
-        You&rsquo;re given a list of 10 accounts with attributes:{' '}
-        <code className="rounded bg-white/[0.06] px-1.5 py-0.5 font-jetbrains text-[13px]" style={{ color: ACCENT }}>
-          account_age_days, posts_count, following_count, followers_count, comments_are_generic
-        </code>{' '}
-        (yes/no &mdash; e.g. &ldquo;Nice pic! &hearts;&rdquo; on every post). Write a scoring function that flags an
-        account as likely bot, suspicious, or likely real, based on rules you design (e.g., following &gt;1000 but
-        followers &lt;10 and account age &lt;7 days is a big red flag).
+        You&rsquo;re given 10 accounts, each with <Code>account_age_days</Code>, <Code>posts_count</Code>,{' '}
+        <Code>following_count</Code>, <Code>followers_count</Code> and <Code>comments_are_generic</Code> (yes/no — the
+        &ldquo;Nice pic! ♥&rdquo;-on-every-post tell). Write a scorer that flags each account likely bot, suspicious,
+        or likely real, on rules you design — e.g. following &gt; 1000 but followers &lt; 10 and age &lt; 7 days is a
+        loud red flag.
       </p>
     ),
     thinking: [
-      'No single rule is reliable alone — a brand-new real account could look "suspicious" too. How do you combine multiple weak signals into a more confident decision? (This is the basic idea behind real spam-detection ML models — combining many weak signals.)',
-      "What's the cost of a false positive here (flagging a real user as a bot) vs a false negative (missing an actual bot)? Which mistake should the system lean toward avoiding, and why?",
+      'No single rule holds — a brand-new real account can look suspicious too. How do you combine several weak signals into one confident call? (That’s the core idea behind real spam-detection models.)',
+      "Which is worse here: a false positive (flagging a real user) or a false negative (missing a bot)? Which way should the system lean, and why?",
     ],
   },
+];
+
+const MASTHEAD: [string, React.ReactNode][] = [
+  ['Format', 'Build a tiny working version of a real Instagram feature. Not theory — actual code, actual output, actual "ohh, that’s how it works" moments.'],
+  ['Language', 'Open — C, Python, Java, whatever. The logic is the point.'],
+  ['Audience', 'Junior coders.'],
 ];
 
 const FACILITATOR_NOTES = [
-  "These are intentionally open-ended — there's no single “correct” formula or output. Reward reasoning, not just working code.",
-  'After each challenge, spend 3–5 minutes connecting it to something real: e.g., after Challenge 2, mention that this is genuinely close to how early Facebook/LinkedIn built "People You May Know."',
-  'Good closing discussion: ask the group which challenge felt most "this explains something I always wondered about" — it’s usually Challenge 1 (feed ranking) or Challenge 4 (like counts).',
-  'If time is short, Challenges 1, 2, and 3 give the best mix of graphs + sorting + real-time thinking — you could run the event with just those three.',
+  'These are open-ended on purpose — there is no single correct formula or output. Reward the reasoning, not just working code.',
+  'After each one, spend three to five minutes tying it to something real: after #2, mention this is close to how early Facebook and LinkedIn built "People You May Know."',
+  'Good closer: ask which challenge felt most like "this explains something I always wondered about." Usually #1 (feed ranking) or #4 (like counts).',
+  'Short on time? #1, #2 and #3 give the best mix of graphs, sorting and real-time thinking — run just those three.',
 ];
-
-function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="font-jetbrains text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: ACCENT }}>
-      {children}
-    </p>
-  );
-}
 
 export default function CodersClubPage() {
   return (
-    <main className="min-h-screen font-geist" style={{ background: INK, color: '#EDEEF0' }}>
-      <div className="mx-auto max-w-3xl px-5 py-16 sm:px-8 sm:py-24">
-        {/* Back link */}
+    <main className="min-h-screen font-geist" style={{ background: '#0A0B0D', color: '#EDEEF0' }}>
+      <div className="mx-auto max-w-[46rem] px-5 py-14 sm:px-8 sm:py-20">
         <a
           href="/"
-          className="inline-flex items-center gap-1.5 font-jetbrains text-[11px] font-bold uppercase tracking-[0.16em] text-white/40 transition hover:text-white"
+          className="font-jetbrains text-[11px] font-bold uppercase tracking-[0.18em] text-white/40 transition hover:text-white"
         >
           &larr; Club Crumbs
         </a>
 
-        {/* Hero */}
-        <header className="mt-10">
-          <span
-            className="font-jetbrains text-[11px] font-bold uppercase tracking-[0.22em]"
-            style={{ color: ACCENT }}
-          >
-            Coders Club · Event
-          </span>
-          <h1 className="mt-5 font-hanken text-[2.4rem] font-extrabold leading-[1.03] tracking-[-0.03em] text-white sm:text-6xl">
+        {/* Masthead */}
+        <header className="mt-12">
+          <p className="font-jetbrains text-[11px] font-bold uppercase tracking-[0.24em]" style={{ color: ACCENT }}>
+            Coders Club — Workshop
+          </p>
+          <h1 className="mt-5 font-hanken text-[2.5rem] font-extrabold leading-[0.98] tracking-[-0.035em] text-white sm:text-[3.75rem]">
             How Does Instagram
-            <br className="hidden sm:block" /> Actually Do That?
+            <br /> Actually Do That?
           </h1>
+          <p className="mt-6 max-w-xl text-[16px] leading-relaxed text-white/60 sm:text-[17px]">
+            Five reverse-engineerings of systems Instagram really runs. Each one is a small, honest toy version — the
+            aim isn&rsquo;t to rebuild Instagram, it&rsquo;s to walk away with the intuition, then let curiosity take
+            it further.
+          </p>
 
-          {/* Meta */}
-          <dl className="mt-9 grid gap-px overflow-hidden rounded-xl border border-white/[0.08]" style={{ background: SLAB }}>
-            {[
-              ['Format', 'Build a tiny working version of a real Instagram feature. Not theory — actual code, actual output, actual "ohh that’s how it works" moments.'],
-              ['Language', 'Open — C, Python, Java, whatever. Focus on the logic.'],
-              ['Audience', 'Junior coders'],
-            ].map(([k, v]) => (
-              <div key={k} className="flex flex-col gap-1 border-b border-white/[0.06] p-4 last:border-b-0 sm:flex-row sm:gap-6">
-                <dt className="w-24 shrink-0 font-jetbrains text-[10px] font-bold uppercase tracking-[0.16em] text-white/35">
+          <dl className="mt-10 border-t border-white/[0.09]">
+            {MASTHEAD.map(([k, v]) => (
+              <div key={k} className="flex flex-col gap-1 border-b border-white/[0.07] py-3.5 sm:flex-row sm:gap-8">
+                <dt className="w-24 shrink-0 pt-0.5 font-jetbrains text-[10px] font-bold uppercase tracking-[0.16em] text-white/35">
                   {k}
                 </dt>
-                <dd className="text-[14px] leading-relaxed text-white/70">{v}</dd>
+                <dd className="text-[14px] leading-relaxed text-white/65">{v}</dd>
               </div>
             ))}
           </dl>
-
-          <p className="mt-8 text-[15px] leading-relaxed text-white/60">
-            Each challenge below is a simplified, toy version of a real system Instagram uses. The goal isn&rsquo;t to
-            replicate Instagram exactly &mdash; it&rsquo;s to get a working, honest intuition for the idea, then let
-            curiosity take it further.
-          </p>
         </header>
 
-        {/* Challenges */}
-        <div className="mt-14 space-y-6">
-          {CHALLENGES.map((c) => (
+        {/* Challenges — numbered in the margin, CS concept beneath */}
+        <section className="mt-6">
+          {CHALLENGES.map((c, i) => (
             <article
-              key={c.n}
-              className="relative overflow-hidden rounded-2xl border border-white/[0.08] p-7 sm:p-9"
-              style={{ background: SLAB }}
+              key={c.title}
+              className="grid gap-y-5 border-t border-white/[0.09] py-12 md:grid-cols-[5.5rem_1fr] md:gap-x-10"
             >
-              <span className="absolute inset-x-0 top-0 h-[3px]" style={{ background: ACCENT }} aria-hidden />
-
-              <div className="flex items-baseline gap-3">
-                <span className="font-hanken text-3xl font-extrabold tabular-nums" style={{ color: ACCENT }}>
-                  {c.n}
+              <div className="flex items-center gap-4 md:flex-col md:items-start md:gap-2.5">
+                <span className="font-jetbrains text-[15px] font-bold tabular-nums" style={{ color: ACCENT }}>
+                  {String(i + 1).padStart(2, '0')}
+                  <span className="text-white/25"> / {String(CHALLENGES.length).padStart(2, '0')}</span>
                 </span>
-                <h2 className="font-hanken text-xl font-bold leading-tight tracking-[-0.02em] text-white sm:text-2xl">
+                <span className="font-jetbrains text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
+                  {c.concept}
+                </span>
+              </div>
+
+              <div>
+                <h2 className="font-hanken text-[1.6rem] font-bold leading-tight tracking-[-0.02em] text-white">
                   {c.title}
                 </h2>
-              </div>
+                {/* The hook: the driving question, in display type. */}
+                <p className="mt-4 font-hanken text-[19px] font-medium leading-snug text-white/85">{c.curiosity}</p>
 
-              <div className="mt-6">
-                <Label>The curiosity</Label>
-                <p
-                  className="mt-2.5 border-l-2 pl-4 text-[15px] italic leading-relaxed text-white/65"
-                  style={{ borderColor: `${ACCENT}66` }}
-                >
-                  {c.curiosity}
-                </p>
-              </div>
+                <div className="mt-7">
+                  <p className="font-jetbrains text-[10px] font-bold uppercase tracking-[0.18em] text-white/35">
+                    Your task
+                  </p>
+                  <div className="mt-3 space-y-3 text-[15px] leading-relaxed text-white/70">{c.task}</div>
+                </div>
 
-              <div className="mt-6">
-                <Label>Your task</Label>
-                <div className="mt-2.5 space-y-3 text-[15px] leading-relaxed text-white/70">{c.task}</div>
-              </div>
-
-              <div className="mt-6 border-t border-white/[0.06] pt-6">
-                <Label>Now the real thinking starts</Label>
-                <ul className="mt-3.5 space-y-3">
-                  {c.thinking.map((t, i) => (
-                    <li key={i} className="flex gap-3 text-[14px] leading-relaxed text-white/55">
-                      <span
-                        className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full"
-                        style={{ background: ACCENT }}
-                        aria-hidden
-                      />
-                      <span>{t}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="mt-7">
+                  <p className="font-jetbrains text-[10px] font-bold uppercase tracking-[0.18em] text-white/35">
+                    Now the real thinking starts
+                  </p>
+                  <ul className="mt-3.5 space-y-3.5">
+                    {c.thinking.map((t, j) => (
+                      <li key={j} className="flex gap-3 text-[14px] leading-relaxed text-white/55">
+                        <span className="shrink-0 select-none font-jetbrains font-bold" style={{ color: ACCENT }} aria-hidden>
+                          &rarr;
+                        </span>
+                        <span>{t}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </article>
           ))}
-        </div>
-
-        {/* Facilitator notes */}
-        <section className="mt-6 rounded-2xl border border-dashed border-white/[0.12] p-7 sm:p-9">
-          <Label>Facilitator notes</Label>
-          <ul className="mt-4 space-y-3.5">
-            {FACILITATOR_NOTES.map((t, i) => (
-              <li key={i} className="flex gap-3 text-[14px] leading-relaxed text-white/55">
-                <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-white/25" aria-hidden />
-                <span>{t}</span>
-              </li>
-            ))}
-          </ul>
         </section>
 
-        {/* Footer */}
-        <footer className="mt-14 border-t border-white/[0.07] pt-8">
+        {/* Facilitator notes — an appendix, set apart */}
+        <section className="mt-4 border-t border-white/[0.09] pt-12">
+          <div className="grid gap-y-5 md:grid-cols-[5.5rem_1fr] md:gap-x-10">
+            <span className="font-jetbrains text-[10px] font-bold uppercase tracking-[0.14em] text-white/40">
+              For facilitators
+            </span>
+            <ul className="space-y-4">
+              {FACILITATOR_NOTES.map((t, i) => (
+                <li key={i} className="text-[14px] leading-relaxed text-white/55">
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        <footer className="mt-16 border-t border-white/[0.07] pt-8">
           <a
             href="/"
-            className="inline-flex items-center gap-2 rounded-xl border border-white/12 px-5 py-3 text-sm font-semibold text-white/70 transition hover:border-white/25 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="font-jetbrains text-[11px] font-bold uppercase tracking-[0.18em] text-white/40 transition hover:text-white"
           >
             &larr; Back to Club Crumbs
           </a>
