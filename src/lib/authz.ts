@@ -3,9 +3,17 @@ import 'server-only';
 import { NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
 
-import { isAdminNow } from './accessGrants';
 import { COHORTS, isCohort, type Cohort } from './cohorts';
-import { getCohortForEmail, isCollegeEmail } from './roster';
+import { isCollegeEmail } from './roster';
+import {
+  getGrantsForEmail,
+  identitiesFor,
+  isAdminGrant,
+  ledCohorts,
+  memberCohort,
+  type Grant,
+  type Identity,
+} from './accessGrants';
 
 export type AccessDenialReason = 'signed_out' | 'wrong_domain' | 'not_on_roster';
 
@@ -14,18 +22,25 @@ export interface Requester {
   email: string;
   /** Display name from the Google account. Never taken from client input. */
   name: string;
+  /** Every grant this account holds (admin / leader-of-club / member-of-club). */
+  grants: Grant[];
+  /** Everything they may act as, admin-first then a card per club led. */
+  identities: Identity[];
   isAdmin: boolean;
-  /** Null for admins (who are not students) and for anyone off the roster. */
+  /** The clubs they lead (empty for a non-leader). */
+  ledCohorts: Cohort[];
+  /** The single club they belong to as a member — null for staff. */
   cohort: Cohort | null;
   allowed: boolean;
   denialReason: AccessDenialReason | null;
 }
 
 /**
- * Resolves who is making this request and whether they are allowed in at all.
+ * Resolves who is making this request and everything they are entitled to.
  *
- * Admins bypass the roster: they are staff, not students, so they have no
- * cohort and are never expected to appear in a year list.
+ * Roles now come from the database (public.access_grants via accessGrants.ts),
+ * so one account can be an admin AND a leader, or lead several clubs. Staff
+ * (admin/leader) never carry a member club — the two are mutually exclusive.
  */
 export async function getRequester(): Promise<Requester | null> {
   const { userId } = await auth();
@@ -35,20 +50,22 @@ export async function getRequester(): Promise<Requester | null> {
   const email = user?.primaryEmailAddress?.emailAddress || '';
   const name = user?.fullName || user?.firstName || email.split('@')[0] || 'Student';
 
-  if (await isAdminNow(email)) {
-    return { userId, email, name, isAdmin: true, cohort: null, allowed: true, denialReason: null };
+  const grants = await getGrantsForEmail(email);
+  const identities = identitiesFor(grants);
+  const isAdmin = isAdminGrant(grants);
+  const led = ledCohorts(grants);
+  const cohort = memberCohort(grants);
+
+  const base = { userId, email, name, grants, identities, isAdmin, ledCohorts: led, cohort };
+
+  if (identities.length === 0) {
+    // No grant at all. A non-college address that is not an admin is the wrong
+    // domain; a college address with no grant is simply not on any roster yet.
+    const reason: AccessDenialReason = isCollegeEmail(email) ? 'not_on_roster' : 'wrong_domain';
+    return { ...base, allowed: false, denialReason: reason };
   }
 
-  if (!isCollegeEmail(email)) {
-    return { userId, email, name, isAdmin: false, cohort: null, allowed: false, denialReason: 'wrong_domain' };
-  }
-
-  const cohort = await getCohortForEmail(email);
-  if (!cohort) {
-    return { userId, email, name, isAdmin: false, cohort: null, allowed: false, denialReason: 'not_on_roster' };
-  }
-
-  return { userId, email, name, isAdmin: false, cohort, allowed: true, denialReason: null };
+  return { ...base, allowed: true, denialReason: null };
 }
 
 type Guard<T> = { ok: true; requester: T } | { ok: false; response: NextResponse };
@@ -57,7 +74,7 @@ function deny(status: number, error: string, reason?: AccessDenialReason): { ok:
   return { ok: false, response: NextResponse.json({ error, reason }, { status }) };
 }
 
-/** Requires a signed-in admin. */
+/** Requires a signed-in admin (holds an admin grant). */
 export async function requireAdmin(): Promise<Guard<Requester>> {
   const requester = await getRequester();
   if (!requester) return deny(401, 'Unauthorized', 'signed_out');
@@ -66,22 +83,23 @@ export async function requireAdmin(): Promise<Guard<Requester>> {
 }
 
 /**
- * Requires a signed-in student who is on the roster. The returned cohort is
- * non-null, and it is derived from the session — never from a query parameter —
- * so a student cannot ask for another year's data.
+ * Requires a signed-in student who is a member. The returned cohort is
+ * non-null and derived from the session — never from a query parameter — so a
+ * student cannot ask for another club's data. Staff are turned away: they use
+ * their own console, not the student workspace.
  */
 export async function requireStudent(): Promise<Guard<Requester & { cohort: Cohort }>> {
   const requester = await getRequester();
   if (!requester) return deny(401, 'Unauthorized', 'signed_out');
 
-  if (requester.isAdmin) {
-    return deny(403, 'Admins use the admin console, not the student workspace.');
+  if (requester.isAdmin || requester.ledCohorts.length > 0) {
+    return deny(403, 'Staff use the console, not the student workspace.');
   }
   if (requester.denialReason === 'wrong_domain') {
     return deny(403, 'Club Crumbs is open only to college accounts.', 'wrong_domain');
   }
   if (!requester.cohort) {
-    return deny(403, 'Your email is not on the department roster yet.', 'not_on_roster');
+    return deny(403, 'Your email is not on a club roster yet.', 'not_on_roster');
   }
 
   return { ok: true, requester: { ...requester, cohort: requester.cohort } };
@@ -90,9 +108,8 @@ export async function requireStudent(): Promise<Guard<Requester & { cohort: Coho
 /**
  * Requires a signed-in admin AND an explicit, valid `?cohort=` parameter.
  *
- * The admin console shows one year at a time, so every admin data route must
- * say which year it means. A missing or bogus value is a bug, not a request
- * for everything — hence 400 rather than a silent department-wide result.
+ * The admin console shows one club at a time, so every admin data route must
+ * say which club it means.
  */
 export async function requireAdminCohort(url: string): Promise<Guard<Requester & { cohort: Cohort }>> {
   const guard = await requireAdmin();
@@ -104,4 +121,22 @@ export async function requireAdminCohort(url: string): Promise<Guard<Requester &
   }
 
   return { ok: true, requester: { ...guard.requester, cohort: raw } };
+}
+
+/**
+ * Requires someone allowed to MANAGE a specific club: an admin (any club) or a
+ * leader of THAT club. This is the guard the member add/remove/list routes use.
+ *
+ * The cohort is passed in (from the route path), and a leader is checked
+ * against their own led clubs — so a leader of one club can never touch
+ * another's members, and the URL alone never grants that reach.
+ */
+export async function requireClubManager(cohort: Cohort): Promise<Guard<Requester & { cohort: Cohort }>> {
+  const requester = await getRequester();
+  if (!requester) return deny(401, 'Unauthorized', 'signed_out');
+
+  const canManage = requester.isAdmin || requester.ledCohorts.includes(cohort);
+  if (!canManage) return deny(403, `You do not manage ${cohort}.`);
+
+  return { ok: true, requester: { ...requester, cohort } };
 }
