@@ -609,7 +609,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
           
           <div className="text-center">
             <h1 className="text-xl font-bold tracking-wider text-white">
-              LAYORA
+              CLUB CRUMBS
             </h1>
             <p className="text-xs text-white/40 mt-1">
               Loading workspace...

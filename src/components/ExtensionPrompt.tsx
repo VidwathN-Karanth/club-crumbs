@@ -76,7 +76,7 @@ export default function ExtensionPrompt() {
           exit={{ opacity: 0, y: 16 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
           role="complementary"
-          aria-label="Install the Layora browser extension"
+          aria-label="Install the Club Crumbs browser extension"
           className="fixed bottom-4 right-4 z-50 w-[min(20rem,calc(100vw-2rem))] glass-card rounded-2xl border border-outline-variant p-4 shadow-xl"
         >
           <button
@@ -90,7 +90,7 @@ export default function ExtensionPrompt() {
           <div className="flex items-center gap-2 pr-6">
             <Puzzle className="h-4 w-4 shrink-0 text-primary" />
             <h4 className="font-mono text-xs font-bold tracking-wider text-primary">
-              Add Layora to {store.name}
+              Add Club Crumbs to {store.name}
             </h4>
           </div>
 

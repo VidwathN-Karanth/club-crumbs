@@ -190,7 +190,7 @@ export default function ExtensionPage() {
           <span className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
             Browser extension
           </span>
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Layora Quick Access</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Club Crumbs Quick Access</h1>
           <p className="max-w-xl text-sm leading-relaxed text-on-surface-variant">
             Your quick launchers and course list, one click from any tab — without opening the
             dashboard. Add a link straight from the popup and it appears in Club Crumbs too.

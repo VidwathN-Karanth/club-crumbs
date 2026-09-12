@@ -99,7 +99,7 @@ export default function PrivacyPolicyPage() {
               <span>5. Browser Extension</span>
             </div>
             <p>
-              The <strong className="text-white">Layora Quick Access</strong> browser extension for Chrome, Edge, Brave and Firefox is covered by this same policy. It is an optional companion to your Club Crumbs account, and it works only after you sign in on this site and press Connect on the Extension page.
+              The <strong className="text-white">Club Crumbs Quick Access</strong> browser extension for Chrome, Edge, Brave and Firefox is covered by this same policy. It is an optional companion to your Club Crumbs account, and it works only after you sign in on this site and press Connect on the Extension page.
             </p>
             <ul className="list-disc pl-5 space-y-2 text-white/70">
               <li>
