@@ -18,6 +18,7 @@ import LayoraMark from '@/components/LayoraMark';
 import NotificationAgent from '@/components/NotificationAgent';
 import NotificationCenter from '@/components/NotificationCenter';
 import ExtensionNudge from '@/components/ExtensionNudge';
+import SwitchRoleButton from '@/components/SwitchRoleButton';
 import { AdminProvider, useAdmin } from './AdminContext';
 
 /* ────────────────────────────────────────────────────────────────
@@ -440,6 +441,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
 
             <div className="flex items-center gap-3">
+              <SwitchRoleButton />
               <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-cyber-purple/30 bg-cyber-purple/10 text-[10px] font-mono font-bold uppercase tracking-wider text-cyber-purple">
                 <Activity className="w-3 h-3" /> Staff access
               </span>

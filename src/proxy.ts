@@ -1,14 +1,16 @@
 import { clerkMiddleware, createRouteMatcher, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { isOnRoster } from "@/lib/roster";
-import { isAdminNow } from "@/lib/accessGrants";
-import { redirectForRole } from "@/lib/roleRoute";
+import { getGrantsForEmail, identitiesFor } from "@/lib/accessGrants";
+import { CTX_COOKIE } from "@/lib/accessContext";
+import { resolveDestination } from "@/lib/roleRoute";
 
 // Define which routes are protected
 const isProtectedRoute = createRouteMatcher([
   '/dashboard(.*)',
   '/onboarding(.*)',
-  '/admin(.*)'
+  '/admin(.*)',
+  '/leader(.*)',
+  '/choose-access(.*)'
 ]);
 
 /**
@@ -85,22 +87,19 @@ export default clerkMiddleware(async (auth, req) => {
     const email = await resolveEmail(sessionClaims as Record<string, unknown> | null, userId);
 
     if (email) {
-      const isAdmin = await isAdminNow(email);
-      const allowed = isAdmin || (await isOnRoster(email));
-      if (!allowed && !req.nextUrl.pathname.startsWith('/access-denied')) {
+      // Resolve every role this account holds and send it to the right surface,
+      // here, before a page is rendered. Deciding it in the browser would mean
+      // shipping the admin/roster lists to every visitor, and would flash the
+      // wrong console for a moment before the client bounced them.
+      const identities = identitiesFor(await getGrantsForEmail(email));
+
+      if (identities.length === 0 && !req.nextUrl.pathname.startsWith('/access-denied')) {
         return NextResponse.redirect(new URL('/access-denied', req.url));
       }
 
-      // Send each role to its own surface, here, before a page is rendered.
-      //
-      // This used to be decided in the browser, which meant every page that
-      // decided it had to import the admin email list — and a public page
-      // importing that list ships it to every visitor. The server already knows
-      // the address by this point, so the decision belongs here. It also closes
-      // the older gap where a student who typed /admin saw the console shell
-      // painted for a moment before the client bounced them.
-      const destination = redirectForRole(req.nextUrl.pathname, isAdmin);
-      if (destination) {
+      const rawContext = req.cookies.get(CTX_COOKIE)?.value ?? null;
+      const destination = resolveDestination(req.nextUrl.pathname, identities, rawContext);
+      if (destination && destination !== req.nextUrl.pathname) {
         return NextResponse.redirect(new URL(destination, req.url));
       }
     }
