@@ -144,4 +144,60 @@ export async function DELETE(request: Request) {
   return NextResponse.json({ success: true, purged });
 }
 
+/**
+ * PATCH — flip a person between member and leader of a club, keeping their data.
+ *
+ * Promotion (member → leader) and demotion (leader → member) are two grant
+ * writes, not a delete: because staff and member are mutually exclusive, the
+ * old grant is removed first and the new one added — but NEVER through the
+ * member-purge path, so a promoted student keeps their workspace and history.
+ * Admin-only: a leader can never appoint another leader.
+ */
+export async function PATCH(request: Request) {
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
+
+  const body = await request.json().catch(() => ({}));
+  const email = normalizeEmail((body as { email?: string }).email);
+  const to = (body as { to?: string }).to;
+  const rawCohort = (body as { cohort?: string }).cohort;
+  const cohort: Cohort | null = isCohort(rawCohort) ? rawCohort : null;
+
+  if (!email) return NextResponse.json({ error: 'An email is required.' }, { status: 400 });
+  if (!cohort) return NextResponse.json({ error: 'A club is required.' }, { status: 400 });
+  if (to !== 'leader' && to !== 'member') {
+    return NextResponse.json({ error: 'Target role must be leader or member.' }, { status: 400 });
+  }
+  if (!isCollegeEmail(email)) {
+    return NextResponse.json({ error: 'Leaders and members must have an @mite.ac.in address.' }, { status: 400 });
+  }
+
+  const from: Role = to === 'leader' ? 'member' : 'leader';
+  // Remove the old role first so the exclusivity check lets the new one in.
+  // This does NOT purge data — only the member-remove routes do.
+  const removed = await removeGrant({ email, role: from, cohort }, guard.requester.email);
+  if (!removed.ok) return NextResponse.json({ error: removed.message }, { status: 400 });
+
+  const added = await addGrant({ email, role: to, cohort }, guard.requester.email);
+  if (!added.ok) {
+    // Roll back so we never leave the person with neither role.
+    await addGrant({ email, role: from, cohort }, guard.requester.email);
+    const status = added.error === 'staff_member_conflict' ? 409 : 400;
+    return NextResponse.json({ error: added.message }, { status });
+  }
+
+  await AdminLog.record({
+    actor: guard.requester,
+    action: to === 'leader' ? 'leader.grant' : 'leader.revoke',
+    summary:
+      to === 'leader'
+        ? `Promoted ${email} to a leader of ${cohort}`
+        : `Returned ${email} to a member of ${cohort}`,
+    target: email,
+    cohort,
+  });
+
+  return NextResponse.json({ success: true });
+}
+
 export const dynamic = 'force-dynamic';

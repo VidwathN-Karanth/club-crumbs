@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth, useUser } from '@clerk/nextjs';
 import {
   Activity, Award, CalendarDays, ChevronLeft, ChevronRight, Clock, FileText,
-  Globe, LayoutDashboard, LogOut, Menu, Moon, ScrollText, Settings, Sun, Trophy,
+  Globe, KeyRound, LayoutDashboard, LogOut, Menu, Moon, ScrollText, Settings, Sun, Trophy,
   Users, X,
 } from 'lucide-react';
 
@@ -44,12 +44,13 @@ const MENU = [
   { name: 'Certificates', path: '/admin/certificates', icon: Award },
   { name: 'Resumes', path: '/admin/resumes', icon: FileText },
   { name: 'Global Resources', path: '/admin/global-resources', icon: Globe },
+  { name: 'Access', path: '/admin/access', icon: KeyRound },
   { name: 'Activity Log', path: '/admin/logs', icon: ScrollText },
   { name: 'Settings', path: '/admin/settings', icon: Settings },
 ];
 
-/** Sections whose data is not scoped to one academic year. */
-const YEARLESS = ['/admin/logs', '/admin/settings'];
+/** Sections whose data is not scoped to one club. */
+const YEARLESS = ['/admin/access', '/admin/logs', '/admin/settings'];
 
 const normalise = (path: string) => path.replace(/\/$/, '') || '/admin';
 
