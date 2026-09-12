@@ -25,6 +25,29 @@ export const ADMIN_EMAILS = [
   'vidhithpai@gmail.com'
 ];
 
+/**
+ * The one admin that lives in code forever.
+ *
+ * Admins are now stored in the database (public.access_grants) so they can be
+ * managed at runtime — but that means a botched migration or a database outage
+ * could otherwise leave the app with no admin at all and no way in. This single
+ * address is therefore always treated as an admin regardless of the table, and
+ * every demote/revoke path refuses to touch it. It is the master key.
+ */
+export const ROOT_ADMIN = 'vidwathkaranth@gmail.com';
+
+export function isRootAdmin(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return email.toLowerCase().trim() === ROOT_ADMIN;
+}
+
+/**
+ * @deprecated Admins now live in public.access_grants. This static check
+ * remains only as the in-code fallback the middleware and grant resolver fold
+ * in alongside the database (so the root admin, and the legacy seeds, keep
+ * working even before the seed migration runs). Prefer the async resolver in
+ * src/lib/accessGrants.ts for authorization decisions.
+ */
 export function isAdminEmail(email: string | null | undefined): boolean {
   if (!email) return false;
   return ADMIN_EMAILS.includes(email.toLowerCase().trim());
