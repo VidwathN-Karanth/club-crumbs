@@ -1,7 +1,7 @@
 import { clerkMiddleware, createRouteMatcher, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { isOnRoster } from "@/lib/roster";
-import { isAdminEmail } from "@/lib/admin";
+import { isAdminNow } from "@/lib/accessGrants";
 import { redirectForRole } from "@/lib/roleRoute";
 
 // Define which routes are protected
@@ -85,8 +85,8 @@ export default clerkMiddleware(async (auth, req) => {
     const email = await resolveEmail(sessionClaims as Record<string, unknown> | null, userId);
 
     if (email) {
-      const isAdmin = isAdminEmail(email);
-      const allowed = isAdmin || isOnRoster(email);
+      const isAdmin = await isAdminNow(email);
+      const allowed = isAdmin || (await isOnRoster(email));
       if (!allowed && !req.nextUrl.pathname.startsWith('/access-denied')) {
         return NextResponse.redirect(new URL('/access-denied', req.url));
       }
