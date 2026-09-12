@@ -1828,7 +1828,7 @@
       "file_type": "code",
       "norm_label": "access()",
       "source_file": "src/app/page.tsx",
-      "source_location": "L441"
+      "source_location": "L444"
     },
     {
       "id": "src_app_page_calendarpanel",
@@ -1852,7 +1852,7 @@
       "file_type": "code",
       "norm_label": "cinema()",
       "source_file": "src/app/page.tsx",
-      "source_location": "L295"
+      "source_location": "L298"
     },
     {
       "id": "src_app_page_clubs",
@@ -1888,7 +1888,7 @@
       "file_type": "code",
       "norm_label": "footer()",
       "source_file": "src/app/page.tsx",
-      "source_location": "L526"
+      "source_location": "L529"
     },
     {
       "id": "src_app_page_hero",
@@ -1936,7 +1936,7 @@
       "file_type": "code",
       "norm_label": "rootpage()",
       "source_file": "src/app/page.tsx",
-      "source_location": "L566"
+      "source_location": "L569"
     },
     {
       "id": "src_app_privacy_page_privacypolicypage",
@@ -30747,7 +30747,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/page.tsx",
-      "source_location": "L295",
+      "source_location": "L298",
       "weight": 1.0
     },
     {
@@ -30769,7 +30769,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/page.tsx",
-      "source_location": "L441",
+      "source_location": "L444",
       "weight": 1.0
     },
     {
@@ -30780,7 +30780,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/page.tsx",
-      "source_location": "L526",
+      "source_location": "L529",
       "weight": 1.0
     },
     {
@@ -30791,7 +30791,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/page.tsx",
-      "source_location": "L566",
+      "source_location": "L569",
       "weight": 1.0
     },
     {
@@ -35949,5 +35949,5 @@
       "source_file": "structure.md"
     }
   ],
-  "built_at_commit": "1f8d2cc9185128c8f0f8fc429be2e21995e8d294"
+  "built_at_commit": "dfe2bac8dd34a7530cd00b9bf00606d4e3ee55fb"
 }

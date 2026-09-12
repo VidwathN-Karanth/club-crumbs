@@ -23,7 +23,7 @@ const CLUB_ICON: Record<Cohort, typeof Terminal> = {
 /** Where each club card leads. `external` opens in a new tab; `download` saves a file. */
 const CLUB_LINK: Record<Cohort, { href: string; external?: boolean; download?: string; cta: string }> = {
   'Coders Club': { href: '/clubs/coders-club', cta: 'Enter' },
-  'Crypton Club': { href: 'https://club-crumbs.vercel.app/#clubs', cta: 'Explore' },
+  'Crypton Club': { href: 'https://crypton-ctf.xyz/', external: true, cta: 'Visit site' },
   DevStudio: { href: '/dev-studio.pdf', download: 'DevStudio.pdf', cta: 'Download deck' },
 };
 
