@@ -426,9 +426,9 @@
     "semantic_hash": ""
   },
   "src/components/SyncProvider.tsx": {
-    "mtime": 1789262107.1317847,
-    "seen": 1789263103.6643894,
-    "ast_hash": "d9d10d9b1a98e2ce707344a6594150d2",
+    "mtime": 1789263676.7877576,
+    "seen": 1789263779.602167,
+    "ast_hash": "2b14786fb807b152418d409f4f4a7d7e",
     "semantic_hash": ""
   },
   "src/components/ZenMode.tsx": {
@@ -444,9 +444,9 @@
     "semantic_hash": "76281ddffdb6f1da0ffff8b865cf7d28"
   },
   "src/lib/authz.ts": {
-    "mtime": 1789228901.928625,
-    "seen": 1789229615.6189218,
-    "ast_hash": "de85de7df80f24a659bd0c9b39a795c9",
+    "mtime": 1789263625.5543494,
+    "seen": 1789263779.6021752,
+    "ast_hash": "1bea8dc3eb93a52a914098a7fcc8310d",
     "semantic_hash": ""
   },
   "src/lib/certificateCategories.ts": {
@@ -600,9 +600,9 @@
     "semantic_hash": "4d5b54915d4ff7bd85e237b5e8c21bf4"
   },
   "src/proxy.ts": {
-    "mtime": 1789229139.8782592,
-    "seen": 1789229615.6189513,
-    "ast_hash": "3d8889273d715a5ef0f03821bb70fb90",
+    "mtime": 1789263467.3262136,
+    "seen": 1789263779.602224,
+    "ast_hash": "bd754962ecc1d52adc2099c24584e537",
     "semantic_hash": ""
   },
   "src/store/useStore.ts": {
@@ -966,15 +966,15 @@
     "semantic_hash": ""
   },
   "src/lib/accessContext.ts": {
-    "mtime": 1789228877.2025912,
-    "seen": 1789229615.6189172,
-    "ast_hash": "049404e32ce601132f8ea7695578b2c7",
+    "mtime": 1789263476.7964787,
+    "seen": 1789263779.602171,
+    "ast_hash": "a89ccf9cf46fc8ffb446a2cc0cffa553",
     "semantic_hash": ""
   },
   "src/lib/accessGrants.ts": {
-    "mtime": 1789262790.0243893,
-    "seen": 1789263103.664394,
-    "ast_hash": "10747876cd0b62071b65256f704b1573",
+    "mtime": 1789263576.5958364,
+    "seen": 1789263779.6021721,
+    "ast_hash": "ce2bdf307b8717bc98024e6734d160ab",
     "semantic_hash": ""
   },
   "src/lib/purge.ts": {
