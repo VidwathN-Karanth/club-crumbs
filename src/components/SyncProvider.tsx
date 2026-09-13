@@ -6,6 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useStore } from '@/store/useStore';
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
 import { apiFetch } from '@/lib/apiClient';
+import { areaForContextString } from '@/lib/accessContext';
+import type { Cohort } from '@/lib/cohorts';
 import LayoraMark from '@/components/LayoraMark';
 
 // Module-level flag to suppress ALL database writes during a purge.
@@ -60,25 +62,75 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
 
     let cancelled = false;
 
+    /**
+     * Sends the account to the right surface for its role — the client half of
+     * routing that used to live in middleware (moved here so a multi-role
+     * sign-in never triggers a per-navigation Clerk call, which was tripping
+     * Clerk's rate limit). Returns true when it navigated away, so the caller
+     * keeps the splash up instead of rendering the wrong shell for a frame.
+     */
+    const routeForRole = (data: {
+      needsChoice?: boolean;
+      activeContext?: string | null;
+    }): boolean => {
+      const p = pathname;
+      const onProtected =
+        p === '/choose-access' ||
+        p.startsWith('/dashboard') ||
+        p.startsWith('/admin') ||
+        p.startsWith('/leader') ||
+        p.startsWith('/onboarding');
+      if (!onProtected) return false;
+
+      // More than one identity and none chosen yet → pick one first.
+      if (data.needsChoice) {
+        if (p !== '/choose-access') { router.replace('/choose-access'); return true; }
+        return false;
+      }
+
+      // A resolved context (single identity, or already chosen). Send them to
+      // its console, and bounce them out of any console that is not it.
+      const target = areaForContextString(data.activeContext ?? null);
+      if (!target) return false;
+      if (p === '/choose-access') { router.replace(target); return true; }
+
+      const inAdmin = p.startsWith('/admin');
+      const inLeader = p.startsWith('/leader');
+      const inMember = p.startsWith('/dashboard') || p.startsWith('/onboarding');
+      const wrong =
+        (inAdmin && target !== '/admin') ||
+        (inLeader && target !== '/leader') ||
+        (inMember && target !== '/dashboard');
+      if (wrong) { router.replace(target); return true; }
+      return false;
+    };
+
+    const handleAllowed = (data: {
+      cohort?: Cohort | null; isAdmin?: boolean; needsChoice?: boolean; activeContext?: string | null;
+    }) => {
+      useStore.getState().setCohort(data.cohort ?? null);
+      useStore.getState().setIsAdmin(Boolean(data.isAdmin));
+      // If we redirect, leave accessState as 'checking' so the splash stays up
+      // until the destination loads rather than flashing this shell.
+      if (routeForRole(data)) return;
+      setAccessState('allowed');
+    };
+
+    const handleDenied = () => {
+      useStore.getState().setCohort(null);
+      useStore.getState().setIsAdmin(false);
+      setAccessState('denied');
+      if (!isAccessDeniedRoute) router.replace('/access-denied');
+    };
+
     (async () => {
       try {
         const res = await apiFetch('/api/me');
         const data = await res.json();
         if (cancelled) return;
 
-        if (data.allowed) {
-          useStore.getState().setCohort(data.cohort ?? null);
-          useStore.getState().setIsAdmin(Boolean(data.isAdmin));
-          setAccessState('allowed');
-          return;
-        }
-
-        useStore.getState().setCohort(null);
-        useStore.getState().setIsAdmin(false);
-        setAccessState('denied');
-        if (!isAccessDeniedRoute) {
-          router.replace('/access-denied');
-        }
+        if (data.allowed) handleAllowed(data);
+        else handleDenied();
       } catch (err) {
         if (cancelled) return;
 
@@ -88,16 +140,8 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
           const data = await retry.json();
           if (cancelled) return;
 
-          if (data.allowed) {
-            useStore.getState().setCohort(data.cohort ?? null);
-            useStore.getState().setIsAdmin(Boolean(data.isAdmin));
-            setAccessState('allowed');
-            return;
-          }
-          useStore.getState().setCohort(null);
-          useStore.getState().setIsAdmin(false);
-          setAccessState('denied');
-          if (!isAccessDeniedRoute) router.replace('/access-denied');
+          if (data.allowed) handleAllowed(data);
+          else handleDenied();
           return;
         } catch (retryErr) {
           console.warn('[Access] Could not verify roster access:', retryErr);
@@ -108,12 +152,10 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
         // Still no answer. On a protected surface that has to mean no — every
         // API route enforces the roster independently, so letting the shell
         // render would only show an empty workspace to someone barred from it.
-        const onProtectedRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/admin');
+        const onProtectedRoute =
+          pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/leader');
         if (onProtectedRoute) {
-          useStore.getState().setCohort(null);
-          useStore.getState().setIsAdmin(false);
-          setAccessState('denied');
-          if (!isAccessDeniedRoute) router.replace('/access-denied');
+          handleDenied();
         } else {
           setAccessState('allowed');
         }

@@ -29,6 +29,12 @@ export function areaForContext(ctx: ActiveContext): '/admin' | '/leader' | '/das
   return '/dashboard';
 }
 
+/** The console area for a serialized context string, or null if unparseable. */
+export function areaForContextString(raw: string | null | undefined): '/admin' | '/leader' | '/dashboard' | null {
+  const ctx = parseContext(raw);
+  return ctx ? areaForContext(ctx) : null;
+}
+
 /** Cookie value form: `admin`, `leader:Coders%20Club`, `member:Coders%20Club`. */
 export function serializeContext(ctx: ActiveContext): string {
   if (ctx.role === 'admin') return 'admin';

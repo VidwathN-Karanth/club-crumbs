@@ -1,10 +1,12 @@
 import 'server-only';
 
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { auth, currentUser } from '@clerk/nextjs/server';
 
 import { COHORTS, isCohort, type Cohort } from './cohorts';
 import { isCollegeEmail } from './roster';
+import { CTX_COOKIE, resolveActiveContext, type ActiveContext } from './accessContext';
 import {
   getGrantsForEmail,
   identitiesFor,
@@ -24,13 +26,19 @@ export interface Requester {
   name: string;
   /** Every grant this account holds (admin / leader-of-club / member-of-club). */
   grants: Grant[];
-  /** Everything they may act as, admin-first then a card per club led. */
+  /** Everything they may act as: admin, a card per club led, and a member card. */
   identities: Identity[];
   isAdmin: boolean;
   /** The clubs they lead (empty for a non-leader). */
   ledCohorts: Cohort[];
-  /** The single club they belong to as a member — null for staff. */
+  /** The club they belong to as a member — null if they hold no member grant. */
   cohort: Cohort | null;
+  /**
+   * Which identity they are currently acting as, from the validated cc_ctx
+   * cookie (or their only identity). Lets a person who is both staff and a
+   * member use the member workspace when they chose the member card.
+   */
+  activeContext: ActiveContext | null;
   allowed: boolean;
   denialReason: AccessDenialReason | null;
 }
@@ -38,9 +46,9 @@ export interface Requester {
 /**
  * Resolves who is making this request and everything they are entitled to.
  *
- * Roles now come from the database (public.access_grants via accessGrants.ts),
- * so one account can be an admin AND a leader, or lead several clubs. Staff
- * (admin/leader) never carry a member club — the two are mutually exclusive.
+ * Roles come from the database (public.access_grants), so one account can hold
+ * several — admin AND a leader, a leader of two clubs, or staff AND a member.
+ * The active-context cookie says which one they are acting as right now.
  */
 export async function getRequester(): Promise<Requester | null> {
   const { userId } = await auth();
@@ -56,7 +64,10 @@ export async function getRequester(): Promise<Requester | null> {
   const led = ledCohorts(grants);
   const cohort = memberCohort(grants);
 
-  const base = { userId, email, name, grants, identities, isAdmin, ledCohorts: led, cohort };
+  const rawCtx = (await cookies()).get(CTX_COOKIE)?.value ?? null;
+  const activeContext = resolveActiveContext(rawCtx, identities);
+
+  const base = { userId, email, name, grants, identities, isAdmin, ledCohorts: led, cohort, activeContext };
 
   if (identities.length === 0) {
     // No grant at all. A non-college address that is not an admin is the wrong
@@ -83,16 +94,23 @@ export async function requireAdmin(): Promise<Guard<Requester>> {
 }
 
 /**
- * Requires a signed-in student who is a member. The returned cohort is
- * non-null and derived from the session — never from a query parameter — so a
- * student cannot ask for another club's data. Staff are turned away: they use
- * their own console, not the student workspace.
+ * Requires a signed-in member. The returned cohort is non-null and derived from
+ * the session — never a query parameter — so nobody can ask for another club's
+ * data.
+ *
+ * Someone who is ONLY staff is turned away (they use the console). But a person
+ * who is both staff and a member may use the workspace when they are acting in
+ * their member context (chosen on the sign-in chooser), so an admin who is also
+ * a DevStudio member can open the DevStudio workspace.
  */
 export async function requireStudent(): Promise<Guard<Requester & { cohort: Cohort }>> {
   const requester = await getRequester();
   if (!requester) return deny(401, 'Unauthorized', 'signed_out');
 
-  if (requester.isAdmin || requester.ledCohorts.length > 0) {
+  const isStaff = requester.isAdmin || requester.ledCohorts.length > 0;
+  const inMemberContext = requester.activeContext?.role === 'member';
+
+  if (isStaff && !inMemberContext) {
     return deny(403, 'Staff use the console, not the student workspace.');
   }
   if (requester.denialReason === 'wrong_domain') {

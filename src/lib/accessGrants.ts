@@ -130,28 +130,27 @@ export function isStaffGrant(grants: Grant[]): boolean {
   return grants.some((g) => g.role === 'admin' || g.role === 'leader');
 }
 
-/** The single club an account is a member of, if any. Staff have none. */
+/** The single club an account is a member of, if any (independent of staff roles). */
 export function memberCohort(grants: Grant[]): Cohort | null {
-  if (isStaffGrant(grants)) return null;
   const member = grants.find((g) => g.role === 'member');
   return member?.cohort ?? null;
 }
 
 /**
- * Everything a signed-in account may act as, in a stable order:
- * admin first, then one card per club led, then member.
+ * Everything a signed-in account may act as, in a stable order: admin first,
+ * then one card per club led, then the member workspace.
  *
- * Staff never carry a member identity (the two are mutually exclusive), so a
- * pure member always has exactly one identity and is never shown the chooser.
+ * ONE card per grant — including a member card alongside staff roles. An email
+ * that is both an admin and a member, or a leader of one club and a member of
+ * another, is shown a card for each and chooses on /choose-access. An account
+ * with a single grant has one identity and never sees the chooser.
  */
 export function identitiesFor(grants: Grant[]): Identity[] {
   const out: Identity[] = [];
   if (isAdminGrant(grants)) out.push({ kind: 'admin' });
   for (const cohort of ledCohorts(grants)) out.push({ kind: 'leader', cohort });
-  if (!isStaffGrant(grants)) {
-    const club = memberCohort(grants);
-    if (club) out.push({ kind: 'member', cohort: club });
-  }
+  const club = memberCohort(grants);
+  if (club) out.push({ kind: 'member', cohort: club });
   return out;
 }
 
@@ -227,17 +226,8 @@ export async function addGrant(
     if (!isCohort(input.cohort)) return fail('invalid', 'A leader or member grant needs a valid club.');
   }
 
-  const existing = await getGrantsForEmail(email);
-
-  // Staff and member cannot coexist on one email.
-  const addingStaff = input.role === 'admin' || input.role === 'leader';
-  if (addingStaff && memberCohort(existing)) {
-    return fail('staff_member_conflict', 'This email is already a club member. Remove that first.');
-  }
-  if (input.role === 'member' && isStaffGrant(existing)) {
-    return fail('staff_member_conflict', 'This email is staff (admin or leader) and cannot also be a member.');
-  }
-
+  // Roles may now coexist on one email (e.g. admin + member, or leader of one
+  // club + member of another). Each becomes a card on the sign-in chooser.
   try {
     const { error } = await supabaseAdmin.from('access_grants').insert({
       email,
