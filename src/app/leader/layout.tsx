@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@clerk/nextjs';
-import { CalendarDays, Code2, LayoutDashboard, LogOut, Trophy, Users } from 'lucide-react';
+import { CalendarDays, Code2, LayoutDashboard, LogOut, Settings, Trophy, Users } from 'lucide-react';
 
 import { useStore } from '@/store/useStore';
 import { apiFetch } from '@/lib/apiClient';
@@ -119,6 +119,7 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
   const menu = [
     ...MENU,
     ...(cohort === CODING_COHORT ? [{ name: 'Coding', path: '/leader/coding', icon: Code2 }] : []),
+    { name: 'Settings', path: '/leader/settings', icon: Settings },
   ];
 
   return (

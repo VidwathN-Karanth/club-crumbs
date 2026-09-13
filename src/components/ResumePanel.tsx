@@ -38,7 +38,12 @@ function validateResumeFile(f: File): PickResult {
   return { ok: true, file: f };
 }
 
-export default function ResumePanel() {
+/**
+ * The CV panel. Defaults to the student endpoint; pass `endpoint` to reuse it
+ * for staff (e.g. leaders manage their own CV at /api/staff/resume). The Drive
+ * upload path is shared regardless.
+ */
+export default function ResumePanel({ endpoint = '/api/user/resume' }: { endpoint?: string }) {
   const [resume, setResume] = useState<Resume | null>(null);
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<'upload' | 'link'>('upload');
@@ -57,7 +62,7 @@ export default function ResumePanel() {
 
     (async () => {
       try {
-        const data = await readJson<{ resume: Resume | null }>(await apiFetch('/api/user/resume'));
+        const data = await readJson<{ resume: Resume | null }>(await apiFetch(endpoint));
         if (!cancelled) setResume(data.resume);
       } catch (err) {
         if (!cancelled) setError(errorMessage(err, 'Could not load your CV.'));
@@ -111,7 +116,7 @@ export default function ResumePanel() {
       }
 
       const data = await readJson<{ resume: Resume }>(
-        await apiFetch('/api/user/resume', {
+        await apiFetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url, name }),
@@ -136,7 +141,7 @@ export default function ResumePanel() {
     setBusy(true);
     setError('');
     try {
-      await readJson(await apiFetch('/api/user/resume', { method: 'DELETE' }));
+      await readJson(await apiFetch(endpoint, { method: 'DELETE' }));
       setResume(null);
     } catch (err) {
       setError(errorMessage(err, 'Could not remove your CV.'));

@@ -162,20 +162,30 @@ export async function isAdminNow(email: string | null | undefined): Promise<bool
 
 /* ── Roster reads (used by the admin data routes) ──────────────────────────── */
 
-/** Every member email of one club, lowercased. Scopes a club's data queries. */
-export async function memberEmailsForCohort(cohort: Cohort): Promise<string[]> {
+/** Every email holding a given role in one club, lowercased. */
+async function emailsForRole(cohort: Cohort, role: Role): Promise<string[]> {
   try {
     const { data, error } = await supabaseAdmin
       .from('access_grants')
       .select('email')
       .eq('cohort', cohort)
-      .eq('role', 'member');
+      .eq('role', role);
     if (error) throw error;
     return (data || []).map((r) => normalizeEmail((r as { email: string }).email)).filter(Boolean);
   } catch (err) {
-    console.error(`[accessGrants] Could not list members of ${cohort}:`, err);
+    console.error(`[accessGrants] Could not list ${role}s of ${cohort}:`, err);
     return [];
   }
+}
+
+/** Every member email of one club, lowercased. Scopes a club's data queries. */
+export async function memberEmailsForCohort(cohort: Cohort): Promise<string[]> {
+  return emailsForRole(cohort, 'member');
+}
+
+/** Every leader email of one club, lowercased. */
+export async function leaderEmailsForCohort(cohort: Cohort): Promise<string[]> {
+  return emailsForRole(cohort, 'leader');
 }
 
 /* ── Writes ────────────────────────────────────────────────────────────────

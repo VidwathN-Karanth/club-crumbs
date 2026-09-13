@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { User } from '@/lib/models/User';
 import { requireAdminCohort } from '@/lib/authz';
 import { emailsForCohort } from '@/lib/roster';
+import { leaderEmailsForCohort } from '@/lib/accessGrants';
 
 /**
  * Everyone in one academic year who has uploaded a CV, newest first.
@@ -16,11 +17,19 @@ export async function GET(request: Request) {
   const { cohort } = guard.requester;
 
   try {
-    const rosterEmails = new Set(await emailsForCohort(cohort));
+    const [memberEmails, leaderEmails] = await Promise.all([
+      emailsForCohort(cohort),
+      leaderEmailsForCohort(cohort),
+    ]);
+    const rosterEmails = new Set(memberEmails);
+    const leaderSet = new Set(leaderEmails);
     const users = await User.findAll();
 
     const resumes = users
-      .filter((u) => u.resumeUrl && rosterEmails.has((u.email || '').trim().toLowerCase()))
+      .filter((u) => {
+        const email = (u.email || '').trim().toLowerCase();
+        return u.resumeUrl && (rosterEmails.has(email) || leaderSet.has(email));
+      })
       .map((u) => ({
         userId: u.id,
         name: u.name,
@@ -28,6 +37,7 @@ export async function GET(request: Request) {
         url: u.resumeUrl,
         fileName: u.resumeName,
         uploadedAt: u.resumeUploadedAt,
+        role: leaderSet.has((u.email || '').trim().toLowerCase()) ? 'leader' : 'member',
       }))
       .sort(
         (a, b) => new Date(b.uploadedAt || 0).getTime() - new Date(a.uploadedAt || 0).getTime()
