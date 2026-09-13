@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@clerk/nextjs';
-import { CalendarDays, Code2, LayoutDashboard, LogOut, Settings, Trophy, Users } from 'lucide-react';
+import { CalendarDays, CheckSquare, Code2, LayoutDashboard, LogOut, Settings, Trophy, Users } from 'lucide-react';
 
 import { useStore } from '@/store/useStore';
 import { apiFetch } from '@/lib/apiClient';
@@ -26,6 +26,7 @@ const MENU = [
   { name: 'Members', path: '/leader/members', icon: Users },
   { name: 'Events', path: '/leader/events', icon: CalendarDays },
   { name: 'Leaderboard', path: '/leader/leaderboard', icon: Trophy },
+  { name: 'Attendance', path: '/leader/attendance', icon: CheckSquare },
 ];
 
 const normalise = (path: string) => path.replace(/\/$/, '') || '/leader';

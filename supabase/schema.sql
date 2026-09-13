@@ -319,3 +319,21 @@ create table if not exists public.coding_events (
 
 alter table public.coding_events enable row level security;
 create index if not exists idx_coding_events_cohort on public.coding_events(cohort, competition_date);
+
+-- 16. Attendance — a leader's per-date register for their club.
+--
+-- One row per (club, date). `present` holds the emails ticked present; anyone on
+-- the roster but not in the array was absent. The leader can download a date (or
+-- everything) as CSV and then delete it.
+create table if not exists public.attendance (
+  id         uuid primary key default gen_random_uuid(),
+  cohort     text not null,
+  date       date not null,
+  present    jsonb not null default '[]'::jsonb,   -- emails marked present
+  marked_by  text,                                 -- leader email, for audit
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  constraint attendance_unique unique (cohort, date)
+);
+
+alter table public.attendance enable row level security;
+create index if not exists idx_attendance_cohort_date on public.attendance(cohort, date);
