@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@clerk/nextjs';
-import { LayoutDashboard, LogOut, Users } from 'lucide-react';
+import { Code2, LayoutDashboard, LogOut, Users } from 'lucide-react';
 
 import { useStore } from '@/store/useStore';
 import { apiFetch } from '@/lib/apiClient';
-import { isCohort, type Cohort, CLUB_META } from '@/lib/cohorts';
+import { isCohort, type Cohort, CLUB_META, CODING_COHORT } from '@/lib/cohorts';
 import LayoraMark from '@/components/LayoraMark';
 import SwitchRoleButton from '@/components/SwitchRoleButton';
 import NotificationAgent from '@/components/NotificationAgent';
@@ -113,6 +113,12 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
 
   const accent = CLUB_META[cohort].accent;
 
+  // The Coding section (Unstop competition cards) is only for the Coding club.
+  const menu = [
+    ...MENU,
+    ...(cohort === CODING_COHORT ? [{ name: 'Coding', path: '/leader/coding', icon: Code2 }] : []),
+  ];
+
   return (
     <LeaderProvider value={{ cohort, leaderName, leaderEmail }}>
       <div className="min-h-screen bg-cyber-dark text-white flex relative overflow-hidden font-mono">
@@ -133,7 +139,7 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
             </div>
 
             <nav className="space-y-1">
-              {MENU.map((item) => {
+              {menu.map((item) => {
                 const isActive = normalise(item.path) === current;
                 const Icon = item.icon;
                 return (
@@ -193,7 +199,7 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
 
           {/* Mobile nav */}
           <nav className="md:hidden flex gap-2 px-4 py-3 border-b border-white/10 bg-black/20">
-            {MENU.map((item) => {
+            {menu.map((item) => {
               const isActive = normalise(item.path) === current;
               return (
                 <button

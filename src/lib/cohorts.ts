@@ -15,6 +15,13 @@ export const COHORTS = ['Coders Club', 'Crypton Club', 'DevStudio'] as const;
 
 export type Cohort = (typeof COHORTS)[number];
 
+/**
+ * The one club that has the "Coding" section (Unstop competition cards). Only
+ * this club's leaders can post coding events and only its members see them.
+ * A single constant so the gate is easy to widen later.
+ */
+export const CODING_COHORT: Cohort = 'Coders Club';
+
 /** Only college Google accounts may sign in. */
 export const COLLEGE_EMAIL_DOMAIN = 'mite.ac.in';
 

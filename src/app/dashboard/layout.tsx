@@ -10,8 +10,9 @@ import {
   FolderLock, Settings, LogOut, ChevronLeft, 
   ChevronRight, Clock, 
   Check, Menu, X, Trophy, Award,
-  Globe, Sun, Moon, Timer
+  Globe, Sun, Moon, Timer, Code2
 } from 'lucide-react';
+import { CODING_COHORT } from '@/lib/cohorts';
 import { formatShortDate } from '@/lib/dateFormat';
 import { UserButton, useUser, useAuth } from '@clerk/nextjs';
 import OnboardingModal from '@/components/OnboardingModal';
@@ -166,6 +167,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Courses', path: '/dashboard/courses', icon: BookMarked },
     { name: 'Certificates', path: '/dashboard/certificates', icon: Award },
     { name: 'Leaderboard', path: '/dashboard/leaderboard', icon: Trophy },
+    // The Coding section (Unstop competitions) is only for the Coding club.
+    ...(store.cohort === CODING_COHORT ? [{ name: 'Coding', path: '/dashboard/coding', icon: Code2 }] : []),
     { name: 'Settings', path: '/dashboard/settings', icon: Settings }
   ];
 
