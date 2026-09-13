@@ -3,16 +3,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@clerk/nextjs';
-import { BookMarked, CalendarDays, CheckSquare, Code2, LayoutDashboard, LogOut, Puzzle, Rocket, Settings, Trophy, Users } from 'lucide-react';
+import { BookMarked, CalendarDays, CheckSquare, Clock, Code2, LayoutDashboard, LogOut, Moon, Puzzle, Rocket, Settings, Sun, Timer, Trophy, Users } from 'lucide-react';
 
 import { useStore } from '@/store/useStore';
 import { apiFetch } from '@/lib/apiClient';
+import { formatShortDate } from '@/lib/dateFormat';
 import { isCohort, type Cohort, CLUB_META, CODING_COHORT } from '@/lib/cohorts';
 import LayoraMark from '@/components/LayoraMark';
 import SwitchRoleButton from '@/components/SwitchRoleButton';
 import NotificationAgent from '@/components/NotificationAgent';
 import NotificationCenter from '@/components/NotificationCenter';
 import ExtensionNudge from '@/components/ExtensionNudge';
+import ZenMode from '@/components/ZenMode';
 import { LeaderProvider } from './LeaderContext';
 
 /* ────────────────────────────────────────────────────────────────
@@ -52,6 +54,24 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
 
   const [cohort, setCohort] = useState<Cohort | null>(null);
   const [signingOut, setSigningOut] = useState(false);
+  const [zenOpen, setZenOpen] = useState(false);
+  const [timeStr, setTimeStr] = useState('');
+  const [dateStr, setDateStr] = useState('');
+
+  const themeMode = useStore((s) => s.themeMode);
+  const setThemeMode = useStore((s) => s.setThemeMode);
+  const is24HourFormat = useStore((s) => s.is24HourFormat);
+
+  useEffect(() => {
+    const tick = () => {
+      const d = new Date();
+      setTimeStr(d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: !is24HourFormat }));
+      setDateStr(formatShortDate(d));
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [is24HourFormat]);
 
   const leaderName = user?.fullName || user?.firstName || 'Club Lead';
   const leaderEmail = user?.primaryEmailAddress?.emailAddress || '';
@@ -191,15 +211,55 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
 
         {/* --- MAIN --- */}
         <main className="flex-1 min-w-0 flex flex-col min-h-screen">
-          <header className="h-14 border-b border-white/10 bg-black/20 backdrop-blur-md px-4 md:px-6 flex items-center justify-between z-20">
+          <header className="relative h-14 border-b border-white/10 bg-black/20 backdrop-blur-md px-4 md:px-6 flex items-center justify-between z-20">
             <div className="flex items-center gap-2 font-mono text-xs text-white/40">
               <LayoraMark className="h-5 w-5 md:hidden" glyphClassName="text-[10px]" />
               <span className="hidden md:inline">Console:</span>
               <span className="font-bold uppercase" style={{ color: accent }}>{cohort}</span>
+              <span className="hidden lg:flex items-center gap-2 ml-2 pl-3 border-l border-white/10">
+                <CalendarDays className="w-3.5 h-3.5 text-white/30" />
+                <span className="text-white/60 font-semibold tracking-wide">{dateStr}</span>
+              </span>
             </div>
+
+            {/* Live clock + light/dark switch, matching the member dashboard. */}
+            <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-2.5 border border-white/10 bg-white/5 px-4 py-1.5 rounded-full font-mono">
+              <Clock className="w-4 h-4 text-primary" strokeWidth={1.5} />
+              <span className="text-white font-bold font-mono text-lg min-w-[100px] text-center leading-none">{timeStr || '00:00:00'}</span>
+              <div className="h-4 w-[1px] bg-white/15 ml-1.5 mr-0.5 shrink-0" />
+              <button
+                onClick={() => setThemeMode(themeMode === 'light' ? 'dark' : 'light')}
+                className={`relative flex h-5 w-9 items-center rounded-full transition-colors duration-200 cursor-pointer outline-none border border-white/10 shrink-0 ml-1.5 ${themeMode === 'light' ? 'bg-zinc-300' : 'bg-zinc-800'}`}
+                title={themeMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+                aria-label={themeMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+              >
+                <span className={`flex h-4 w-4 items-center justify-center rounded-full transition-transform duration-200 ${themeMode === 'light' ? 'translate-x-0.5 bg-white text-amber-500' : 'translate-x-4 bg-zinc-950 text-white'}`}>
+                  {themeMode === 'light'
+                    ? <Sun className="w-2.5 h-2.5 fill-amber-500 text-amber-500" strokeWidth={2.5} />
+                    : <Moon className="w-2.5 h-2.5 fill-white text-white" strokeWidth={2.5} />}
+                </span>
+              </button>
+            </div>
+
             <div className="flex items-center gap-3">
+              {/* Compact light/dark toggle for mobile, where the centre pill is hidden. */}
+              <button
+                onClick={() => setThemeMode(themeMode === 'light' ? 'dark' : 'light')}
+                className="md:hidden p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition cursor-pointer"
+                aria-label={themeMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+              >
+                {themeMode === 'light' ? <Sun className="w-4 h-4" strokeWidth={1.5} /> : <Moon className="w-4 h-4" strokeWidth={1.5} />}
+              </button>
+              <button
+                onClick={() => setZenOpen(true)}
+                title="Zen mode — a fullscreen Pomodoro session"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 hover:border-primary hover:text-primary text-white/70 transition cursor-pointer"
+              >
+                <Timer className="w-3.5 h-3.5" strokeWidth={1.5} />
+                <span className="font-mono text-[11px] font-bold uppercase tracking-wider hidden sm:inline">Zen</span>
+              </button>
               <SwitchRoleButton />
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[10px] font-mono font-bold uppercase tracking-wider" style={{ borderColor: `${accent}55`, backgroundColor: `${accent}18`, color: accent }}>
+              <span className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[10px] font-mono font-bold uppercase tracking-wider" style={{ borderColor: `${accent}55`, backgroundColor: `${accent}18`, color: accent }}>
                 <Users className="w-3 h-3" /> Club lead
               </span>
             </div>
@@ -234,6 +294,7 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
         <NotificationAgent />
         <NotificationCenter />
         <ExtensionNudge />
+        <ZenMode open={zenOpen} onClose={() => setZenOpen(false)} />
       </div>
     </LeaderProvider>
   );
