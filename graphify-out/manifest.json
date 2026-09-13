@@ -834,9 +834,9 @@
     "semantic_hash": ""
   },
   "src/app/admin/layout.tsx": {
-    "mtime": 1789267576.9902427,
-    "seen": 1789267676.7353945,
-    "ast_hash": "6bb140dfb09f03a43573fe9b54dae349",
+    "mtime": 1789293426.9033158,
+    "seen": 1789293556.7639632,
+    "ast_hash": "ebb5a7d84f435e8835ffb3db9df52439",
     "semantic_hash": ""
   },
   "src/app/admin/leaderboard/page.tsx": {
@@ -1050,9 +1050,9 @@
     "semantic_hash": ""
   },
   "src/app/leader/attendance/page.tsx": {
-    "mtime": 1789263017.073178,
-    "seen": 1789263103.66435,
-    "ast_hash": "0ed01bca22c2724648bea8e8ac6262db",
+    "mtime": 1789293486.3372087,
+    "seen": 1789293556.7640288,
+    "ast_hash": "4707b29c3603503a00fdb3bfe164e8ac",
     "semantic_hash": ""
   },
   "src/app/leader/coding/page.tsx": {
@@ -1101,6 +1101,18 @@
     "mtime": 1789267552.2130654,
     "seen": 1789267676.7355745,
     "ast_hash": "9c48eaefc2a8fa217189a7501e1e8edd",
+    "semantic_hash": ""
+  },
+  "src/app/admin/attendance/page.tsx": {
+    "mtime": 1789293412.6971583,
+    "seen": 1789293556.7639594,
+    "ast_hash": "82457962a09895d3da9cafdae45939de",
+    "semantic_hash": ""
+  },
+  "src/app/api/admin/attendance/route.ts": {
+    "mtime": 1789293371.394231,
+    "seen": 1789293556.763972,
+    "ast_hash": "d2f3a3edcd7d1c129d10ab367357c152",
     "semantic_hash": ""
   }
 }
