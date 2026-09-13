@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@clerk/nextjs';
-import { Code2, LayoutDashboard, LogOut, Users } from 'lucide-react';
+import { LayoutDashboard, LogOut, Users } from 'lucide-react';
 
 import { useStore } from '@/store/useStore';
 import { apiFetch } from '@/lib/apiClient';
@@ -24,7 +24,6 @@ import { LeaderProvider } from './LeaderContext';
 const MENU = [
   { name: 'Overview', path: '/leader', icon: LayoutDashboard },
   { name: 'Members', path: '/leader/members', icon: Users },
-  { name: 'Contests', path: '/leader/contests', icon: Code2 },
 ];
 
 const normalise = (path: string) => path.replace(/\/$/, '') || '/leader';

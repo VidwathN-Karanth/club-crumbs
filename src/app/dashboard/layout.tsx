@@ -10,7 +10,7 @@ import {
   FolderLock, Settings, LogOut, ChevronLeft, 
   ChevronRight, Clock, 
   Check, Menu, X, Trophy, Award,
-  Globe, Sun, Moon, Timer, Code2
+  Globe, Sun, Moon, Timer
 } from 'lucide-react';
 import { formatShortDate } from '@/lib/dateFormat';
 import { UserButton, useUser, useAuth } from '@clerk/nextjs';
@@ -168,7 +168,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Certificates', path: '/dashboard/certificates', icon: Award },
     { name: 'Leaderboard', path: '/dashboard/leaderboard', icon: Trophy },
     { name: 'Global Resources', path: '/dashboard/global-resources', icon: Globe },
-    { name: 'Coding', path: '/dashboard/coding', icon: Code2 },
     { name: 'Settings', path: '/dashboard/settings', icon: Settings }
   ];
 
