@@ -623,8 +623,18 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
     };
   }, [isLoaded, user?.id, hasHydrated]);
 
-  // The roster answer gates the shell, not just the data.
-  if (isLoaded && user && accessState === 'checking' && !isAccessDeniedRoute) {
+  // On a protected route, never paint the page until access is fully resolved.
+  // This deliberately also covers the window while Clerk is still loading the
+  // user (`!isLoaded`) — otherwise the destination page (e.g. the dashboard)
+  // rendered for a frame before a multi-role account was routed to the chooser.
+  const onProtectedRoute =
+    pathname === '/choose-access' ||
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/leader') ||
+    pathname.startsWith('/onboarding');
+
+  if (onProtectedRoute && accessState !== 'allowed' && !isAccessDeniedRoute) {
     return (
       <main className="min-h-screen bg-[#16181C] text-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
