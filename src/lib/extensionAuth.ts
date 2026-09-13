@@ -4,8 +4,7 @@ import { NextResponse } from 'next/server';
 import { clerkClient } from '@clerk/nextjs/server';
 
 import { getRequester } from './authz';
-import { isAdminNow } from './accessGrants';
-import { isOnRoster } from './roster';
+import { getGrantsForEmail, identitiesFor, isAdminGrant } from './accessGrants';
 import { ExtensionToken } from './models/ExtensionToken';
 import { User } from './models/User';
 
@@ -105,8 +104,11 @@ export async function requireExtensionUser(request: Request): Promise<Guard> {
 
     if (!email) return deny(401, 'That account no longer exists.', 'no_user');
 
-    const admin = await isAdminNow(email);
-    if (!admin && !(await isOnRoster(email))) {
+    // Any account with a grant may pair the extension — members, leaders and
+    // admins alike. The extension surfaces the caller's own launchers/courses.
+    const grants = await getGrantsForEmail(email);
+    const admin = isAdminGrant(grants);
+    if (identitiesFor(grants).length === 0) {
       return deny(403, 'This account is not on the club roster.', 'not_on_roster');
     }
 

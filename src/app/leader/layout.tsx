@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@clerk/nextjs';
-import { CalendarDays, CheckSquare, Code2, LayoutDashboard, LogOut, Settings, Trophy, Users } from 'lucide-react';
+import { BookMarked, CalendarDays, CheckSquare, Code2, LayoutDashboard, LogOut, Puzzle, Rocket, Settings, Trophy, Users } from 'lucide-react';
 
 import { useStore } from '@/store/useStore';
 import { apiFetch } from '@/lib/apiClient';
@@ -12,6 +12,7 @@ import LayoraMark from '@/components/LayoraMark';
 import SwitchRoleButton from '@/components/SwitchRoleButton';
 import NotificationAgent from '@/components/NotificationAgent';
 import NotificationCenter from '@/components/NotificationCenter';
+import ExtensionNudge from '@/components/ExtensionNudge';
 import { LeaderProvider } from './LeaderContext';
 
 /* ────────────────────────────────────────────────────────────────
@@ -27,6 +28,9 @@ const MENU = [
   { name: 'Events', path: '/leader/events', icon: CalendarDays },
   { name: 'Leaderboard', path: '/leader/leaderboard', icon: Trophy },
   { name: 'Attendance', path: '/leader/attendance', icon: CheckSquare },
+  { name: 'Quick Launch', path: '/leader/quick-launch', icon: Rocket },
+  { name: 'Courses', path: '/leader/courses', icon: BookMarked },
+  { name: 'Extension', path: '/extension', icon: Puzzle },
 ];
 
 const normalise = (path: string) => path.replace(/\/$/, '') || '/leader';
@@ -229,6 +233,7 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
 
         <NotificationAgent />
         <NotificationCenter />
+        <ExtensionNudge />
       </div>
     </LeaderProvider>
   );
