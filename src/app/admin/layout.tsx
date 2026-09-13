@@ -43,7 +43,6 @@ const MENU = [
   { name: 'Events', path: '/admin/events', icon: CalendarDays },
   { name: 'Certificates', path: '/admin/certificates', icon: Award },
   { name: 'Resumes', path: '/admin/resumes', icon: FileText },
-  { name: 'Global Resources', path: '/admin/global-resources', icon: Globe },
   { name: 'Access', path: '/admin/access', icon: KeyRound },
   { name: 'Activity Log', path: '/admin/logs', icon: ScrollText },
   { name: 'Settings', path: '/admin/settings', icon: Settings },

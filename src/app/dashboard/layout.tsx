@@ -164,10 +164,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Tasks', path: '/dashboard/tasks', icon: CheckSquare },
     { name: 'Events', path: '/dashboard/events', icon: CalendarDays },
     { name: 'Courses', path: '/dashboard/courses', icon: BookMarked },
-    { name: 'Resources', path: '/dashboard/resources', icon: FolderLock },
     { name: 'Certificates', path: '/dashboard/certificates', icon: Award },
     { name: 'Leaderboard', path: '/dashboard/leaderboard', icon: Trophy },
-    { name: 'Global Resources', path: '/dashboard/global-resources', icon: Globe },
     { name: 'Settings', path: '/dashboard/settings', icon: Settings }
   ];
 

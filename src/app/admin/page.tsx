@@ -47,7 +47,6 @@ interface Counts {
   students: number | null;
   resumes: number | null;
   certificates: number | null;
-  resources: number | null;
 }
 
 export default function AdminOverviewPage() {
@@ -55,7 +54,7 @@ export default function AdminOverviewPage() {
   const { selectedCohort, adminName } = useAdmin();
 
   const [counts, setCounts] = useState<Counts>({
-    students: null, resumes: null, certificates: null, resources: null,
+    students: null, resumes: null, certificates: null,
   });
   const [events, setEvents] = useState<StaffEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,15 +73,14 @@ export default function AdminOverviewPage() {
 
     const cohortParam = `cohort=${encodeURIComponent(selectedCohort)}`;
 
-    // Five requests at once, each settled on its own: one failing panel must
-    // not blank the other four, and a rejection simply leaves that tile as "—".
+    // Four requests at once, each settled on its own: one failing panel must
+    // not blank the others, and a rejection simply leaves that tile as "—".
     // apiJson rather than an awaited apiFetch — awaiting inside the array
     // literal would have run them one after another.
-    const [students, resumes, certificates, resources, calendar] = await Promise.allSettled([
+    const [students, resumes, certificates, calendar] = await Promise.allSettled([
       apiJson<unknown[]>(`/api/admin/users?${cohortParam}`),
       apiJson<{ resumes?: unknown[] }>(`/api/admin/resumes?${cohortParam}`),
       apiJson<{ uploaders?: { count: number }[] }>(`/api/admin/certificates/overview?${cohortParam}`),
-      apiJson<{ resources?: unknown[] }>(`/api/resources/global?${cohortParam}`),
       apiJson<{ events?: StaffEvent[] }>(`/api/admin/events?${cohortParam}`),
     ]);
 
@@ -92,7 +90,6 @@ export default function AdminOverviewPage() {
       certificates: certificates.status === 'fulfilled'
         ? (certificates.value.uploaders || []).reduce((sum, u) => sum + (u.count || 0), 0)
         : null,
-      resources: resources.status === 'fulfilled' ? (resources.value.resources || []).length : null,
     });
 
     setEvents(calendar.status === 'fulfilled' ? calendar.value.events || [] : []);
@@ -229,7 +226,6 @@ export default function AdminOverviewPage() {
     { label: 'Students', value: counts.students, unit: 'synced', icon: Users, accent: 'text-cyber-purple', path: '/admin/students' },
     { label: 'CVs uploaded', value: counts.resumes, unit: 'resumes', icon: FileText, accent: 'text-sky-400', path: '/admin/resumes' },
     { label: 'Certificates', value: counts.certificates, unit: 'uploaded', icon: Award, accent: 'text-amber-400', path: '/admin/certificates' },
-    { label: 'Shared files', value: counts.resources, unit: 'in the library', icon: Globe, accent: 'text-emerald-400', path: '/admin/global-resources' },
   ];
 
   return (

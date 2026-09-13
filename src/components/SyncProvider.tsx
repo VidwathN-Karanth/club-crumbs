@@ -20,7 +20,6 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
   const pendingStateRef = useRef<any>(null);
   const lastSavedSerializedRef = useRef<string>('');
   const lastSavedSubjectsRef = useRef<any[]>([]);
-  const lastSavedResourcesRef = useRef<any>({});
   const inFlightWrites = useRef(0);
   const ignoreSnapshotUntilRef = useRef<number>(0);
 
@@ -239,7 +238,6 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
       const stateToSave = {
         user: localState.user,
         subjects: localState.subjects,
-        resources: localState.resources,
         activities: localState.activities,
         websites: localState.websites,
         courses: localState.courses,
@@ -274,7 +272,6 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
       useStore.getState().setFullState(stateToSave);
       lastSavedSerializedRef.current = JSON.stringify(stateToSave);
       lastSavedSubjectsRef.current = stateToSave.subjects || [];
-      lastSavedResourcesRef.current = stateToSave.resources || {};
     } else {
       // CLOUD-WINS: Apply Supabase data directly — no local merge.
       // All data arrays (subjects, tasks, timetable, courses, activities, websites, resources)
@@ -299,7 +296,6 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
       useStore.getState().setFullState(cloudStateToApply);
       lastSavedSerializedRef.current = JSON.stringify(cloudStateToApply);
       lastSavedSubjectsRef.current = cloudStateToApply.subjects || [];
-      lastSavedResourcesRef.current = cloudStateToApply.resources || {};
       if (cloudState.clientTimestamp) {
         lastLocalWriteTimestampRef.current = cloudState.clientTimestamp;
       }
@@ -444,7 +440,6 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
 
         lastSavedSerializedRef.current = serialized;
         lastSavedSubjectsRef.current = stateToSave.subjects || [];
-        lastSavedResourcesRef.current = stateToSave.resources || {};
         ignoreSnapshotUntilRef.current = Date.now() + 3000;
       } catch (err: any) {
         console.error('SyncProvider - CRITICAL: Failed to save to Supabase:', err);
@@ -481,7 +476,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
       }
 
       const {
-        user: storeUser, subjects, resources, activities, websites, courses, tasks,
+        user: storeUser, subjects, activities, websites, courses, tasks,
         timetable, themeAccent, themeMode, calendarSynced, is24HourFormat
       } = state;
 
@@ -490,7 +485,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
 
       const stateToSave = {
         user: storeUser,
-        subjects, resources, activities, websites, courses, tasks,
+        subjects, activities, websites, courses, tasks,
         timetable, themeAccent, themeMode, calendarSynced, is24HourFormat, clientTimestamp: writeTimestamp
       };
 
