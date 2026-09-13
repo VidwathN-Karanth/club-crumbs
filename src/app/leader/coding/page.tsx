@@ -6,6 +6,7 @@ import { Calendar, Clock, Code2, ExternalLink, Plus, Trash2, X } from 'lucide-re
 
 import { apiFetch, errorMessage, readJson } from '@/lib/apiClient';
 import { formatDate, formatDateTime } from '@/lib/dateFormat';
+import { tournamentFor } from '@/lib/cohorts';
 import { useLeader } from '../LeaderContext';
 
 interface CodingEvent {
@@ -15,13 +16,17 @@ interface CodingEvent {
   start_time: string | null;
   end_time: string | null;
   registration_start: string | null;
-  unstop_link: string;
+  link: string;
 }
 
-const EMPTY = { name: '', competition_date: '', start_time: '', end_time: '', registration_start: '', unstop_link: '' };
+const EMPTY = { name: '', competition_date: '', start_time: '', end_time: '', registration_start: '', link: '' };
 
 export default function LeaderCodingPage() {
   const { cohort } = useLeader();
+  const config = tournamentFor(cohort);
+  const section = config?.section ?? 'Tournaments';
+  const linkLabel = config?.linkLabel ?? 'Link';
+  const linkPlaceholder = config?.linkPlaceholder ?? 'https://...';
 
   const [events, setEvents] = useState<CodingEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +57,7 @@ export default function LeaderCodingPage() {
   useEffect(() => { load(); }, [load]);
 
   const create = async () => {
-    if (!form.name.trim() || !form.unstop_link.trim()) return;
+    if (!form.name.trim() || !form.link.trim()) return;
     setSaving(true);
     setFormError('');
     try {
@@ -66,7 +71,7 @@ export default function LeaderCodingPage() {
           start_time: form.start_time || null,
           end_time: form.end_time || null,
           registration_start: form.registration_start ? new Date(form.registration_start).toISOString() : null,
-          unstop_link: form.unstop_link.trim(),
+          link: form.link.trim(),
         }),
       }));
       setCreating(false);
@@ -97,9 +102,9 @@ export default function LeaderCodingPage() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-lg font-bold text-white flex items-center gap-2">
-            <Code2 className="w-5 h-5" /> Coding competitions
+            <Code2 className="w-5 h-5" /> {section} competitions
           </h1>
-          <p className="text-xs text-white/40 mt-0.5">Post Unstop competitions — members register straight from the card.</p>
+          <p className="text-xs text-white/40 mt-0.5">Post competitions — members open them straight from the card, and they appear on the club calendar.</p>
         </div>
         <button
           onClick={() => { setForm(EMPTY); setFormError(''); setCreating(true); }}
@@ -129,8 +134,8 @@ export default function LeaderCodingPage() {
                 {ev.competition_date && <div className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> {formatDate(ev.competition_date)}{ev.start_time ? ` · ${ev.start_time}` : ''}{ev.end_time ? `–${ev.end_time}` : ''}</div>}
                 {ev.registration_start && <div className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Reg. opens {formatDateTime(new Date(ev.registration_start))}</div>}
               </div>
-              <a href={ev.unstop_link} target="_blank" rel="noopener noreferrer" className="mt-auto flex items-center gap-1.5 text-[11px] text-cyber-blue hover:underline truncate">
-                <ExternalLink className="w-3.5 h-3.5 shrink-0" /> {ev.unstop_link}
+              <a href={ev.link} target="_blank" rel="noopener noreferrer" className="mt-auto flex items-center gap-1.5 text-[11px] text-cyber-blue hover:underline truncate">
+                <ExternalLink className="w-3.5 h-3.5 shrink-0" /> {ev.link}
               </a>
             </div>
           ))}
@@ -171,14 +176,14 @@ export default function LeaderCodingPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-[10px] font-mono uppercase text-white/40">Unstop link</label>
-                  <input className={`${input} mt-1`} value={form.unstop_link} onChange={(e) => setForm({ ...form, unstop_link: e.target.value })} placeholder="https://unstop.com/..." />
+                  <label className="text-[10px] font-mono uppercase text-white/40">{linkLabel}</label>
+                  <input className={`${input} mt-1`} value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} placeholder={linkPlaceholder} />
                 </div>
                 {formError && <p className="text-[11px] text-rose-300 font-mono">{formError}</p>}
               </div>
               <div className="flex justify-end gap-3 pt-1">
                 <button onClick={() => setCreating(false)} disabled={saving} className="px-4 py-2 border border-white/10 text-white/60 hover:text-white rounded-xl text-xs font-bold cursor-pointer disabled:opacity-40">CANCEL</button>
-                <button onClick={create} disabled={saving || !form.name.trim() || !form.unstop_link.trim()} className="px-4 py-2 bg-white/10 border border-white/15 hover:bg-white/15 text-white rounded-xl text-xs font-bold cursor-pointer disabled:opacity-40">{saving ? 'CREATING…' : 'CREATE'}</button>
+                <button onClick={create} disabled={saving || !form.name.trim() || !form.link.trim()} className="px-4 py-2 bg-white/10 border border-white/15 hover:bg-white/15 text-white rounded-xl text-xs font-bold cursor-pointer disabled:opacity-40">{saving ? 'CREATING…' : 'CREATE'}</button>
               </div>
             </motion.div>
           </div>

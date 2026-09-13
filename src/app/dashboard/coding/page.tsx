@@ -13,11 +13,14 @@ interface CodingEvent {
   start_time: string | null;
   end_time: string | null;
   registration_start: string | null;
-  unstop_link: string;
+  link: string;
 }
+
+interface TournamentConfig { section: string; actionLabel: string }
 
 export default function MemberCodingPage() {
   const [events, setEvents] = useState<CodingEvent[]>([]);
+  const [config, setConfig] = useState<TournamentConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -25,8 +28,8 @@ export default function MemberCodingPage() {
     let cancelled = false;
     (async () => {
       try {
-        const data = await readJson<{ events: CodingEvent[] }>(await apiFetch('/api/coding/member/events'));
-        if (!cancelled) setEvents(Array.isArray(data.events) ? data.events : []);
+        const data = await readJson<{ events: CodingEvent[]; config: TournamentConfig | null }>(await apiFetch('/api/coding/member/events'));
+        if (!cancelled) { setEvents(Array.isArray(data.events) ? data.events : []); setConfig(data.config); }
       } catch (err) {
         if (!cancelled) setError(errorMessage(err, 'Could not load competitions.'));
       } finally {
@@ -36,13 +39,16 @@ export default function MemberCodingPage() {
     return () => { cancelled = true; };
   }, []);
 
+  const section = config?.section ?? 'Coding';
+  const actionLabel = config?.actionLabel ?? 'Open';
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-on-surface flex items-center gap-2">
-          <Code2 className="w-6 h-6 text-primary" /> Coding
+          <Code2 className="w-6 h-6 text-primary" /> {section}
         </h1>
-        <p className="text-sm text-on-surface-variant mt-1">Coding competitions from your club — register and compete on Unstop.</p>
+        <p className="text-sm text-on-surface-variant mt-1">Competitions from your club — open them straight from the card.</p>
       </div>
 
       {loading ? (
@@ -75,12 +81,12 @@ export default function MemberCodingPage() {
                   )}
                 </div>
                 <a
-                  href={ev.unstop_link}
+                  href={ev.link}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white font-bold text-sm hover:opacity-90 transition"
                 >
-                  {regOpen ? 'Register / Start' : 'View on Unstop'} <ExternalLink className="w-4 h-4" />
+                  {regOpen ? actionLabel : 'View details'} <ExternalLink className="w-4 h-4" />
                 </a>
               </div>
             );

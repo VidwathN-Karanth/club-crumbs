@@ -8,12 +8,13 @@ import { BookMarked, CalendarDays, CheckSquare, Clock, Code2, LayoutDashboard, L
 import { useStore } from '@/store/useStore';
 import { apiFetch } from '@/lib/apiClient';
 import { formatShortDate } from '@/lib/dateFormat';
-import { isCohort, type Cohort, CLUB_META, CODING_COHORT } from '@/lib/cohorts';
+import { isCohort, type Cohort, CLUB_META, tournamentFor } from '@/lib/cohorts';
 import LayoraMark from '@/components/LayoraMark';
 import SwitchRoleButton from '@/components/SwitchRoleButton';
 import NotificationAgent from '@/components/NotificationAgent';
 import NotificationCenter from '@/components/NotificationCenter';
 import ExtensionNudge from '@/components/ExtensionNudge';
+import NotificationNudge from '@/components/NotificationNudge';
 import ZenMode from '@/components/ZenMode';
 import { LeaderProvider } from './LeaderContext';
 
@@ -139,10 +140,12 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
 
   const accent = CLUB_META[cohort].accent;
 
-  // The Coding section (Unstop competition cards) is only for the Coding club.
+  // The tournaments section (Coding for Coders, Gym for Crypton) only shows for
+  // clubs that have one.
+  const tournament = tournamentFor(cohort);
   const menu = [
     ...MENU,
-    ...(cohort === CODING_COHORT ? [{ name: 'Coding', path: '/leader/coding', icon: Code2 }] : []),
+    ...(tournament ? [{ name: tournament.section, path: '/leader/coding', icon: Code2 }] : []),
     { name: 'Settings', path: '/leader/settings', icon: Settings },
   ];
 
@@ -293,6 +296,7 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
         <NotificationAgent />
         <NotificationCenter />
         <ExtensionNudge />
+        <NotificationNudge />
         <ZenMode open={zenOpen} onClose={() => setZenOpen(false)} />
       </div>
     </LeaderProvider>

@@ -18,6 +18,7 @@ import LayoraMark from '@/components/LayoraMark';
 import NotificationAgent from '@/components/NotificationAgent';
 import NotificationCenter from '@/components/NotificationCenter';
 import ExtensionNudge from '@/components/ExtensionNudge';
+import NotificationNudge from '@/components/NotificationNudge';
 import SwitchRoleButton from '@/components/SwitchRoleButton';
 import { AdminProvider, useAdmin } from './AdminContext';
 
@@ -520,6 +521,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <NotificationAgent />
         <NotificationCenter />
         <ExtensionNudge />
+        <NotificationNudge />
       </div>
     </AdminProvider>
   );

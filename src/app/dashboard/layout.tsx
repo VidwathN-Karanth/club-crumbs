@@ -12,7 +12,7 @@ import {
   Check, Menu, X, Trophy, Award,
   Globe, Sun, Moon, Timer, Code2
 } from 'lucide-react';
-import { CODING_COHORT } from '@/lib/cohorts';
+import { tournamentFor } from '@/lib/cohorts';
 import { formatShortDate } from '@/lib/dateFormat';
 import { UserButton, useUser, useAuth } from '@clerk/nextjs';
 import OnboardingModal from '@/components/OnboardingModal';
@@ -20,6 +20,7 @@ import ZenMode from '@/components/ZenMode';
 import NotificationAgent from '@/components/NotificationAgent';
 import NotificationCenter from '@/components/NotificationCenter';
 import ExtensionNudge from '@/components/ExtensionNudge';
+import NotificationNudge from '@/components/NotificationNudge';
 import LayoraMark from '@/components/LayoraMark';
 import ExtensionPrompt from '@/components/ExtensionPrompt';
 
@@ -167,8 +168,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Courses', path: '/dashboard/courses', icon: BookMarked },
     { name: 'Certificates', path: '/dashboard/certificates', icon: Award },
     { name: 'Leaderboard', path: '/dashboard/leaderboard', icon: Trophy },
-    // The Coding section (Unstop competitions) is only for the Coding club.
-    ...(store.cohort === CODING_COHORT ? [{ name: 'Coding', path: '/dashboard/coding', icon: Code2 }] : []),
+    // The tournaments section (Coding for Coders, Gym for Crypton) only shows
+    // for clubs that have one.
+    ...(tournamentFor(store.cohort)
+      ? [{ name: tournamentFor(store.cohort)!.section, path: '/dashboard/coding', icon: Code2 }]
+      : []),
     { name: 'Settings', path: '/dashboard/settings', icon: Settings }
   ];
 
@@ -486,6 +490,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <NotificationAgent />
       <NotificationCenter />
       <ExtensionNudge />
+      <NotificationNudge />
       <OnboardingModal />
       <ExtensionPrompt />
     </div>

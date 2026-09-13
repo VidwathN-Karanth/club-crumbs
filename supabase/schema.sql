@@ -298,21 +298,23 @@ create index if not exists idx_access_grants_email on public.access_grants(email
 -- Scoping a club's roster ("every member of Crypton Club") filters on these two.
 create index if not exists idx_access_grants_cohort_role on public.access_grants(cohort, role);
 
--- 15. Coding events — the club's "Coding" cards (Coders Club only).
+-- 15. Club tournament cards (per-club "Coding" / "Gym" sections).
 --
--- A leader posts a competition card that links out to Unstop; members press the
--- card to register / open it on Unstop. Nothing about the competition itself is
--- hosted here — this is purely the card and its outbound link. Deleting the row
--- removes the whole event.
+-- A leader posts a competition card that links out to an external platform
+-- (Coders Club -> Unstop; Crypton Club -> CTFd); members press it to open the
+-- link. Nothing about the competition is hosted here. `event_id` links to the
+-- calendar entry created on the competition date so members and the leader see
+-- it in Events; deleting the row deletes that entry too.
 create table if not exists public.coding_events (
   id                 uuid primary key default gen_random_uuid(),
-  cohort             text not null,                 -- the club (Coders Club)
+  cohort             text not null,                 -- the club
   name               text not null,
   competition_date   date,
   start_time         text,                          -- 'HH:MM' on the competition day
   end_time           text,                          -- 'HH:MM'
   registration_start timestamp with time zone,      -- when registration opens
-  unstop_link        text not null,
+  link               text not null,                 -- Unstop / CTFd URL
+  event_id           uuid,                          -- linked public.events row
   created_by         text,                          -- author email, for audit
   created_at         timestamp with time zone default timezone('utc'::text, now()) not null
 );

@@ -16,11 +16,43 @@ export const COHORTS = ['Coders Club', 'Crypton Club', 'DevStudio'] as const;
 export type Cohort = (typeof COHORTS)[number];
 
 /**
- * The one club that has the "Coding" section (Unstop competition cards). Only
- * this club's leaders can post coding events and only its members see them.
- * A single constant so the gate is easy to widen later.
+ * Per-club "tournaments" section — a leader posts competition cards that link
+ * out to an external platform, and members open them from their own section.
+ * Coders Club calls it "Coding" (Unstop); Crypton Club calls it "Gym" (CTFd).
+ * A club with no entry here has no tournaments section.
  */
-export const CODING_COHORT: Cohort = 'Coders Club';
+export interface ClubTournament {
+  /** Nav label and page title, e.g. 'Coding' or 'Gym'. */
+  section: string;
+  /** Label for the link field, e.g. 'Unstop link' or 'CTFd link'. */
+  linkLabel: string;
+  linkPlaceholder: string;
+  /** The member's open button, e.g. 'Register / Start' or 'Enter the CTF'. */
+  actionLabel: string;
+}
+
+export const CLUB_TOURNAMENTS: Partial<Record<Cohort, ClubTournament>> = {
+  'Coders Club': {
+    section: 'Coding',
+    linkLabel: 'Unstop link',
+    linkPlaceholder: 'https://unstop.com/...',
+    actionLabel: 'Register / Start',
+  },
+  'Crypton Club': {
+    section: 'Gym',
+    linkLabel: 'CTFd link',
+    linkPlaceholder: 'https://ctf.example.com/...',
+    actionLabel: 'Enter the CTF',
+  },
+};
+
+export function tournamentFor(cohort: Cohort | null | undefined): ClubTournament | null {
+  return cohort ? CLUB_TOURNAMENTS[cohort] ?? null : null;
+}
+
+export function isTournamentClub(value: unknown): value is Cohort {
+  return isCohort(value) && Boolean(CLUB_TOURNAMENTS[value]);
+}
 
 /** Only college Google accounts may sign in. */
 export const COLLEGE_EMAIL_DOMAIN = 'mite.ac.in';

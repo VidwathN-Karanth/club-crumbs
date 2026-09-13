@@ -1,18 +1,20 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { requireClubManager } from '@/lib/authz';
-import { CODING_COHORT, isCohort } from '@/lib/cohorts';
+import { isCohort, isTournamentClub, tournamentFor } from '@/lib/cohorts';
+import { Event } from '@/lib/models/Event';
+
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
- * Coding competition cards for the club — the leader's list.
- *
- * Only the Coding club (CODING_COHORT) has this section. GET lists its cards;
- * POST creates one. Both require a manager (admin, or a leader of that club).
+ * A club's tournament cards — the leader's list (Coding for Coders, Gym for
+ * Crypton). Only clubs with a tournaments config have this; both require a
+ * manager (admin, or a leader of that club).
  */
 export async function GET(request: Request) {
   const cohort = new URL(request.url).searchParams.get('cohort');
-  if (!isCohort(cohort) || cohort !== CODING_COHORT) {
-    return NextResponse.json({ error: 'Coding is not enabled for this club.' }, { status: 400 });
+  if (!isTournamentClub(cohort)) {
+    return NextResponse.json({ error: 'This club has no tournaments section.' }, { status: 400 });
   }
 
   const guard = await requireClubManager(cohort);
@@ -26,29 +28,55 @@ export async function GET(request: Request) {
     .order('created_at', { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ events: data || [] });
+  return NextResponse.json({ events: data || [], config: tournamentFor(cohort) });
 }
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const cohort = (body as { cohort?: string }).cohort;
-  if (!isCohort(cohort) || cohort !== CODING_COHORT) {
-    return NextResponse.json({ error: 'Coding is not enabled for this club.' }, { status: 400 });
+  if (!isCohort(cohort) || !isTournamentClub(cohort)) {
+    return NextResponse.json({ error: 'This club has no tournaments section.' }, { status: 400 });
   }
 
   const guard = await requireClubManager(cohort);
   if (!guard.ok) return guard.response;
 
+  const config = tournamentFor(cohort)!;
   const name = String((body as { name?: string }).name || '').trim();
-  const unstopLink = String((body as { unstop_link?: string }).unstop_link || '').trim();
+  const link = String((body as { link?: string }).link || '').trim();
+  const competitionDate = (body as { competition_date?: string }).competition_date || null;
+  const startTime = (body as { start_time?: string }).start_time || null;
+  const endTime = (body as { end_time?: string }).end_time || null;
+  const registrationStart = (body as { registration_start?: string }).registration_start || null;
 
   if (!name) return NextResponse.json({ error: 'A name is required.' }, { status: 400 });
-  if (!unstopLink) return NextResponse.json({ error: 'An Unstop link is required.' }, { status: 400 });
+  if (!link) return NextResponse.json({ error: `A ${config.linkLabel} is required.` }, { status: 400 });
   try {
-    const u = new URL(unstopLink);
+    const u = new URL(link);
     if (u.protocol !== 'https:') throw new Error('not https');
   } catch {
-    return NextResponse.json({ error: 'The Unstop link must be a valid https:// URL.' }, { status: 400 });
+    return NextResponse.json({ error: `The ${config.linkLabel} must be a valid https:// URL.` }, { status: 400 });
+  }
+
+  // Put it on the club's calendar so members and the leader see it on the day.
+  let eventId: string | null = null;
+  if (competitionDate && DATE_PATTERN.test(competitionDate)) {
+    try {
+      const calendarEvent = await Event.create({
+        title: `${config.section}: ${name}`,
+        description: `${startTime ? startTime + ' · ' : ''}${link}`.slice(0, 500),
+        eventDate: competitionDate,
+        repeat: 'none',
+        repeatUntil: null,
+        audience: cohort,
+        createdBy: guard.requester.userId,
+        creatorName: guard.requester.name,
+        isStaff: true,
+      });
+      eventId = calendarEvent.id;
+    } catch (err) {
+      console.error('Tournament calendar event failed:', err);
+    }
   }
 
   const { data, error } = await supabaseAdmin
@@ -56,11 +84,12 @@ export async function POST(request: Request) {
     .insert({
       cohort,
       name,
-      competition_date: (body as { competition_date?: string }).competition_date || null,
-      start_time: (body as { start_time?: string }).start_time || null,
-      end_time: (body as { end_time?: string }).end_time || null,
-      registration_start: (body as { registration_start?: string }).registration_start || null,
-      unstop_link: unstopLink,
+      competition_date: competitionDate,
+      start_time: startTime,
+      end_time: endTime,
+      registration_start: registrationStart,
+      link,
+      event_id: eventId,
       created_by: guard.requester.email,
     })
     .select()
