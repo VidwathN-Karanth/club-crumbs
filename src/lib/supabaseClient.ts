@@ -6,12 +6,8 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 export const isSupabaseConfigured =
   !!supabaseUrl &&
   !!supabaseAnonKey &&
-  !supabaseUrl.includes('placeholder') &&
-  !supabaseUrl.includes('your-project-ref') &&
-  !supabaseUrl.includes('your-supabase') &&
-  !supabaseAnonKey.includes('placeholder') &&
-  !supabaseAnonKey.includes('your-supabase') &&
-  supabaseAnonKey.length > 20;
+  supabaseUrl !== 'your-supabase-project-url' &&
+  supabaseAnonKey !== 'your-supabase-anon-key';
 
 // Initialize Supabase only if configured
 export const supabase = isSupabaseConfigured

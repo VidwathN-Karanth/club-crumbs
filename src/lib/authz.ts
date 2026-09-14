@@ -16,16 +16,6 @@ import {
   type Grant,
   type Identity,
 } from './accessGrants';
-import {
-  isDevAuthBypass,
-  MOCK_DEV_USER_ID,
-  MOCK_DEV_EMAIL,
-  MOCK_DEV_NAME,
-  MOCK_DEV_GRANTS,
-  MOCK_DEV_IDENTITIES,
-  MOCK_DEV_LED_COHORTS,
-  MOCK_DEV_COHORT,
-} from './devAuth';
 
 export type AccessDenialReason = 'signed_out' | 'wrong_domain' | 'not_on_roster';
 
@@ -61,24 +51,6 @@ export interface Requester {
  * The active-context cookie says which one they are acting as right now.
  */
 export async function getRequester(): Promise<Requester | null> {
-  if (isDevAuthBypass()) {
-    const rawCtx = (await cookies()).get(CTX_COOKIE)?.value ?? null;
-    const activeContext = resolveActiveContext(rawCtx, MOCK_DEV_IDENTITIES) || { role: 'admin' };
-    return {
-      userId: MOCK_DEV_USER_ID,
-      email: MOCK_DEV_EMAIL,
-      name: MOCK_DEV_NAME,
-      grants: MOCK_DEV_GRANTS,
-      identities: MOCK_DEV_IDENTITIES,
-      isAdmin: true,
-      ledCohorts: [...MOCK_DEV_LED_COHORTS],
-      cohort: MOCK_DEV_COHORT,
-      activeContext,
-      allowed: true,
-      denialReason: null,
-    };
-  }
-
   const { userId } = await auth();
   if (!userId) return null;
 
