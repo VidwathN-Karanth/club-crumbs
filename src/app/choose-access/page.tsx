@@ -8,6 +8,7 @@ import { ArrowRight, Loader2, Shield, Users, GraduationCap } from 'lucide-react'
 
 import { apiFetch } from '@/lib/apiClient';
 import { CLUB_META, type Cohort } from '@/lib/cohorts';
+import { isDevAuthBypass } from '@/lib/devAuth';
 import LayoraMark from '@/components/LayoraMark';
 
 type Identity =
@@ -56,11 +57,13 @@ export default function ChooseAccessPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.replace('/login');
-      return;
+    if (!isDevAuthBypass()) {
+      if (isLoaded && !isSignedIn) {
+        router.replace('/login');
+        return;
+      }
+      if (!isLoaded || !isSignedIn) return;
     }
-    if (!isLoaded || !isSignedIn) return;
 
     let cancelled = false;
     (async () => {

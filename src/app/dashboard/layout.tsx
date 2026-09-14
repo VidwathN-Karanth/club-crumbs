@@ -24,13 +24,14 @@ import NotificationNudge from '@/components/NotificationNudge';
 import LayoraMark from '@/components/LayoraMark';
 import ExtensionPrompt from '@/components/ExtensionPrompt';
 import ChatLauncher from '@/components/chat/ChatLauncher';
+import { isDevAuthBypass, MOCK_DEV_EMAIL, MOCK_DEV_NAME } from '@/lib/devAuth';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const store = useStore();
 
-  const mockAuth = false; // Set to true to bypass Clerk login for local testing
+  const mockAuth = isDevAuthBypass();
 
   const { isLoaded, isSignedIn, user: clerkUser } = useUser();
   const { signOut } = useAuth();
@@ -38,7 +39,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (mockAuth && store.hasHydrated) {
       if (!store.isAuthenticated) {
-        store.login('mock-student@layora.edu', 'Mock Student');
+        store.login(MOCK_DEV_EMAIL, MOCK_DEV_NAME);
       } else {
         if (store.user && !store.user.isOnboarded) {
           store.updateOnboardingStatus(true);
