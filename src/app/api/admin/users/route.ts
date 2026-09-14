@@ -25,7 +25,7 @@ export async function GET(request: Request) {
 
     if (error) throw error;
 
-    const rosterEmails = new Set(emailsForCohort(cohort));
+    const rosterEmails = new Set(await emailsForCohort(cohort));
     const scoped = (data || []).filter((row) => {
       const email = (row?.state?.user?.email || '').trim().toLowerCase();
       return rosterEmails.has(email);

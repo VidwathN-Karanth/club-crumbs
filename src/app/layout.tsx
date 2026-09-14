@@ -36,7 +36,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Club Crumbs — MITE Club Dashboard",
-  description: "A unified dashboard for MITE's tech clubs — Coders Club, Cryptona and DevStudio: activity tracking, leaderboards, certificates and more.",
+  description: "A unified dashboard for MITE's tech clubs — Coders Club, Crypton Club and DevStudio: activity tracking, leaderboards, certificates and more.",
   // The manifest is what lets a phone install Club Crumbs to the Home Screen,
   // which on iOS is the only way the Notification API exists at all.
   manifest: "/manifest.webmanifest",
@@ -67,12 +67,16 @@ export default function RootLayout({
   return (
     <ClerkProvider
       appearance={{
-        baseTheme: dark,
+        // Clerk 7 renamed this from `baseTheme`.
+        theme: dark,
         variables: {
           colorPrimary: '#007AFF', // Apple Blue
           colorBackground: '#121214', // Neutral dark
-          colorInputBackground: 'rgba(255, 255, 255, 0.05)',
-          colorInputText: '#e2e2e2',
+          // Renamed by Clerk 7: colorInputBackground/colorInputText became
+          // colorInput/colorInputForeground, and the old names now fail the
+          // type check rather than being ignored.
+          colorInput: 'rgba(255, 255, 255, 0.05)',
+          colorInputForeground: '#e2e2e2',
         },
       }}
     >

@@ -11,9 +11,48 @@
  */
 
 /** The three clubs a student can belong to. Exactly one club per student. */
-export const COHORTS = ['Coders Club', 'Cryptona', 'DevStudio'] as const;
+export const COHORTS = ['Coders Club', 'Crypton Club', 'DevStudio'] as const;
 
 export type Cohort = (typeof COHORTS)[number];
+
+/**
+ * Per-club "tournaments" section — a leader posts competition cards that link
+ * out to an external platform, and members open them from their own section.
+ * Coders Club calls it "Coding" (Unstop); Crypton Club calls it "Gym" (CTFd).
+ * A club with no entry here has no tournaments section.
+ */
+export interface ClubTournament {
+  /** Nav label and page title, e.g. 'Coding' or 'Gym'. */
+  section: string;
+  /** Label for the link field, e.g. 'Unstop link' or 'CTFd link'. */
+  linkLabel: string;
+  linkPlaceholder: string;
+  /** The member's open button, e.g. 'Register / Start' or 'Enter the CTF'. */
+  actionLabel: string;
+}
+
+export const CLUB_TOURNAMENTS: Partial<Record<Cohort, ClubTournament>> = {
+  'Coders Club': {
+    section: 'Coding',
+    linkLabel: 'Unstop link',
+    linkPlaceholder: 'https://unstop.com/...',
+    actionLabel: 'Register / Start',
+  },
+  'Crypton Club': {
+    section: 'Gym',
+    linkLabel: 'CTFd link',
+    linkPlaceholder: 'https://ctf.example.com/...',
+    actionLabel: 'Enter the CTF',
+  },
+};
+
+export function tournamentFor(cohort: Cohort | null | undefined): ClubTournament | null {
+  return cohort ? CLUB_TOURNAMENTS[cohort] ?? null : null;
+}
+
+export function isTournamentClub(value: unknown): value is Cohort {
+  return isCohort(value) && Boolean(CLUB_TOURNAMENTS[value]);
+}
 
 /** Only college Google accounts may sign in. */
 export const COLLEGE_EMAIL_DOMAIN = 'mite.ac.in';
@@ -42,7 +81,7 @@ export const CLUB_META: Record<Cohort, { tagline: string; blurb: string; accent:
     blurb: 'Daily problem solving, contest prep and a leaderboard that rewards the grind — LeetCode and CodeChef streaks made visible.',
     accent: '#2E95FF',
   },
-  Cryptona: {
+  'Crypton Club': {
     tagline: 'Cybersecurity & CTF',
     blurb: 'Capture-the-flag practice, security reading groups and write-ups, for the people who like to break things to understand them.',
     accent: '#C56BF5',
@@ -95,7 +134,7 @@ export function normalizeResourceName(name: string): string {
 /**
  * Whether two resource tags ever appear in the same list.
  *
- * Two clubs never see each other, so Coders Club and Cryptona may each hold
+ * Two clubs never see each other, so Coders Club and Crypton Club may each hold
  * their own "Unit 1 Notes" without confusing anyone. The shared shelf is
  * different: it shows up in every club's library, so it collides with all of
  * them.
@@ -129,4 +168,16 @@ export function findResourceNameClash<T extends { name: string; year?: unknown }
 /** "Coders Club" → "Coders", for tight spaces like table headers and chips. */
 export function shortCohortLabel(cohort: Cohort): string {
   return cohort.replace(/\s+Club$/, '');
+}
+
+/**
+ * The Supabase Realtime channel name for a club's chat.
+ *
+ * A slug (no spaces/punctuation) so the same string is safe as both a client
+ * channel and a broadcast topic. The server pings this channel after a post so
+ * open clients refetch immediately; it is an optimisation over polling, never a
+ * data channel, so nothing sensitive rides on the name.
+ */
+export function chatChannelName(cohort: Cohort): string {
+  return `club-chat-${cohort.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 }

@@ -28,7 +28,15 @@ export const ADMIN_ACTIONS = [
   'library.create',
   'library.delete',
   'users.export',
+  'resumes.export',
   'stats.sync',
+  // Access management — granting and revoking roles.
+  'admin.grant',
+  'admin.revoke',
+  'leader.grant',
+  'leader.revoke',
+  'member.add',
+  'member.remove',
 ] as const;
 
 export type AdminAction = (typeof ADMIN_ACTIONS)[number];

@@ -52,7 +52,7 @@ const BUILDS: Record<BrowserFamily, Build> = {
       <>Unzip the folder somewhere you will not delete it.</>,
       <>Open <span className={CODE}>chrome://extensions</span> and turn on <span className="text-on-surface">Developer mode</span>, top right.</>,
       <>Press <span className="text-on-surface">Load unpacked</span> and pick the unzipped folder.</>,
-      <>Pin Layora to your toolbar, then come back here for step 2.</>,
+      <>Pin Club Crumbs to your toolbar, then come back here for step 2.</>,
     ],
   },
   firefox: {

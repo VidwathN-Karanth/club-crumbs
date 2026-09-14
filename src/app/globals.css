@@ -1754,3 +1754,13 @@ html.light-mode .zen-overlay button {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* Native date/time picker icons (the calendar and clock glyphs) render dark by
+   default, so they vanish against the dark inputs used across the app in dark
+   mode. Telling the browser these controls sit on a dark surface makes it draw
+   the picker indicator — and the popup calendar/time list — in a light colour. */
+.dark-mode input[type="date"],
+.dark-mode input[type="time"],
+.dark-mode input[type="datetime-local"] {
+  color-scheme: dark;
+}

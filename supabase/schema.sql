@@ -252,3 +252,90 @@ alter table public.extension_tokens enable row level security;
 
 create index if not exists idx_extension_tokens_user on public.extension_tokens(user_id);
 create index if not exists idx_extension_tokens_hash on public.extension_tokens(token_hash);
+
+-- 14. Access grants — the runtime source of truth for who may sign in and as what.
+--
+-- Replaces the two hardcoded lists that used to live in code (src/lib/admin.ts
+-- and src/lib/roster.ts). One email may hold SEVERAL grants, which is the whole
+-- reason this is a table and not a map: a person can be an admin AND lead a
+-- club, or lead two clubs at once. Each row is one (role, club) an email holds.
+--
+--   role='admin'  → cohort is NULL (admins are staff, not club members)
+--   role='leader' → cohort names the ONE club they lead (a person may hold
+--                   several leader rows, one per club)
+--   role='member' → cohort names the ONE club they belong to
+--
+-- Enforced by the API layer (src/lib/accessGrants.ts), not by the browser:
+--   • staff (admin/leader) and member are mutually exclusive on one email
+--   • only an admin may create admin or leader grants
+--   • a leader may create member grants only for a club they themselves lead
+--   • the root admin (src/lib/admin.ts ROOT_ADMIN) can never be demoted; it is
+--     also hardcoded so a database outage can never lock every admin out
+--
+-- Seed the current lists into this table with supabase/access-grants-seed.sql
+-- BEFORE the app starts trusting it, or existing users lose access.
+create table if not exists public.access_grants (
+  id         uuid primary key default gen_random_uuid(),
+  email      text not null,                                    -- normalized lowercase
+  role       text not null check (role in ('admin', 'leader', 'member')),
+  cohort     text,                                             -- NULL for admin; club name otherwise
+  granted_by text,                                             -- actor email, for the audit trail
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  -- A club must be named for leader/member and absent for admin.
+  constraint access_grants_cohort_shape check (
+    (role = 'admin' and cohort is null) or
+    (role in ('leader', 'member') and cohort is not null)
+  ),
+  -- The same email cannot hold the same (role, club) twice. Two rows differing
+  -- only by cohort are fine — that is exactly how one person leads two clubs.
+  constraint access_grants_unique unique (email, role, cohort)
+);
+
+alter table public.access_grants enable row level security;
+
+-- Every lookup is "all grants for this email", so the email is the hot column.
+create index if not exists idx_access_grants_email on public.access_grants(email);
+-- Scoping a club's roster ("every member of Crypton Club") filters on these two.
+create index if not exists idx_access_grants_cohort_role on public.access_grants(cohort, role);
+
+-- 15. Club tournament cards (per-club "Coding" / "Gym" sections).
+--
+-- A leader posts a competition card that links out to an external platform
+-- (Coders Club -> Unstop; Crypton Club -> CTFd); members press it to open the
+-- link. Nothing about the competition is hosted here. `event_id` links to the
+-- calendar entry created on the competition date so members and the leader see
+-- it in Events; deleting the row deletes that entry too.
+create table if not exists public.coding_events (
+  id                 uuid primary key default gen_random_uuid(),
+  cohort             text not null,                 -- the club
+  name               text not null,
+  competition_date   date,
+  start_time         text,                          -- 'HH:MM' on the competition day
+  end_time           text,                          -- 'HH:MM'
+  registration_start timestamp with time zone,      -- when registration opens
+  link               text not null,                 -- Unstop / CTFd URL
+  event_id           uuid,                          -- linked public.events row
+  created_by         text,                          -- author email, for audit
+  created_at         timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.coding_events enable row level security;
+create index if not exists idx_coding_events_cohort on public.coding_events(cohort, competition_date);
+
+-- 16. Attendance — a leader's per-date register for their club.
+--
+-- One row per (club, date). `present` holds the emails ticked present; anyone on
+-- the roster but not in the array was absent. The leader can download a date (or
+-- everything) as CSV and then delete it.
+create table if not exists public.attendance (
+  id         uuid primary key default gen_random_uuid(),
+  cohort     text not null,
+  date       date not null,
+  present    jsonb not null default '[]'::jsonb,   -- emails marked present
+  marked_by  text,                                 -- leader email, for audit
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  constraint attendance_unique unique (cohort, date)
+);
+
+alter table public.attendance enable row level security;
+create index if not exists idx_attendance_cohort_date on public.attendance(cohort, date);

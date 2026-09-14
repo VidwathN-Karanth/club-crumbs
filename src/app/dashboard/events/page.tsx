@@ -211,7 +211,7 @@ export default function EventsPage() {
                   <div className="flex items-center gap-2.5 mt-2 flex-wrap">
                     <span className="inline-flex items-center gap-1 text-[8px] font-mono font-bold uppercase tracking-wider text-outline">
                       {e.isStaff ? <Users className="w-2.5 h-2.5" /> : <UserIcon className="w-2.5 h-2.5" />}
-                      {e.isStaff ? `Department · ${e.audience}` : 'Personal'}
+                      {e.isStaff ? (e.creatorName ? `Posted by ${e.creatorName}` : 'Posted by staff') : 'Personal'}
                     </span>
                     {e.repeat && e.repeat !== 'none' && (
                       <span className="inline-flex items-center gap-1 text-[8px] font-mono font-bold uppercase tracking-wider text-primary">

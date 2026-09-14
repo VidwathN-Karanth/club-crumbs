@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { Check, Link2, Loader2, Plug, ShieldCheck, Trash2 } from 'lucide-react';
+import { ArrowLeft, Check, Link2, Loader2, Plug, ShieldCheck, Trash2 } from 'lucide-react';
 
 import { apiFetch, readJson, errorMessage } from '@/lib/apiClient';
 import { formatDateTime } from '@/lib/dateFormat';
@@ -37,6 +37,16 @@ export default function ExtensionPage() {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [connectState, setConnectState] = useState<ConnectState>('idle');
   const [message, setMessage] = useState('');
+
+  // Where to send the "back" button, passed as ?return= (e.g. from a leader's
+  // or member's Settings). Only internal paths are honoured.
+  const [returnTo, setReturnTo] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      const p = new URLSearchParams(window.location.search).get('return');
+      if (p && p.startsWith('/') && !p.startsWith('//')) setReturnTo(p);
+    } catch { /* no query, no back button */ }
+  }, []);
 
   /** The extension's content script answers a ping; nothing else can. */
   useEffect(() => {
@@ -186,11 +196,19 @@ export default function ExtensionPage() {
   return (
     <main className="min-h-screen bg-surface text-on-surface px-5 py-16 sm:px-8">
       <div className="mx-auto max-w-3xl space-y-10">
+        {returnTo && (
+          <a
+            href={returnTo}
+            className="inline-flex items-center gap-1.5 text-sm text-on-surface-variant hover:text-on-surface transition"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to settings
+          </a>
+        )}
         <header className="space-y-3">
           <span className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
             Browser extension
           </span>
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Layora Quick Access</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Club Crumbs Quick Access</h1>
           <p className="max-w-xl text-sm leading-relaxed text-on-surface-variant">
             Your quick launchers and course list, one click from any tab — without opening the
             dashboard. Add a link straight from the popup and it appears in Club Crumbs too.

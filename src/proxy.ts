@@ -1,109 +1,34 @@
-import { clerkMiddleware, createRouteMatcher, clerkClient } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { isOnRoster } from "@/lib/roster";
-import { isAdminEmail } from "@/lib/admin";
-import { redirectForRole } from "@/lib/roleRoute";
 
-// Define which routes are protected
+// Routes that require a signed-in account.
 const isProtectedRoute = createRouteMatcher([
   '/dashboard(.*)',
   '/onboarding(.*)',
-  '/admin(.*)'
+  '/admin(.*)',
+  '/leader(.*)',
+  '/choose-access(.*)'
 ]);
 
 /**
- * The signed-in email as carried in the session token, when it is there.
+ * Middleware does ONE thing now: send unauthenticated visitors to our own
+ * /login page. It deliberately does NOT resolve the account's email or roles.
  *
- * Clerk only includes the address if the instance is configured to (Dashboard →
- * Sessions → Customize session token). Several key names are tried because
- * whoever configured it chose the name. Free, when it works.
- */
-function emailFromClaims(claims: Record<string, unknown> | null | undefined): string | null {
-  if (!claims) return null;
-
-  for (const key of ['email', 'primaryEmail', 'email_address', 'primary_email_address']) {
-    const value = claims[key];
-    if (typeof value === 'string' && value.includes('@')) return value;
-  }
-  return null;
-}
-
-/**
- * The signed-in email, whatever it takes.
+ * Role routing (which console, the multi-role chooser, the roster gate) used to
+ * live here, which meant every protected navigation resolved the email — and
+ * when the Clerk session token carries no email (the default), that was a Clerk
+ * Backend API call per navigation. A multi-role redirect chain multiplied those
+ * into Clerk's rate limit ("429 too many requests"), which broke sign-in.
  *
- * Falls back to the Clerk Backend API when the session token has no address.
- * That costs one request per protected navigation, which is the price of this
- * gate needing no Dashboard configuration to work — and the alternative was an
- * account seeing onboarding and the dashboard before being told no.
+ * All of that now happens once, on the client, in SyncProvider using /api/me —
+ * loop-safe and with no per-navigation backend calls. Every API route still
+ * enforces access on its own, so nothing here is a security boundary.
  */
-async function resolveEmail(
-  claims: Record<string, unknown> | null | undefined,
-  userId: string | null | undefined
-): Promise<string | null> {
-  const fromToken = emailFromClaims(claims);
-  if (fromToken) return fromToken;
-  if (!userId) return null;
-
-  try {
-    // Logged deliberately, and only on this branch. Every line here is one
-    // Clerk Backend API round trip added to a page navigation — at 800
-    // students that is the difference between a snappy app and a sluggish
-    // one. Add `"email": "{{user.primary_email_address}}"` under Clerk
-    // Dashboard → Sessions → Customize session token and these lines stop
-    // appearing. Silence in the logs is the signal that it worked.
-    console.warn('[Auth] Session token carried no email — falling back to the Clerk API.');
-
-    const client = await clerkClient();
-    const user = await client.users.getUser(userId);
-    return user.primaryEmailAddress?.emailAddress || user.emailAddresses[0]?.emailAddress || null;
-  } catch {
-    // Clerk unreachable. Returning null hands the decision to SyncProvider,
-    // which now denies rather than renders on a protected route.
-    return null;
-  }
-}
-
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
-    // Send unauthenticated visitors to our own /login page.
-    //
-    // Without `unauthenticatedUrl`, auth.protect() redirects to Clerk's hosted
-    // sign-in on <instance>.accounts.dev — a different origin, where our
-    // Google-only styling cannot reach and the email/password form is still
-    // offered. Naming the URL keeps sign-in inside the app.
     await auth.protect({
       unauthenticatedUrl: new URL('/login', req.url).toString(),
     });
-
-    // Roster check, before a single byte of the workspace is sent.
-    //
-    // Every API route already enforces this and SyncProvider gates the shell,
-    // but both run after the browser has been handed a page — which is why a
-    // non-college account used to see onboarding and the dashboard first and
-    // only then be told no.
-    const { userId, sessionClaims } = await auth();
-    const email = await resolveEmail(sessionClaims as Record<string, unknown> | null, userId);
-
-    if (email) {
-      const isAdmin = isAdminEmail(email);
-      const allowed = isAdmin || isOnRoster(email);
-      if (!allowed && !req.nextUrl.pathname.startsWith('/access-denied')) {
-        return NextResponse.redirect(new URL('/access-denied', req.url));
-      }
-
-      // Send each role to its own surface, here, before a page is rendered.
-      //
-      // This used to be decided in the browser, which meant every page that
-      // decided it had to import the admin email list — and a public page
-      // importing that list ships it to every visitor. The server already knows
-      // the address by this point, so the decision belongs here. It also closes
-      // the older gap where a student who typed /admin saw the console shell
-      // painted for a moment before the client bounced them.
-      const destination = redirectForRole(req.nextUrl.pathname, isAdmin);
-      if (destination) {
-        return NextResponse.redirect(new URL(destination, req.url));
-      }
-    }
   }
   return NextResponse.next();
 });

@@ -10,16 +10,20 @@ import {
   FolderLock, Settings, LogOut, ChevronLeft, 
   ChevronRight, Clock, 
   Check, Menu, X, Trophy, Award,
-  Globe, Sun, Moon, Timer
+  Globe, Sun, Moon, Timer, Code2
 } from 'lucide-react';
+import { tournamentFor } from '@/lib/cohorts';
 import { formatShortDate } from '@/lib/dateFormat';
 import { UserButton, useUser, useAuth } from '@clerk/nextjs';
 import OnboardingModal from '@/components/OnboardingModal';
 import ZenMode from '@/components/ZenMode';
 import NotificationAgent from '@/components/NotificationAgent';
 import NotificationCenter from '@/components/NotificationCenter';
+import ExtensionNudge from '@/components/ExtensionNudge';
+import NotificationNudge from '@/components/NotificationNudge';
 import LayoraMark from '@/components/LayoraMark';
 import ExtensionPrompt from '@/components/ExtensionPrompt';
+import ChatLauncher from '@/components/chat/ChatLauncher';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -163,10 +167,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Tasks', path: '/dashboard/tasks', icon: CheckSquare },
     { name: 'Events', path: '/dashboard/events', icon: CalendarDays },
     { name: 'Courses', path: '/dashboard/courses', icon: BookMarked },
-    { name: 'Resources', path: '/dashboard/resources', icon: FolderLock },
     { name: 'Certificates', path: '/dashboard/certificates', icon: Award },
     { name: 'Leaderboard', path: '/dashboard/leaderboard', icon: Trophy },
-    { name: 'Global Resources', path: '/dashboard/global-resources', icon: Globe },
+    // The tournaments section (Coding for Coders, Gym for Crypton) only shows
+    // for clubs that have one.
+    ...(tournamentFor(store.cohort)
+      ? [{ name: tournamentFor(store.cohort)!.section, path: '/dashboard/coding', icon: Code2 }]
+      : []),
     { name: 'Settings', path: '/dashboard/settings', icon: Settings }
   ];
 
@@ -483,8 +490,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <ZenMode open={zenOpen} onClose={() => setZenOpen(false)} />
       <NotificationAgent />
       <NotificationCenter />
+      <ExtensionNudge />
+      <NotificationNudge />
       <OnboardingModal />
       <ExtensionPrompt />
+      <ChatLauncher />
     </div>
   );
 }

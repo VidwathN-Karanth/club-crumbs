@@ -1,21 +1,72 @@
+import { areaForContext, resolveActiveContext, type ActiveContext } from './accessContext';
+import type { Identity } from './accessGrants';
+
 /**
- * Which surface a signed-in account belongs on.
+ * Which surface a signed-in account belongs on, given its identities and the
+ * active-context cookie.
  *
- * Students get the workspace, admins get the console, and neither is allowed to
- * wander into the other's half. The middleware asks this on every protected
- * navigation, which is exactly why it lives here as a pure function rather than
- * inline: a wrong answer is a redirect loop, and a redirect loop locks every
- * signed-in user out of the whole app. This shape can be tested without a
- * browser, a session, or a running server.
+ * The middleware asks this on every protected navigation, so it lives here as a
+ * pure, testable function — a wrong answer is a redirect loop, and a redirect
+ * loop locks everyone out. The one rule that keeps it loop-free is unchanged:
+ * it only ever returns a path that would itself answer `null` on the next pass.
  *
  * Returns the path to redirect to, or null to let the request through.
  *
- * The one rule that keeps it loop-free: it only ever returns a path that would
- * itself answer null on the next pass.
+ * The model:
+ *   - one identity  → that console; the cookie is irrelevant.
+ *   - many, chosen  → the chosen console; other consoles bounce back to it.
+ *   - many, unchosen → the chooser at /choose-access.
+ * Switching role means visiting /choose-access and picking again — so a
+ * console area is entered only when it matches the ACTIVE context.
  */
-export function redirectForRole(pathname: string, isAdmin: boolean): string | null {
-  const onAdmin = pathname === '/admin' || pathname.startsWith('/admin/');
 
-  if (isAdmin) return onAdmin ? null : '/admin';
-  return onAdmin ? '/dashboard' : null;
+type Area = 'admin' | 'leader' | 'member' | 'choose' | 'other';
+
+function areaOfPath(pathname: string): Area {
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) return 'admin';
+  if (pathname === '/leader' || pathname.startsWith('/leader/')) return 'leader';
+  if (
+    pathname === '/dashboard' || pathname.startsWith('/dashboard/') ||
+    pathname === '/onboarding' || pathname.startsWith('/onboarding/')
+  ) return 'member';
+  if (pathname === '/choose-access') return 'choose';
+  return 'other';
+}
+
+function areaOfContext(ctx: ActiveContext): Area {
+  const path = areaForContext(ctx); // '/admin' | '/leader' | '/dashboard'
+  return path === '/admin' ? 'admin' : path === '/leader' ? 'leader' : 'member';
+}
+
+export function resolveDestination(
+  pathname: string,
+  identities: Identity[],
+  rawContextCookie: string | null | undefined
+): string | null {
+  // No identities means "denied", which the caller handles before asking here.
+  if (identities.length === 0) return null;
+
+  const active = resolveActiveContext(rawContextCookie, identities);
+  const here = areaOfPath(pathname);
+
+  // Multiple identities and none chosen yet → force the chooser.
+  if (active === null) {
+    return here === 'choose' ? null : '/choose-access';
+  }
+
+  const home = areaForContext(active); // a concrete console path
+  const activeArea = areaOfContext(active);
+
+  // On the chooser with a single identity, there is nothing to choose.
+  if (here === 'choose') {
+    return identities.length === 1 ? home : null;
+  }
+
+  // Inside a console area: allowed only when it matches the active context.
+  if (here === 'admin' || here === 'leader' || here === 'member') {
+    return here === activeArea ? null : home;
+  }
+
+  // Neutral protected routes (e.g. /extension) are open to everyone allowed.
+  return null;
 }

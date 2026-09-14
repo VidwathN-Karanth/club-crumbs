@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import { currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { isSupabaseConfigured } from '@/lib/supabaseClient';
-import { isAdminEmail } from '@/lib/admin';
 import { getRequester } from '@/lib/authz';
 
 export async function GET() {
@@ -37,15 +35,15 @@ export async function GET() {
 
     if (error) {
       if (error.code === 'PGRST116') {
-        // 2. No user_states row found. Check if the user is an admin
-        const clerkUser = await currentUser();
-        const email = clerkUser?.primaryEmailAddress?.emailAddress || '';
-        if (email && isAdminEmail(email)) {
-          // Admin users should bypass onboarding
-          const adminDefaultState = {
+        // 2. No user_states row found. Staff (admins and leaders) bypass
+        // onboarding with a ready workspace, so their quick launchers and
+        // courses have somewhere to live and sync.
+        const isStaff = requester.isAdmin || requester.ledCohorts.length > 0;
+        if (isStaff) {
+          const staffDefaultState = {
             user: {
-              name: clerkUser?.fullName || 'Admin User',
-              email: email,
+              name: requester.name,
+              email: requester.email,
               streakCount: 0,
               totalStudyHours: 0,
               isOnboarded: true,
@@ -55,7 +53,7 @@ export async function GET() {
               ]
             }
           };
-          return NextResponse.json({ state: adminDefaultState, cohort });
+          return NextResponse.json({ state: staffDefaultState, cohort });
         }
 
         // 3. Check if they exist in the users table

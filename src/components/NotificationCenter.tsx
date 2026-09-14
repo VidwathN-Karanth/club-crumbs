@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CalendarDays, Clock, BookMarked, X } from 'lucide-react';
-import { isExternalUrl, onToast, type Toast, type ToastKind } from '@/lib/notifications';
+import { CalendarDays, Clock, BookMarked, MessageCircle, X } from 'lucide-react';
+import { isExternalUrl, onToast, OPEN_CHAT_EVENT, type Toast, type ToastKind } from '@/lib/notifications';
 
 /** How long a toast stays *once the student can actually see it*. */
 const LIFETIME_MS = 20_000;
@@ -13,6 +13,7 @@ const ICONS: Record<ToastKind, typeof CalendarDays> = {
   event: CalendarDays,
   block: Clock,
   course: BookMarked,
+  chat: MessageCircle,
 };
 
 /**
@@ -47,6 +48,16 @@ export default function NotificationCenter() {
       router.push(url);
     }
   }, [router]);
+
+  /** What a toast does when clicked: chat opens the panel (no route to go to),
+   *  everything else navigates to its page. */
+  const act = useCallback((toast: Toast) => {
+    if (toast.kind === 'chat') {
+      window.dispatchEvent(new CustomEvent(OPEN_CHAT_EVENT));
+      return;
+    }
+    open(toast.url);
+  }, [open]);
 
   const dismiss = useCallback((id: string) => {
     const timer = timersRef.current.get(id);
@@ -121,11 +132,11 @@ export default function NotificationCenter() {
               <div
                 role="link"
                 tabIndex={0}
-                onClick={() => { open(toast.url); dismiss(toast.id); }}
+                onClick={() => { act(toast); dismiss(toast.id); }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    open(toast.url);
+                    act(toast);
                     dismiss(toast.id);
                   }
                 }}
