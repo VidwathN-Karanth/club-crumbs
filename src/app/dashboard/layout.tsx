@@ -23,6 +23,7 @@ import ExtensionNudge from '@/components/ExtensionNudge';
 import NotificationNudge from '@/components/NotificationNudge';
 import LayoraMark from '@/components/LayoraMark';
 import ExtensionPrompt from '@/components/ExtensionPrompt';
+import ChatLauncher from '@/components/chat/ChatLauncher';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -493,6 +494,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <NotificationNudge />
       <OnboardingModal />
       <ExtensionPrompt />
+      <ChatLauncher />
     </div>
   );
 }

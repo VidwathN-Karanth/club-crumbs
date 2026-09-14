@@ -234,7 +234,15 @@ export function hasReminderTimePassed(time: string | null | undefined, now: Date
    to remember to do both.
    ──────────────────────────────────────────────────────────────── */
 
-export type ToastKind = 'event' | 'block' | 'course';
+export type ToastKind = 'event' | 'block' | 'course' | 'chat';
+
+/**
+ * A chat toast has no page to navigate to — the feed is a panel, not a route.
+ * Clicking one dispatches this window event instead, which the mounted chat
+ * launcher listens for and opens itself. Kept here so both the toast (in
+ * NotificationCenter) and any OS-notification fallback can use the same name.
+ */
+export const OPEN_CHAT_EVENT = 'club-chat:open';
 
 export interface Toast {
   id: string;
@@ -255,6 +263,9 @@ export const KIND_DESTINATION: Record<ToastKind, string> = {
   event: '/dashboard/events/',
   block: '/dashboard/planner/',
   course: '/dashboard/courses/',
+  // Chat has no page; the in-app toast opens the panel via OPEN_CHAT_EVENT, and
+  // this is only the fallback an OS-notification click uses to bring the app up.
+  chat: '/dashboard/',
 };
 
 type ToastListener = (toast: Toast) => void;

@@ -17,6 +17,7 @@ import { COHORTS, shortCohortLabel } from '@/lib/cohorts';
 import LayoraMark from '@/components/LayoraMark';
 import NotificationAgent from '@/components/NotificationAgent';
 import NotificationCenter from '@/components/NotificationCenter';
+import AdminChatLauncher from '@/components/chat/AdminChatLauncher';
 import ExtensionNudge from '@/components/ExtensionNudge';
 import NotificationNudge from '@/components/NotificationNudge';
 import SwitchRoleButton from '@/components/SwitchRoleButton';
@@ -523,6 +524,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <NotificationCenter />
         <ExtensionNudge />
         <NotificationNudge />
+        <AdminChatLauncher />
       </div>
     </AdminProvider>
   );
