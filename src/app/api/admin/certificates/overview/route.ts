@@ -53,7 +53,7 @@ export async function GET(request: Request) {
     }
 
     // Resolve names and emails for the students who uploaded something.
-    const userIds = [...new Set(certs.map((c: { user_id: string; created_at: string; category: string }) => c.user_id))];
+    const userIds = [...new Set(certs.map((c) => c.user_id))];
     const { data: users, error: usersError } = await supabaseAdmin
       .from('users')
       .select('id, name, email')
@@ -62,10 +62,7 @@ export async function GET(request: Request) {
     if (usersError) throw usersError;
 
     const profiles = new Map(
-      (users || []).map((u: { id: string; name: string | null; email: string | null }) => [
-        u.id,
-        { name: u.name as string, email: u.email as string },
-      ])
+      (users || []).map((u) => [u.id, { name: u.name as string, email: u.email as string }])
     );
 
     const byUser = new Map<string, CertificateUploader>();
