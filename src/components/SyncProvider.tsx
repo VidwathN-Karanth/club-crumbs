@@ -7,6 +7,7 @@ import { useStore } from '@/store/useStore';
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
 import { apiFetch } from '@/lib/apiClient';
 import { areaForContextString } from '@/lib/accessContext';
+import { isDevAuthBypass } from '@/lib/devAuth';
 import type { Cohort } from '@/lib/cohorts';
 import LayoraMark from '@/components/LayoraMark';
 
@@ -54,8 +55,8 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isLoaded) return;
 
-    // Signed out: nothing to gate. Public pages must stay public.
-    if (!user) {
+    // Signed out: nothing to gate unless in dev auth bypass mode. Public pages must stay public.
+    if (!user && !isDevAuthBypass()) {
       setAccessState('allowed');
       return;
     }

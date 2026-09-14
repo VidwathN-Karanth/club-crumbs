@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { isDevAuthBypass } from "./lib/devAuth";
 
 // Routes that require a signed-in account.
 const isProtectedRoute = createRouteMatcher([
@@ -25,6 +26,10 @@ const isProtectedRoute = createRouteMatcher([
  * enforces access on its own, so nothing here is a security boundary.
  */
 export default clerkMiddleware(async (auth, req) => {
+  if (isDevAuthBypass()) {
+    return NextResponse.next();
+  }
+
   if (isProtectedRoute(req)) {
     await auth.protect({
       unauthenticatedUrl: new URL('/login', req.url).toString(),
