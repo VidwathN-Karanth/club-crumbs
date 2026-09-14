@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth, useUser } from '@clerk/nextjs';
 import {
-  Activity, Award, CalendarDays, CheckSquare, ChevronLeft, ChevronRight, Clock, FileText,
+  Activity, Award, CalendarDays, CheckSquare, ChevronLeft, ChevronRight, Clock, FileSpreadsheet, FileText,
   Globe, KeyRound, LayoutDashboard, LogOut, Menu, Moon, ScrollText, Settings, Sun, Trophy,
   Users, X,
 } from 'lucide-react';
@@ -21,6 +21,7 @@ import AdminChatLauncher from '@/components/chat/AdminChatLauncher';
 import ExtensionNudge from '@/components/ExtensionNudge';
 import NotificationNudge from '@/components/NotificationNudge';
 import SwitchRoleButton from '@/components/SwitchRoleButton';
+import { isDevAuthBypass, MOCK_DEV_EMAIL, MOCK_DEV_NAME } from '@/lib/devAuth';
 import { AdminProvider, useAdmin } from './AdminContext';
 
 /* ────────────────────────────────────────────────────────────────
@@ -43,6 +44,7 @@ const MENU = [
   { name: 'Student Nodes', path: '/admin/students', icon: Users },
   { name: 'Leaderboard', path: '/admin/leaderboard', icon: Trophy },
   { name: 'Events', path: '/admin/events', icon: CalendarDays },
+  { name: 'Reports', path: '/admin/reports', icon: FileSpreadsheet },
   { name: 'Attendance', path: '/admin/attendance', icon: CheckSquare },
   { name: 'Certificates', path: '/admin/certificates', icon: Award },
   { name: 'Resumes', path: '/admin/resumes', icon: FileText },
@@ -67,7 +69,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const setThemeMode = useStore((state) => state.setThemeMode);
   const is24HourFormat = useStore((state) => state.is24HourFormat);
 
-  const [authorized, setAuthorized] = useState(false);
+  const [authorized, setAuthorized] = useState(() => isDevAuthBypass());
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
@@ -76,8 +78,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [timeStr, setTimeStr] = useState('');
   const [dateStr, setDateStr] = useState('');
 
-  const adminName = user?.fullName || user?.firstName || 'Administrator';
-  const adminEmail = user?.primaryEmailAddress?.emailAddress || '';
+  const adminName = user?.fullName || user?.firstName || (isDevAuthBypass() ? MOCK_DEV_NAME : 'Administrator');
+  const adminEmail = user?.primaryEmailAddress?.emailAddress || (isDevAuthBypass() ? MOCK_DEV_EMAIL : '');
   const adminAvatar = user?.imageUrl || '';
   const adminInitial = (adminName || adminEmail || 'A').charAt(0).toUpperCase();
 
@@ -99,11 +101,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
    */
   const checkedRef = useRef(false);
   useEffect(() => {
-    if (!isUserLoaded || !isAuthLoaded) return;
+    if (!isDevAuthBypass()) {
+      if (!isUserLoaded || !isAuthLoaded) return;
 
-    if (!isSignedIn) {
-      router.replace('/login');
-      return;
+      if (!isSignedIn) {
+        router.replace('/login');
+        return;
+      }
     }
     // The shell survives navigation between sections, but React still re-runs
     // this on a fast refresh; one check per mount is enough.

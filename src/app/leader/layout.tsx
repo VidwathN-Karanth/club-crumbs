@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth, useUser } from '@clerk/nextjs';
-import { BookMarked, CalendarDays, CheckSquare, ChevronLeft, ChevronRight, Clock, Code2, LayoutDashboard, LogOut, Menu, Moon, Rocket, Settings, Sun, Timer, Trophy, Users, X } from 'lucide-react';
+import { BookMarked, CalendarDays, CheckSquare, ChevronLeft, ChevronRight, Clock, Code2, FileText, LayoutDashboard, LogOut, Menu, Moon, Rocket, Settings, Sun, Timer, Trophy, Users, X } from 'lucide-react';
 
 import { useStore } from '@/store/useStore';
 import { apiFetch } from '@/lib/apiClient';
@@ -18,6 +18,7 @@ import ExtensionNudge from '@/components/ExtensionNudge';
 import NotificationNudge from '@/components/NotificationNudge';
 import ZenMode from '@/components/ZenMode';
 import LeaderChatLauncher from '@/components/chat/LeaderChatLauncher';
+import { isDevAuthBypass, MOCK_DEV_EMAIL, MOCK_DEV_NAME } from '@/lib/devAuth';
 import { LeaderProvider } from './LeaderContext';
 
 /* ────────────────────────────────────────────────────────────────
@@ -31,6 +32,7 @@ const MENU = [
   { name: 'Overview', path: '/leader', icon: LayoutDashboard },
   { name: 'Members', path: '/leader/members', icon: Users },
   { name: 'Events', path: '/leader/events', icon: CalendarDays },
+  { name: 'Reports', path: '/leader/reports', icon: FileText },
   { name: 'Leaderboard', path: '/leader/leaderboard', icon: Trophy },
   { name: 'Attendance', path: '/leader/attendance', icon: CheckSquare },
   { name: 'Quick Launch', path: '/leader/quick-launch', icon: Rocket },
@@ -54,7 +56,7 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
   const { isLoaded: isUserLoaded, user } = useUser();
   const { isLoaded: isAuthLoaded, isSignedIn, signOut } = useAuth();
 
-  const [cohort, setCohort] = useState<Cohort | null>(null);
+  const [cohort, setCohort] = useState<Cohort | null>(() => (isDevAuthBypass() ? 'Coders Club' : null));
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [signingOut, setSigningOut] = useState(false);
@@ -77,16 +79,18 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
     return () => clearInterval(interval);
   }, [is24HourFormat]);
 
-  const leaderName = user?.fullName || user?.firstName || 'Club Lead';
-  const leaderEmail = user?.primaryEmailAddress?.emailAddress || '';
+  const leaderName = user?.fullName || user?.firstName || (isDevAuthBypass() ? MOCK_DEV_NAME : 'Club Lead');
+  const leaderEmail = user?.primaryEmailAddress?.emailAddress || (isDevAuthBypass() ? MOCK_DEV_EMAIL : '');
   const current = normalise(pathname);
 
   const checkedRef = useRef(false);
   useEffect(() => {
-    if (!isUserLoaded || !isAuthLoaded) return;
-    if (!isSignedIn) {
-      router.replace('/login');
-      return;
+    if (!isDevAuthBypass()) {
+      if (!isUserLoaded || !isAuthLoaded) return;
+      if (!isSignedIn) {
+        router.replace('/login');
+        return;
+      }
     }
     if (checkedRef.current) return;
     checkedRef.current = true;
@@ -108,7 +112,7 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
         // The active club comes from the chosen context; a single-club leader
         // resolves to it automatically. Anything ambiguous → pick on /choose-access.
         const fromCtx = leaderCohortFromContext(data.activeContext);
-        const resolved = fromCtx ?? (led.length === 1 ? led[0] : null);
+        const resolved = fromCtx ?? (led.length === 1 ? led[0] : (isDevAuthBypass() ? led[0] : null));
         if (!resolved) {
           router.replace('/choose-access');
           return;
