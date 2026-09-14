@@ -62,10 +62,7 @@ export async function GET(request: Request) {
     if (usersError) throw usersError;
 
     const profiles = new Map(
-      (users || []).map((u: { id: string; name: string | null; email: string | null }) => [
-        u.id,
-        { name: u.name as string, email: u.email as string },
-      ])
+      (users || []).map((u) => [u.id, { name: u.name as string, email: u.email as string }])
     );
 
     const byUser = new Map<string, CertificateUploader>();
