@@ -191,7 +191,7 @@ async function emailsForRole(cohort: Cohort, role: Role): Promise<string[]> {
       .eq('cohort', cohort)
       .eq('role', role);
     if (error) throw error;
-    const emails = (data || []).map((r) => normalizeEmail((r as { email: string }).email)).filter(Boolean);
+    const emails = (data || []).map((r: any) => normalizeEmail((r as { email: string }).email)).filter(Boolean);
     if (emails.length === 0 && isDevAuthBypass()) {
       return devFallbackGrants
         .filter((g) => g.cohort === cohort && g.role === role)
@@ -334,7 +334,7 @@ export async function adminCount(): Promise<number> {
       .select('email')
       .eq('role', 'admin');
     if (error) throw error;
-    const emails = new Set((data || []).map((r) => normalizeEmail((r as { email: string }).email)));
+    const emails = new Set((data || []).map((r: any) => normalizeEmail((r as { email: string }).email)));
     return emails.size;
   } catch (err) {
     if (isDevAuthBypass()) {

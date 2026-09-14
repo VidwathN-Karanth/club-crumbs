@@ -61,10 +61,10 @@ export async function GET(request: Request) {
 
     if (usersError) throw usersError;
 
-    const profiles = new Map(
+    const profiles = new Map<string, { name: string | null; email: string | null }>(
       (users || []).map((u: { id: string; name: string | null; email: string | null }) => [
         u.id,
-        { name: u.name as string, email: u.email as string },
+        { name: u.name, email: u.email },
       ])
     );
 
@@ -91,7 +91,7 @@ export async function GET(request: Request) {
       byUser.set(cert.user_id, {
         userId: cert.user_id,
         name: profile.name || 'Student',
-        email: profile.email,
+        email: profile.email || '',
         count: 1,
         byCategory,
         // Rows arrive newest-first, so the first one seen is the latest.

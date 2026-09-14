@@ -47,7 +47,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     members,
     present,
-    dates: (dateRows || []).map((r) => (r as { date: string }).date),
+    dates: (dateRows || []).map((r: any) => (r as { date: string }).date),
   });
 }
 
