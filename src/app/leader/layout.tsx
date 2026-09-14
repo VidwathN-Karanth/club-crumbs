@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth, useUser } from '@clerk/nextjs';
-import { BookMarked, CalendarDays, CheckSquare, Clock, Code2, LayoutDashboard, LogOut, Moon, Rocket, Settings, Sun, Timer, Trophy, Users } from 'lucide-react';
+import { BookMarked, CalendarDays, CheckSquare, Clock, Code2, LayoutDashboard, LogOut, Menu, Moon, Rocket, Settings, Sun, Timer, Trophy, Users, X } from 'lucide-react';
 
 import { useStore } from '@/store/useStore';
 import { apiFetch } from '@/lib/apiClient';
@@ -54,6 +55,7 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
   const { isLoaded: isAuthLoaded, isSignedIn, signOut } = useAuth();
 
   const [cohort, setCohort] = useState<Cohort | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [zenOpen, setZenOpen] = useState(false);
   const [timeStr, setTimeStr] = useState('');
@@ -153,6 +155,76 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
   return (
     <LeaderProvider value={{ cohort, leaderName, leaderEmail }}>
       <div className="min-h-screen bg-cyber-dark text-white flex relative overflow-hidden font-mono">
+        {/* --- MOBILE SIDEBAR DRAWER (left) --- */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMobileMenuOpen(false)}
+                className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 md:hidden"
+              />
+              <motion.aside
+                initial={{ x: -280 }}
+                animate={{ x: 0 }}
+                exit={{ x: -280 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="fixed top-0 bottom-0 left-0 w-[240px] bg-cyber-dark/95 border-r border-white/10 z-50 flex flex-col justify-between p-3.5 md:hidden"
+              >
+                <div className="space-y-4 overflow-y-auto scrollbar-none">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+                    <span className="font-mono font-bold text-sm" style={{ color: accent }}>{cohort} Lead</span>
+                    <button onClick={() => setMobileMenuOpen(false)} className="text-white/50" aria-label="Close the menu">
+                      <X className="w-5 h-5" strokeWidth={1.5} />
+                    </button>
+                  </div>
+                  <nav className="space-y-0.5">
+                    {menu.map((item) => {
+                      const isActive = normalise(item.path) === current;
+                      const Icon = item.icon;
+                      return (
+                        <button
+                          key={item.name}
+                          onClick={() => { router.push(item.path); setMobileMenuOpen(false); }}
+                          className={`w-full flex items-center gap-3 py-1.5 pl-2 pr-3 rounded-lg text-xs font-mono transition border ${
+                            isActive
+                              ? 'bg-white/10 text-white font-bold border-white/10'
+                              : 'text-white/60 hover:bg-white/5 hover:text-white border-transparent'
+                          }`}
+                        >
+                          <Icon className="w-4 h-4" strokeWidth={1.5} />
+                          {item.name.toUpperCase()}
+                        </button>
+                      );
+                    })}
+                  </nav>
+                </div>
+
+                <div className="space-y-2 pt-2 border-t border-white/5">
+                  <div className="flex items-center gap-2.5 bg-white/5 p-2 rounded-lg border border-white/10">
+                    <span className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shrink-0" style={{ backgroundColor: `${accent}22`, color: accent }}>
+                      {(leaderName || 'L').charAt(0).toUpperCase()}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-mono font-semibold truncate text-white">{leaderName}</div>
+                      <div className="text-[8px] font-mono text-white/40 truncate">{leaderEmail}</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleSignOut}
+                    disabled={signingOut}
+                    className="w-full flex items-center justify-center gap-2 border border-red-500/20 bg-red-950/15 hover:bg-red-950/25 text-red-400 py-1.5 rounded-lg text-xs font-mono transition cursor-pointer disabled:opacity-50"
+                  >
+                    <LogOut className="w-3.5 h-3.5" strokeWidth={1.5} /> {signingOut ? 'Signing out…' : 'Sign out'}
+                  </button>
+                </div>
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
+
         {/* --- SIDEBAR --- */}
         <aside className="hidden md:flex flex-col justify-between py-4 px-4 border-r border-white/10 bg-black/20 backdrop-blur-md shrink-0 w-[240px] h-screen sticky top-0 z-30">
           <div className="space-y-6">
@@ -216,6 +288,13 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
         <main className="flex-1 min-w-0 flex flex-col min-h-screen">
           <header className="relative h-14 border-b border-white/10 bg-black/20 backdrop-blur-md px-4 md:px-6 flex items-center justify-between z-20">
             <div className="flex items-center gap-2 font-mono text-xs text-white/40">
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                aria-label="Open the menu"
+                className="md:hidden p-2 -ml-2 rounded-lg text-primary hover:bg-white/5 transition"
+              >
+                <Menu className="w-5 h-5" strokeWidth={1.5} />
+              </button>
               <LayoraMark className="h-5 w-5 md:hidden" glyphClassName="text-[10px]" />
               <span className="hidden md:inline">Console:</span>
               <span className="font-bold uppercase" style={{ color: accent }}>{cohort}</span>
@@ -267,24 +346,6 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
               </span>
             </div>
           </header>
-
-          {/* Mobile nav */}
-          <nav className="md:hidden flex gap-2 px-4 py-3 border-b border-white/10 bg-black/20">
-            {menu.map((item) => {
-              const isActive = normalise(item.path) === current;
-              return (
-                <button
-                  key={item.name}
-                  onClick={() => router.push(item.path)}
-                  className={`flex-1 py-2 rounded-lg text-[11px] font-mono font-bold uppercase transition cursor-pointer border ${
-                    isActive ? 'bg-white/10 text-white border-white/15' : 'text-white/50 border-transparent'
-                  }`}
-                >
-                  {item.name}
-                </button>
-              );
-            })}
-          </nav>
 
           <div className="flex-1 overflow-y-auto p-4 md:p-6 z-10 flex flex-col justify-between">
             <div className="flex-1 space-y-6">{children}</div>
