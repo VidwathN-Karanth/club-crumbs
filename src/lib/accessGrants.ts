@@ -52,22 +52,6 @@ interface RawGrantRow {
   cohort: string | null;
 }
 
-import { isDevAuthBypass } from './devAuth';
-
-const devFallbackGrants: Grant[] = [
-  { email: 'admin@mite.ac.in', role: 'admin', cohort: null },
-  { email: 'admin@mite.ac.in', role: 'leader', cohort: 'Coders Club' },
-  { email: 'admin@mite.ac.in', role: 'leader', cohort: 'Crypton Club' },
-  { email: 'admin@mite.ac.in', role: 'leader', cohort: 'DevStudio' },
-  { email: 'admin@mite.ac.in', role: 'member', cohort: 'DevStudio' },
-  { email: 'leader.coders@mite.ac.in', role: 'leader', cohort: 'Coders Club' },
-  { email: 'leader.crypton@mite.ac.in', role: 'leader', cohort: 'Crypton Club' },
-  { email: 'leader.dev@mite.ac.in', role: 'leader', cohort: 'DevStudio' },
-  { email: 'member.dev@mite.ac.in', role: 'member', cohort: 'DevStudio' },
-  { email: 'member.coders@mite.ac.in', role: 'member', cohort: 'Coders Club' },
-  { email: 'member.crypton@mite.ac.in', role: 'member', cohort: 'Crypton Club' },
-];
-
 /**
  * A tiny per-instance cache of "all grants for this email".
  *
@@ -93,7 +77,6 @@ export async function getGrantsForEmail(email: string | null | undefined): Promi
   if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.grants;
 
   let rows: RawGrantRow[] = [];
-  let dbFailed = false;
   try {
     const { data, error } = await supabaseAdmin
       .from('access_grants')
@@ -102,26 +85,22 @@ export async function getGrantsForEmail(email: string | null | undefined): Promi
     if (error) throw error;
     rows = (data as RawGrantRow[]) || [];
   } catch (err) {
-    dbFailed = true;
-    console.error('[accessGrants] Could not read grants; using dev fallback if enabled:', err);
+    // The database is unreachable. With no hardcoded access, everyone is denied
+    // until the table is readable again — the safe direction to fail.
+    console.error('[accessGrants] Could not read grants; denying until readable:', err);
     rows = [];
   }
 
-  let parsed: Grant[] = rows
+  const parsed: Grant[] = rows
     .filter((r) => r.role === 'admin' || r.role === 'leader' || r.role === 'member')
     .map((r) => ({
       email: normalized,
       role: r.role as Role,
       cohort: r.role === 'admin' ? null : coerceCohort(r.cohort),
     }))
+    // A leader/member row whose cohort no longer names a real club is dropped
+    // rather than trusted — a renamed club must not silently grant access.
     .filter((g) => g.role === 'admin' || g.cohort !== null);
-
-  if ((dbFailed || parsed.length === 0) && isDevAuthBypass()) {
-    const fallback = devFallbackGrants.filter((g) => g.email === normalized);
-    if (fallback.length > 0) {
-      parsed = fallback;
-    }
-  }
 
   cache.set(normalized, { at: Date.now(), grants: parsed });
   return parsed;
@@ -191,19 +170,8 @@ async function emailsForRole(cohort: Cohort, role: Role): Promise<string[]> {
       .eq('cohort', cohort)
       .eq('role', role);
     if (error) throw error;
-    const emails = (data || []).map((r: any) => normalizeEmail((r as { email: string }).email)).filter(Boolean);
-    if (emails.length === 0 && isDevAuthBypass()) {
-      return devFallbackGrants
-        .filter((g) => g.cohort === cohort && g.role === role)
-        .map((g) => g.email);
-    }
-    return emails;
+    return (data || []).map((r: { email: string }) => normalizeEmail(r.email)).filter(Boolean);
   } catch (err) {
-    if (isDevAuthBypass()) {
-      return devFallbackGrants
-        .filter((g) => g.cohort === cohort && g.role === role)
-        .map((g) => g.email);
-    }
     console.error(`[accessGrants] Could not list ${role}s of ${cohort}:`, err);
     return [];
   }
@@ -270,21 +238,6 @@ export async function addGrant(
     // A duplicate (same email/role/club) is a no-op success, not a failure.
     if (error && !String(error.message).toLowerCase().includes('duplicate')) throw error;
   } catch (err) {
-    if (isDevAuthBypass()) {
-      const targetCohort = input.role === 'admin' ? null : input.cohort;
-      const exists = devFallbackGrants.some(
-        (g) => g.email === email && g.role === input.role && g.cohort === targetCohort
-      );
-      if (!exists) {
-        devFallbackGrants.push({
-          email,
-          role: input.role,
-          cohort: targetCohort,
-        });
-      }
-      invalidateGrants(email);
-      return { ok: true };
-    }
     console.error('[accessGrants] addGrant failed:', err);
     return fail('db_error', 'Could not save that grant.');
   }
@@ -310,14 +263,6 @@ export async function removeGrant(
     const { error } = await q;
     if (error) throw error;
   } catch (err) {
-    if (isDevAuthBypass()) {
-      const idx = devFallbackGrants.findIndex(
-        (g) => g.email === email && g.role === input.role && (input.cohort ? g.cohort === input.cohort : g.cohort === null)
-      );
-      if (idx !== -1) devFallbackGrants.splice(idx, 1);
-      invalidateGrants(email);
-      return { ok: true };
-    }
     console.error('[accessGrants] removeGrant failed:', err);
     return fail('db_error', 'Could not remove that grant.');
   }
@@ -334,13 +279,11 @@ export async function adminCount(): Promise<number> {
       .select('email')
       .eq('role', 'admin');
     if (error) throw error;
-    const emails = new Set((data || []).map((r: any) => normalizeEmail((r as { email: string }).email)));
+    const emails = new Set(
+      (data || []).map((r: { email: string }) => normalizeEmail(r.email))
+    );
     return emails.size;
   } catch (err) {
-    if (isDevAuthBypass()) {
-      const emails = new Set(devFallbackGrants.filter((g) => g.role === 'admin').map((g) => g.email));
-      return emails.size;
-    }
     console.error('[accessGrants] adminCount failed:', err);
     // Report more-than-one on failure so a delete is refused rather than
     // risking the removal of a genuine last admin against a bad read.
