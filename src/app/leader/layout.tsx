@@ -16,6 +16,7 @@ import NotificationCenter from '@/components/NotificationCenter';
 import ExtensionNudge from '@/components/ExtensionNudge';
 import NotificationNudge from '@/components/NotificationNudge';
 import ZenMode from '@/components/ZenMode';
+import LeaderChatLauncher from '@/components/chat/LeaderChatLauncher';
 import { LeaderProvider } from './LeaderContext';
 
 /* ────────────────────────────────────────────────────────────────
@@ -298,6 +299,7 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
         <ExtensionNudge />
         <NotificationNudge />
         <ZenMode open={zenOpen} onClose={() => setZenOpen(false)} />
+        <LeaderChatLauncher />
       </div>
     </LeaderProvider>
   );
