@@ -19917,7 +19917,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/leader/layout.tsx",
-      "source_location": "L109",
+      "source_location": "L110",
       "weight": 1.0
     },
     {
@@ -19929,7 +19929,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/leader/layout.tsx",
-      "source_location": "L148",
+      "source_location": "L149",
       "weight": 1.0
     },
     {
@@ -19941,7 +19941,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/leader/layout.tsx",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
@@ -19953,7 +19953,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/leader/layout.tsx",
-      "source_location": "L72",
+      "source_location": "L73",
       "weight": 1.0
     },
     {
@@ -19965,7 +19965,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/leader/layout.tsx",
-      "source_location": "L81",
+      "source_location": "L82",
       "weight": 1.0
     },
     {
@@ -19977,7 +19977,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/leader/layout.tsx",
-      "source_location": "L96",
+      "source_location": "L97",
       "weight": 1.0
     },
     {
@@ -20337,7 +20337,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/chat/ChatMessage.tsx",
-      "source_location": "L177",
+      "source_location": "L181",
       "weight": 1.0
     },
     {
@@ -47201,7 +47201,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "src/app/leader/layout.tsx",
-      "source_location": "L100",
+      "source_location": "L101",
       "weight": 1.0
     },
     {
@@ -48239,5 +48239,5 @@
       "source_file": "structure.md"
     }
   ],
-  "built_at_commit": "a23e4f6ed37a30736b82c210e4a089daff9790ec"
+  "built_at_commit": "b4d7fb20e72e048793c4e2fd2af9a52195f2eb42"
 }

@@ -140,7 +140,9 @@ export default function ChatMessage({
         </div>
 
         {message.deleted ? (
-          <p className="mt-1 text-sm italic text-on-surface-variant/50">This message was removed.</p>
+          <div className="mt-1 inline-block max-w-[85%] rounded-2xl rounded-tl-sm border border-outline-variant bg-surface-container/50 px-3 py-2">
+            <p className="text-sm italic text-on-surface-variant/50">This message was removed.</p>
+          </div>
         ) : editing ? (
           <div className="mt-1">
             <textarea
@@ -171,9 +173,11 @@ export default function ChatMessage({
             </div>
           </div>
         ) : (
-          <>
+          // A WhatsApp-style bubble: shrinks to the text, wraps to as many
+          // lines as it needs, capped at 85% of the row width.
+          <div className="mt-1 inline-block max-w-[85%] rounded-2xl rounded-tl-sm border border-outline-variant bg-surface-container px-3 py-2 align-top">
             {message.body && (
-              <p className="mt-1 text-sm text-on-surface whitespace-pre-wrap break-words leading-relaxed">
+              <p className="text-sm text-on-surface whitespace-pre-wrap break-words leading-relaxed">
                 {linkify(message.body)}
               </p>
             )}
@@ -184,10 +188,10 @@ export default function ChatMessage({
                 alt="Shared image"
                 loading="lazy"
                 decoding="async"
-                className="mt-2 max-w-full sm:max-w-xs rounded-lg border border-outline-variant"
+                className={`${message.body ? 'mt-2 ' : ''}max-w-full sm:max-w-[15rem] rounded-lg`}
               />
             )}
-          </>
+          </div>
         )}
       </div>
     </div>

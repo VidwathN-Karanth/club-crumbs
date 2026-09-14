@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth, useUser } from '@clerk/nextjs';
-import { BookMarked, CalendarDays, CheckSquare, Clock, Code2, LayoutDashboard, LogOut, Menu, Moon, Rocket, Settings, Sun, Timer, Trophy, Users, X } from 'lucide-react';
+import { BookMarked, CalendarDays, CheckSquare, ChevronLeft, ChevronRight, Clock, Code2, LayoutDashboard, LogOut, Menu, Moon, Rocket, Settings, Sun, Timer, Trophy, Users, X } from 'lucide-react';
 
 import { useStore } from '@/store/useStore';
 import { apiFetch } from '@/lib/apiClient';
@@ -56,6 +56,7 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
 
   const [cohort, setCohort] = useState<Cohort | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [signingOut, setSigningOut] = useState(false);
   const [zenOpen, setZenOpen] = useState(false);
   const [timeStr, setTimeStr] = useState('');
@@ -225,21 +226,53 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
           )}
         </AnimatePresence>
 
-        {/* --- SIDEBAR --- */}
-        <aside className="hidden md:flex flex-col justify-between py-4 px-4 border-r border-white/10 bg-black/20 backdrop-blur-md shrink-0 w-[240px] h-screen sticky top-0 z-30">
+        {/* --- SIDEBAR (collapsible) --- */}
+        <motion.aside
+          animate={{ width: sidebarOpen ? 240 : 76 }}
+          transition={{ duration: 0.3, ease: 'easeInOut' }}
+          className={`hidden md:flex flex-col justify-between py-4 border-r border-white/10 bg-black/20 backdrop-blur-md shrink-0 h-screen sticky top-0 z-30 overflow-hidden ${
+            sidebarOpen ? 'px-4' : 'px-2'
+          }`}
+        >
           <div className="space-y-6">
-            <div className="flex items-center gap-2 text-sm font-bold text-white">
-              <LayoraMark className="h-6 w-6" glyphClassName="text-xs" /> CLUB CRUMBS
-              <span className="text-[9px] font-mono uppercase tracking-widest" style={{ color: accent }}>Lead</span>
+            {/* Logo row with the collapse/expand arrow beside it. */}
+            <div className={sidebarOpen ? 'flex items-center justify-between' : 'flex flex-col items-center gap-2'}>
+              {sidebarOpen ? (
+                <span className="flex items-center gap-2 text-sm font-bold text-white min-w-0">
+                  <LayoraMark className="h-6 w-6 shrink-0" glyphClassName="text-xs" />
+                  <span className="truncate">CLUB CRUMBS</span>
+                  <span className="text-[9px] font-mono uppercase tracking-widest shrink-0" style={{ color: accent }}>Lead</span>
+                </span>
+              ) : (
+                <LayoraMark className="h-7 w-7" glyphClassName="text-sm" />
+              )}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                aria-label={sidebarOpen ? 'Collapse the sidebar' : 'Expand the sidebar'}
+                title={sidebarOpen ? 'Collapse the sidebar' : 'Expand the sidebar'}
+                className="p-1.5 hover:bg-white/10 rounded-lg border border-white/10 text-white/50 hover:text-white transition cursor-pointer shrink-0"
+              >
+                {sidebarOpen ? <ChevronLeft className="w-3.5 h-3.5" strokeWidth={1.5} /> : <ChevronRight className="w-3.5 h-3.5" strokeWidth={1.5} />}
+              </button>
             </div>
 
-            <div
-              className="rounded-xl border p-3"
-              style={{ borderColor: `${accent}44`, backgroundColor: `${accent}12` }}
-            >
-              <div className="text-[9px] font-mono uppercase tracking-widest text-white/40">Your club</div>
-              <div className="mt-1 text-sm font-bold" style={{ color: accent }}>{cohort}</div>
-            </div>
+            {sidebarOpen ? (
+              <div
+                className="rounded-xl border p-3"
+                style={{ borderColor: `${accent}44`, backgroundColor: `${accent}12` }}
+              >
+                <div className="text-[9px] font-mono uppercase tracking-widest text-white/40">Your club</div>
+                <div className="mt-1 text-sm font-bold" style={{ color: accent }}>{cohort}</div>
+              </div>
+            ) : (
+              <div
+                className="w-11 h-11 mx-auto rounded-xl border flex items-center justify-center font-black text-sm"
+                title={cohort}
+                style={{ borderColor: `${accent}44`, backgroundColor: `${accent}18`, color: accent }}
+              >
+                {cohort.charAt(0)}
+              </div>
+            )}
 
             <nav className="space-y-1">
               {menu.map((item) => {
@@ -249,14 +282,18 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
                   <button
                     key={item.name}
                     onClick={() => router.push(item.path)}
-                    className={`w-full flex items-center gap-3 py-2.5 pl-2 pr-3 rounded-xl text-xs font-mono transition border cursor-pointer ${
+                    title={sidebarOpen ? undefined : item.name}
+                    aria-label={item.name}
+                    className={`flex items-center rounded-xl text-xs font-mono transition border cursor-pointer ${
+                      sidebarOpen ? 'w-full gap-3 py-2.5 pl-2 pr-3' : 'w-11 h-11 mx-auto justify-center'
+                    } ${
                       isActive
                         ? 'bg-white/10 text-white font-bold border-white/15'
                         : 'text-white/60 hover:bg-white/5 hover:text-white border-transparent'
                     }`}
                   >
                     <Icon className="w-4 h-4 shrink-0" strokeWidth={1.5} />
-                    {item.name.toUpperCase()}
+                    {sidebarOpen && item.name.toUpperCase()}
                   </button>
                 );
               })}
@@ -264,25 +301,31 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
           </div>
 
           <div className="pt-4 border-t border-white/5 space-y-3">
-            <div className="flex items-center gap-2.5 bg-white/5 rounded-xl border border-white/10 p-2.5">
+            <div className={`flex items-center bg-white/5 rounded-xl border border-white/10 ${sidebarOpen ? 'gap-2.5 p-2.5' : 'justify-center p-1.5'}`}>
               <span className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm shrink-0" style={{ backgroundColor: `${accent}22`, color: accent }}>
                 {(leaderName || 'L').charAt(0).toUpperCase()}
               </span>
-              <div className="truncate min-w-0">
-                <div className="text-xs font-mono font-semibold truncate text-white">{leaderName}</div>
-                <div className="text-[9px] font-mono text-white/40 truncate">{leaderEmail}</div>
-              </div>
+              {sidebarOpen && (
+                <div className="truncate min-w-0">
+                  <div className="text-xs font-mono font-semibold truncate text-white">{leaderName}</div>
+                  <div className="text-[9px] font-mono text-white/40 truncate">{leaderEmail}</div>
+                </div>
+              )}
             </div>
             <button
               onClick={handleSignOut}
               disabled={signingOut}
-              className="w-full flex items-center justify-center gap-2 border border-red-500/20 bg-red-950/10 hover:bg-red-950/30 text-red-400 rounded-xl text-xs font-mono py-2 transition cursor-pointer disabled:opacity-50"
+              title={sidebarOpen ? undefined : 'Sign out'}
+              aria-label="Sign out"
+              className={`flex items-center justify-center gap-2 border border-red-500/20 bg-red-950/10 hover:bg-red-950/30 text-red-400 rounded-xl text-xs font-mono transition cursor-pointer disabled:opacity-50 ${
+                sidebarOpen ? 'w-full py-2' : 'w-11 h-11 mx-auto'
+              }`}
             >
               <LogOut className="w-4 h-4 shrink-0" strokeWidth={1.5} />
-              {signingOut ? 'Signing out…' : 'Sign out'}
+              {sidebarOpen && (signingOut ? 'Signing out…' : 'Sign out')}
             </button>
           </div>
-        </aside>
+        </motion.aside>
 
         {/* --- MAIN --- */}
         <main className="flex-1 min-w-0 flex flex-col min-h-screen">
