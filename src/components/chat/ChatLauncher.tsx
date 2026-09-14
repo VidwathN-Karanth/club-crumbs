@@ -86,13 +86,12 @@ export default function ChatLauncher({
         >
           <MessageCircle className="w-6 h-6" strokeWidth={1.75} />
           {!manage && unread > 0 && (
+            // A club-crumbs brand-colour dot marks unread. The white ring keeps
+            // it legible even on the (also brand-coloured) launcher button.
             <span
-              className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-rose-500
-                text-white text-[10px] font-bold flex items-center justify-center border-2 border-surface"
+              className="absolute top-0.5 right-0.5 w-3 h-3 rounded-full bg-cyber-blue ring-2 ring-white animate-pulse"
               aria-label={`${unread} unread messages`}
-            >
-              {unread > 99 ? '99+' : unread}
-            </span>
+            />
           )}
         </button>
       )}

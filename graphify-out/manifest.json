@@ -942,9 +942,9 @@
     "semantic_hash": ""
   },
   "src/app/leader/layout.tsx": {
-    "mtime": 1789353000.3940926,
-    "seen": 1789353066.8618023,
-    "ast_hash": "f19ab7a6b5923d5dc82736a9fc136771",
+    "mtime": 1789361786.9945655,
+    "seen": 1789361852.362637,
+    "ast_hash": "33a40f82c4b39e064ddad912f9744b4e",
     "semantic_hash": ""
   },
   "src/app/leader/members/page.tsx": {
@@ -1152,9 +1152,9 @@
     "semantic_hash": ""
   },
   "src/components/chat/ChatLauncher.tsx": {
-    "mtime": 1789354220.0890808,
-    "seen": 1789354255.909095,
-    "ast_hash": "b0b379962f74bf197af36b2c47945eae",
+    "mtime": 1789361719.3108287,
+    "seen": 1789361852.362673,
+    "ast_hash": "5cb2c2a48ae89fec06ae74d71dc4f921",
     "semantic_hash": ""
   },
   "src/components/chat/ChatMessage.tsx": {
