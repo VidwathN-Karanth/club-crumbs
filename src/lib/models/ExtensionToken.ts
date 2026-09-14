@@ -109,7 +109,7 @@ export class ExtensionToken {
       .order('created_at', { ascending: false });
 
     if (error) throw new Error(`Could not list extension tokens: ${error.message}`);
-    return (data || []).map((r) => {
+    return (data || []).map((r: any) => {
       const row = r as Pick<DatabaseTokenRow, 'id' | 'label' | 'created_at' | 'last_used_at'>;
       return {
         id: row.id,

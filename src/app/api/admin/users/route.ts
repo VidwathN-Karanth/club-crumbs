@@ -26,15 +26,16 @@ export async function GET(request: Request) {
     if (error) throw error;
 
     const rosterEmails = new Set(await emailsForCohort(cohort));
-    const scoped = (data || []).filter((row) => {
+    const scoped = (data || []).filter((row: any) => {
       const email = (row?.state?.user?.email || '').trim().toLowerCase();
       return rosterEmails.has(email);
     });
 
     return NextResponse.json(scoped);
-  } catch (err: any) {
-    console.error('Admin fetch users failed:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error('Admin fetch users failed:', errMsg);
+    return NextResponse.json({ error: errMsg }, { status: 500 });
   }
 }
 

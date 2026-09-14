@@ -165,7 +165,7 @@ export class AdminLog {
       .limit(Math.min(Math.max(limit, 1), 500));
 
     if (error) throw new Error(`Failed to load the admin log: ${error.message}`);
-    return (data || []).map((r) => mapRow(r as DatabaseAdminLogRow));
+    return (data || []).map((r: any) => mapRow(r as DatabaseAdminLogRow));
   }
 
   /** Drops everything past the window. Returns how many lines went. */

@@ -227,7 +227,7 @@ export class User {
       throw new Error(`Failed to retrieve linked users: ${error.message}`);
     }
 
-    return (data || []).map((row) => mapUserRow(row as DatabaseUserRow)).filter((u): u is UserRow => u !== null);
+    return (data || []).map((row: any) => mapUserRow(row as DatabaseUserRow)).filter((u: any): u is UserRow => u !== null);
   }
 
   /**
@@ -242,6 +242,6 @@ export class User {
       throw new Error(`Failed to retrieve all users: ${error.message}`);
     }
 
-    return (data || []).map((row) => mapUserRow(row as DatabaseUserRow)).filter((u): u is UserRow => u !== null);
+    return (data || []).map((row: any) => mapUserRow(row as DatabaseUserRow)).filter((u: any): u is UserRow => u !== null);
   }
 }
