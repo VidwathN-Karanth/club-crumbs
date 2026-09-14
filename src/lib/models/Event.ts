@@ -82,14 +82,14 @@ export class Event {
     // audience, which is what we want — but it must not pull in another
     // student's personal entries, so filter defensively.
     return (data || [])
-      .map((r) => mapRow(r as DatabaseEventRow))
+      .map((r: any) => mapRow(r as DatabaseEventRow))
       .filter(
-        (e) =>
+        (e: EventRow) =>
           e.createdBy === userId ||
           e.audience === cohort ||
           e.audience === EVERYONE_AUDIENCE
       )
-      .filter((e) => e.audience !== PERSONAL_AUDIENCE || e.createdBy === userId);
+      .filter((e: EventRow) => e.audience !== PERSONAL_AUDIENCE || e.createdBy === userId);
   }
 
   /** Staff entries for one year, plus department-wide ones. Admin console. */
@@ -101,7 +101,7 @@ export class Event {
       .order('event_date', { ascending: true });
 
     if (error) throw new Error(`Failed to load events: ${error.message}`);
-    return (data || []).map((r) => mapRow(r as DatabaseEventRow));
+    return (data || []).map((r: any) => mapRow(r as DatabaseEventRow));
   }
 
   /**
@@ -119,7 +119,7 @@ export class Event {
       .order('event_date', { ascending: true });
 
     if (error) throw new Error(`Failed to load events: ${error.message}`);
-    return (data || []).map((r) => mapRow(r as DatabaseEventRow));
+    return (data || []).map((r: any) => mapRow(r as DatabaseEventRow));
   }
 
   static async create(input: {

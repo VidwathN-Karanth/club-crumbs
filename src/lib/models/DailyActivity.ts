@@ -288,7 +288,7 @@ export class DailyActivity {
       throw new Error(`Failed to retrieve activities for user: ${error.message}`);
     }
 
-    return (data || []).map((row) => mapActivityRow(row as DatabaseDailyActivityRow)).filter((a): a is DailyActivityRow => a !== null);
+    return (data || []).map((row: any) => mapActivityRow(row as DatabaseDailyActivityRow)).filter((a: any): a is DailyActivityRow => a !== null);
   }
 
   /**
