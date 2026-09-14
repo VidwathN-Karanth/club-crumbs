@@ -169,3 +169,15 @@ export function findResourceNameClash<T extends { name: string; year?: unknown }
 export function shortCohortLabel(cohort: Cohort): string {
   return cohort.replace(/\s+Club$/, '');
 }
+
+/**
+ * The Supabase Realtime channel name for a club's chat.
+ *
+ * A slug (no spaces/punctuation) so the same string is safe as both a client
+ * channel and a broadcast topic. The server pings this channel after a post so
+ * open clients refetch immediately; it is an optimisation over polling, never a
+ * data channel, so nothing sensitive rides on the name.
+ */
+export function chatChannelName(cohort: Cohort): string {
+  return `club-chat-${cohort.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+}
