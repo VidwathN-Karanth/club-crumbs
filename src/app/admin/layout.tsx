@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth, useUser } from '@clerk/nextjs';
 import {
-  Activity, Award, CalendarDays, CheckSquare, ChevronLeft, ChevronRight, Clock, FileText,
+  Activity, Award, CalendarDays, CheckSquare, ChevronLeft, ChevronRight, Clock, FilePenLine, FileText,
   Globe, KeyRound, LayoutDashboard, LogOut, Menu, Moon, ScrollText, Settings, Sun, Trophy,
   Users, X,
 } from 'lucide-react';
@@ -46,6 +46,7 @@ const MENU = [
   { name: 'Attendance', path: '/admin/attendance', icon: CheckSquare },
   { name: 'Certificates', path: '/admin/certificates', icon: Award },
   { name: 'Resumes', path: '/admin/resumes', icon: FileText },
+  { name: 'Reports', path: '/admin/reports', icon: FilePenLine },
   { name: 'Access', path: '/admin/access', icon: KeyRound },
   { name: 'Activity Log', path: '/admin/logs', icon: ScrollText },
   { name: 'Settings', path: '/admin/settings', icon: Settings },
