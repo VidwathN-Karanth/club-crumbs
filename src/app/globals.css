@@ -1764,3 +1764,21 @@ html.light-mode .zen-overlay button {
 .dark-mode input[type="datetime-local"] {
   color-scheme: dark;
 }
+
+/* ── Report preview print isolation ─────────────────────────────────────────
+   The report preview is portaled to <body> as #report-preview-portal. When it
+   is present, print only it — hide the app chrome (sidebar/header) that would
+   otherwise land in the PDF. Scoped with :has() so printing any other page is
+   unaffected. */
+@media print {
+  body:has(#report-preview-portal) > :not(#report-preview-portal) {
+    display: none !important;
+  }
+  #report-preview-portal {
+    position: static !important;
+    overflow: visible !important;
+    background: transparent !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+}

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, use } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Download, FileDown, Loader2, Printer } from 'lucide-react';
 import { apiFetch, errorMessage, readJson } from '@/lib/apiClient';
@@ -19,6 +20,14 @@ export default function LeaderReportPreviewPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [exportingDocx, setExportingDocx] = useState(false);
+  // Portal the preview to document.body so it fills the screen instead of
+  // sitting inside the portal chrome; only render the portal after mount
+  // (this page is SSR'd, unlike the ssr:false editor).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(id);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,8 +102,10 @@ export default function LeaderReportPreviewPage({
   const pageMargins = report.documentJson?.pageMargins;
   const marginsCss = pageMargins ? getPageMarginsCss(pageMargins) : '';
 
-  return (
-    <div className="min-h-screen bg-[#525659] flex flex-col items-center">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div id="report-preview-portal" className="fixed inset-0 z-[100] overflow-auto bg-[#525659] flex flex-col items-center py-6">
       {/* ── Injected Print and Document Styles ── */}
       <style dangerouslySetInnerHTML={{ __html: `${CANVAS_CSS}\n${marginsCss}\n${rawCss}` }} />
 
@@ -142,6 +153,7 @@ export default function LeaderReportPreviewPage({
         className="w-full flex flex-col items-center"
         dangerouslySetInnerHTML={{ __html: rawHtml }}
       />
-    </div>
+    </div>,
+    document.body
   );
 }

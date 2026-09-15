@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import grapesjs, { type Editor, type Component } from 'grapesjs';
 import 'grapesjs/dist/css/grapes.min.css';
@@ -802,8 +803,13 @@ export default function ReportEditor({ report, backUrl }: ReportEditorProps) {
 
   const previewUrl = `/leader/reports/${report.id}/preview/`;
 
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#16181C] text-white font-sans overflow-hidden">
+  // Rendered through a portal on document.body so the full-screen editor
+  // escapes the portal layout's stacking/containing-block contexts and reliably
+  // covers the app chrome (sidebar + header) instead of being overlapped by it.
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex flex-col bg-[#16181C] text-white font-sans overflow-hidden">
       {/* ── TOP TOOLBAR ── */}
       <header className="h-14 shrink-0 bg-surface border-b border-outline-variant px-4 flex items-center justify-between z-40">
         <div className="flex items-center gap-3 min-w-0">
@@ -1151,6 +1157,7 @@ export default function ReportEditor({ report, backUrl }: ReportEditorProps) {
           />
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
