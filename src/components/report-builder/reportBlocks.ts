@@ -120,6 +120,46 @@ export const CANVAS_CSS = `
     background: #f0f7ff;
   }
 
+  /* ── Program Description report template ── */
+  .report-doc-title {
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: bold;
+    font-size: 14pt;
+    color: #000;
+    margin: 2px 0;
+    line-height: 1.3;
+  }
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 6px 0;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12pt;
+    color: #000;
+  }
+  .report-table td {
+    border: 1px solid #000;
+    padding: 5px 9px;
+    vertical-align: top;
+    line-height: 1.45;
+  }
+  .report-table.info-table td.report-cell-label { width: 38%; }
+  .report-cell-label {
+    font-weight: bold;
+    font-family: 'Times New Roman', Times, serif;
+  }
+  .report-table p { margin: 0 0 4px 0; }
+  .report-table p:last-child { margin-bottom: 0; }
+  .report-table .image-placeholder-box { margin-top: 6px; }
+  .report-section-heading {
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: bold;
+    font-size: 13pt;
+    color: #000;
+    margin: 12px 0 6px 0;
+  }
+
   ul.report-bullet-list, ul {
     list-style-type: disc !important;
     margin: 8px 0 !important;
@@ -180,7 +220,64 @@ export const CANVAS_CSS = `
  * - Locked college header (.college-header)
  * - Drop-zone content container (.report-page-content)
  */
-export function createReportPageDefinition(pageNumber: number = 1) {
+/** A dashed image drop-zone, matching the image-placeholder component. */
+const IMAGE_PLACEHOLDER_HTML =
+  '<div data-gjs-type="image-placeholder" class="image-placeholder-box"></div>';
+
+/**
+ * The default "Program Description" event-report template, matching the
+ * official MITE format: a Program Description key/value table, a content table
+ * (Brief Introduction / Pictures / Description / Key Outcomes), and the
+ * Attendance and Feedback sections. The fixed labels are locked; only the value
+ * cells and body text are editable, so a user just fills in the blanks and the
+ * document keeps the same template.
+ */
+export function getProgramReportContentHtml(): string {
+  const infoRow = (label: string, hint: string) =>
+    `<tr>
+      <td class="report-cell-label" data-gjs-editable="false" data-gjs-draggable="false" data-gjs-selectable="false">${label}</td>
+      <td class="report-value" data-gjs-type="report-value" data-gjs-droppable="false" data-gjs-draggable="false">${hint}</td>
+    </tr>`;
+
+  const section = (label: string, body: string) =>
+    `<tr><td data-gjs-draggable="false">
+      <p class="report-cell-label" data-gjs-editable="false" data-gjs-draggable="false" data-gjs-selectable="false">${label}</p>
+      ${body}
+    </td></tr>`;
+
+  const bodyText = (hint: string) =>
+    `<p class="report-body" data-gjs-type="report-body" data-gjs-droppable="false">${hint}</p>`;
+
+  return `
+    <p class="report-doc-title" data-gjs-editable="false" data-gjs-draggable="false" data-gjs-selectable="false">Department of Computer Science &amp; Engineering</p>
+    <p class="report-doc-title" data-gjs-editable="false" data-gjs-draggable="false" data-gjs-selectable="false">Program Description</p>
+
+    <table class="report-table info-table" data-gjs-type="report-table" data-gjs-draggable="false" data-gjs-droppable="false"><tbody>
+      ${infoRow('Program Title', '[Enter the program / event title]')}
+      ${infoRow('Program Type', '[e.g. Technical Competition, Workshop, Seminar]')}
+      ${infoRow('Theme', '[Enter the theme]')}
+      ${infoRow('Date', '[e.g. 15th September, 2026]')}
+      ${infoRow('Resource Person / Organising Body', '[Name &amp; designation, or the organising body]')}
+      ${infoRow('Number of Students', '[e.g. 54]')}
+      ${infoRow('Coordinator (Details) - Name, Designation', '[Name, designation]')}
+    </tbody></table>
+
+    <table class="report-table content-table" data-gjs-type="report-table" data-gjs-draggable="false" data-gjs-droppable="false"><tbody>
+      ${section('Brief Introduction about the Program:', bodyText('[Write a brief introduction about the program.]'))}
+      ${section('Pictures:', IMAGE_PLACEHOLDER_HTML)}
+      ${section('Description about the Program:', bodyText('[Describe how the program was conducted.]'))}
+      ${section('Key Outcomes:', bodyText('[List the key outcomes for the students.]'))}
+    </tbody></table>
+
+    <p class="report-section-heading" data-gjs-editable="false" data-gjs-draggable="false" data-gjs-selectable="false">Attendance Sheet:</p>
+    ${IMAGE_PLACEHOLDER_HTML}
+
+    <p class="report-section-heading" data-gjs-editable="false" data-gjs-draggable="false" data-gjs-selectable="false">Students Feedback:</p>
+    ${IMAGE_PLACEHOLDER_HTML}
+  `;
+}
+
+export function createReportPageDefinition(pageNumber: number = 1, withTemplate: boolean = pageNumber === 1) {
   return {
     type: 'report-page',
     classes: ['report-page'],
@@ -193,7 +290,8 @@ export function createReportPageDefinition(pageNumber: number = 1) {
       {
         type: 'page-content',
         classes: ['report-page-content'],
-        components: [],
+        // Page 1 opens with the official template; extra pages start blank.
+        components: withTemplate ? getProgramReportContentHtml() : [],
       },
     ],
   };
@@ -389,6 +487,48 @@ export function registerComponentTypes(editor: Editor) {
         droppable: false,
         classes: ['report-numbered-list'],
       },
+    },
+  });
+
+  // 9. report-table — the fixed Program Description / content tables. The table
+  // itself cannot be dragged apart or have blocks dropped into it; its labels
+  // are locked and only the value cells / body text are editable.
+  domComps.addType('report-table', {
+    isComponent: (el) =>
+      el.tagName === 'TABLE' && !!el.classList?.contains('report-table'),
+    model: {
+      defaults: { name: 'Report Table', draggable: false, droppable: false, removable: false, copyable: false },
+    },
+  });
+
+  // 10. report-value — an editable value cell in the info table.
+  domComps.addType('report-value', {
+    extend: 'text',
+    isComponent: (el) =>
+      el.tagName === 'TD' && !!el.classList?.contains('report-value'),
+    model: {
+      defaults: { type: 'report-value', name: 'Field', editable: true, droppable: false, draggable: false, removable: false },
+    },
+  });
+
+  // 11. report-body — an editable body paragraph inside a content section.
+  domComps.addType('report-body', {
+    extend: 'text',
+    isComponent: (el) =>
+      el.tagName === 'P' && !!el.classList?.contains('report-body'),
+    model: {
+      defaults: { type: 'report-body', name: 'Text', editable: true, droppable: false, removable: false },
+    },
+  });
+
+  // 12. report-locked — the fixed labels and titles; visible but not editable.
+  domComps.addType('report-locked', {
+    isComponent: (el) =>
+      !!el.classList?.contains('report-cell-label') ||
+      !!el.classList?.contains('report-doc-title') ||
+      !!el.classList?.contains('report-section-heading'),
+    model: {
+      defaults: { name: 'Label', editable: false, draggable: false, droppable: false, removable: false, copyable: false },
     },
   });
 }

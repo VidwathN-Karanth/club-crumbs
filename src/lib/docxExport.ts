@@ -264,6 +264,99 @@ function createSignatureTable(): Table {
   });
 }
 
+/* ── Program Description template helpers ─────────────────────────────────── */
+
+const TNR = 'Times New Roman';
+const TABLE_WIDTH_DXA = 9600; // ~170mm content width on A4 with 20mm margins
+const INFO_LABEL_DXA = 3648;
+const INFO_VALUE_DXA = 5952;
+
+/** All the text under a node, flattened (handles grapesjs textnode children). */
+function textOf(comp: ReportComponentNode): string {
+  const direct = stripHtml(typeof comp.content === 'string' ? comp.content : '');
+  if (direct) return direct;
+  const kids = comp.components || [];
+  return kids.map(textOf).filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+}
+
+/** Every descendant with the given tag name, depth-first. */
+function collectByTag(comp: ReportComponentNode, tag: string): ReportComponentNode[] {
+  const out: ReportComponentNode[] = [];
+  for (const k of comp.components || []) {
+    if ((k.tagName || '').toLowerCase() === tag) out.push(k);
+    out.push(...collectByTag(k, tag));
+  }
+  return out;
+}
+
+function isImageNode(c: ReportComponentNode): boolean {
+  const t = c.type || '';
+  const tg = (c.tagName || '').toLowerCase();
+  return t === 'image-placeholder' || t === 'image' || tg === 'img' || !!c.classes?.includes('image-placeholder-box');
+}
+
+/** The docx paragraphs/tables for one table cell (bold label, body text, images). */
+async function cellParagraphs(td: ReportComponentNode): Promise<(Paragraph | Table)[]> {
+  const isLabel = !!td.classes?.includes('report-cell-label');
+  const elementKids = (td.components || []).filter((k) => (k.type || '') !== 'textnode' && (k.tagName || ''));
+  const out: (Paragraph | Table)[] = [];
+
+  if (elementKids.length) {
+    for (const k of elementKids) {
+      if (isImageNode(k)) {
+        out.push(...(await convertComponentToElements(k)));
+        continue;
+      }
+      const label = !!k.classes?.includes('report-cell-label');
+      const t = textOf(k);
+      if (t) {
+        out.push(new Paragraph({ spacing: { after: 40 }, children: [new TextRun({ text: t, bold: label, size: 24, font: TNR, color: '000000' })] }));
+      }
+    }
+  }
+
+  if (!out.length) {
+    out.push(new Paragraph({ children: [new TextRun({ text: textOf(td), bold: isLabel, size: 24, font: TNR, color: '000000' })] }));
+  }
+  return out;
+}
+
+/** Builds a bordered docx Table from a report-table component. */
+async function buildReportTable(comp: ReportComponentNode): Promise<Table> {
+  const border = { style: BorderStyle.SINGLE, size: 4, color: '000000' };
+  const cellBorders = { top: border, bottom: border, left: border, right: border };
+  const isInfo = !!comp.classes?.includes('info-table');
+  const rows: TableRow[] = [];
+
+  for (const tr of collectByTag(comp, 'tr')) {
+    const tds = collectByTag(tr, 'td');
+    const cells: TableCell[] = [];
+    for (let i = 0; i < tds.length; i++) {
+      const children = await cellParagraphs(tds[i]);
+      const width =
+        isInfo && tds.length === 2
+          ? { size: i === 0 ? INFO_LABEL_DXA : INFO_VALUE_DXA, type: WidthType.DXA }
+          : { size: TABLE_WIDTH_DXA, type: WidthType.DXA };
+      cells.push(
+        new TableCell({
+          children: children.length ? children : [new Paragraph({ children: [new TextRun('')] })],
+          borders: cellBorders,
+          verticalAlign: VerticalAlign.TOP,
+          margins: { top: 40, bottom: 40, left: 100, right: 100 },
+          width,
+        })
+      );
+    }
+    rows.push(new TableRow({ children: cells }));
+  }
+
+  return new Table({
+    width: { size: TABLE_WIDTH_DXA, type: WidthType.DXA },
+    columnWidths: isInfo ? [INFO_LABEL_DXA, INFO_VALUE_DXA] : [TABLE_WIDTH_DXA],
+    rows,
+  });
+}
+
 async function convertComponentToElements(comp: ReportComponentNode): Promise<(Paragraph | Table)[]> {
   const type = comp.type || '';
   const tagName = (comp.tagName || '').toLowerCase();
@@ -284,6 +377,28 @@ async function convertComponentToElements(comp: ReportComponentNode): Promise<(P
       elements.push(...converted);
     }
     return elements;
+  }
+
+  // 2b. Program Description template pieces
+  if (comp.classes?.includes('report-doc-title')) {
+    return [
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 40, after: 40 },
+        children: [new TextRun({ text: textOf(comp) || stripHtml(content), bold: true, size: 28, font: TNR, color: '000000' })],
+      }),
+    ];
+  }
+  if (comp.classes?.includes('report-section-heading')) {
+    return [
+      new Paragraph({
+        spacing: { before: 200, after: 80 },
+        children: [new TextRun({ text: textOf(comp) || stripHtml(content), bold: true, size: 26, font: TNR, color: '000000' })],
+      }),
+    ];
+  }
+  if (comp.classes?.includes('report-table') || tagName === 'table') {
+    return [await buildReportTable(comp)];
   }
 
   // 3. Headings
