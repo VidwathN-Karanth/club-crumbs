@@ -74,10 +74,13 @@ html {
   --color-cyber-blue: var(--cyber-primary);    /* Apple Blue */
   --color-cyber-purple: var(--cyber-secondary); /* Apple Purple accent */
 
-  /* ── Fonts ── */
-  --font-geist: var(--font-geist-sans), sans-serif;
-  --font-hanken: var(--font-hanken), sans-serif;
-  --font-inter: var(--font-inter), sans-serif;
+  /* ── Fonts ──
+     One sans face site-wide: every sans token resolves to Sora, so `font-geist`,
+     `font-hanken`, `font-inter` and the body default all render in it. Mono is a
+     separate functional role (data, labels, the clock) and stays monospace. */
+  --font-geist: var(--font-sora), system-ui, sans-serif;
+  --font-hanken: var(--font-sora), system-ui, sans-serif;
+  --font-inter: var(--font-sora), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
   --font-jetbrains: var(--font-jetbrains), monospace;
 
