@@ -3,7 +3,7 @@ import { ImageResponse } from 'next/og';
 /**
  * The browser tab icon.
  *
- * Solid purple with a white L, matching src/components/LayoraMark.tsx and the
+ * Solid purple with a white C, matching src/components/LayoraMark.tsx and the
  * generated PNGs. It used to be a purple-to-blue gradient, which made the tab
  * the one place the mark looked like neither the app nor the landing page.
  *

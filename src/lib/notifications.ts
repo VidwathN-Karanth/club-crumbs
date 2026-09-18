@@ -96,8 +96,8 @@ export function notify(title: string, options: NotifyOptions = {}): boolean {
     body: options.body,
     tag: options.tag,
     silent: options.silent,
-    icon: '/layora-logo.png',
-    badge: '/layora-logo.png',
+    icon: '/club-crumbs-logo.png',
+    badge: '/club-crumbs-logo.png',
     data: { url: options.url },
   };
 
