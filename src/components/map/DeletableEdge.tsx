@@ -10,9 +10,6 @@ import {
 } from '@xyflow/react';
 import { Trash2 } from 'lucide-react';
 
-/** Hold a link for 3s to reveal a small bin, then click it to delete the link. */
-const HOLD_MS = 3000;
-
 export default function DeletableEdge({
   id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style, markerEnd,
 }: EdgeProps) {
@@ -22,18 +19,13 @@ export default function DeletableEdge({
   });
 
   const [showBin, setShowBin] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const cancel = () => { if (timer.current) { clearTimeout(timer.current); timer.current = null; } };
-  const beginHold = () => {
-    cancel();
-    timer.current = setTimeout(() => {
-      setShowBin(true);
-      // Auto-dismiss if the user doesn't act, so a stray bin never lingers.
-      if (hideTimer.current) clearTimeout(hideTimer.current);
-      hideTimer.current = setTimeout(() => setShowBin(false), 4000);
-    }, HOLD_MS);
+  // Press the line → the bin shows straight away (no hold timer).
+  const reveal = () => {
+    setShowBin(true);
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(() => setShowBin(false), 4000);
   };
 
   const remove = () => setEdges((eds) => eds.filter((e) => e.id !== id));
@@ -48,9 +40,7 @@ export default function DeletableEdge({
         stroke="transparent"
         strokeWidth={20}
         style={{ cursor: 'pointer' }}
-        onPointerDown={beginHold}
-        onPointerUp={cancel}
-        onPointerLeave={cancel}
+        onPointerDown={reveal}
       />
       {showBin && (
         <EdgeLabelRenderer>
