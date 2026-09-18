@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, Sora } from "next/font/google";
+import { Mulish, Sora } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { SyncProvider } from "@/components/SyncProvider";
@@ -16,12 +16,11 @@ const sora = Sora({
   subsets: ["latin"],
 });
 
-// One monospace face for data, labels and the clock — IBM Plex Mono, a refined
-// grotesque mono, replacing the generic Geist/JetBrains default everywhere.
-const plexMono = IBM_Plex_Mono({
-  variable: "--font-plex-mono",
+// The face for labels, data and the clock. Mulish is a rounded humanist sans
+// (not monospace), used wherever the UI used to reach for mono.
+const mulish = Mulish({
+  variable: "--font-mulish",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -72,7 +71,7 @@ export default function RootLayout({
     >
       <html
         lang="en"
-        className={`${sora.variable} ${plexMono.variable} h-full antialiased`}
+        className={`${sora.variable} ${mulish.variable} h-full antialiased`}
       >
         <body className="min-h-full flex flex-col">
           <SyncProvider>

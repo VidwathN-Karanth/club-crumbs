@@ -81,8 +81,8 @@ html {
   --font-geist: var(--font-sora), system-ui, sans-serif;
   --font-hanken: var(--font-sora), system-ui, sans-serif;
   --font-inter: var(--font-sora), system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
-  --font-jetbrains: var(--font-plex-mono), ui-monospace, monospace;
+  --font-mono: var(--font-mulish), system-ui, sans-serif;
+  --font-jetbrains: var(--font-mulish), system-ui, sans-serif;
 
   /* Border radius */
   --radius-sm: 0.25rem;
