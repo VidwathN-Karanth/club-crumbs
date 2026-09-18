@@ -41,6 +41,10 @@ interface NodeActions {
   onDelete: (id: string) => void;
   onTogglePin: (id: string) => void;
   onCycleStatus: (id: string) => void;
+  /** Click one card's dot, then another's, to connect them (alt. to dragging). */
+  onHandleClick: (nodeId: string, side: string) => void;
+  /** The node whose dot is armed for a click-connection, for highlighting. */
+  connectFromId: string | null;
   pinningId: string | null;
 }
 
@@ -50,6 +54,8 @@ export const MapNodeActionsContext = createContext<NodeActions>({
   onDelete: () => {},
   onTogglePin: () => {},
   onCycleStatus: () => {},
+  onHandleClick: () => {},
+  connectFromId: null,
   pinningId: null,
 });
 
@@ -63,10 +69,11 @@ const SIDES: { pos: Position; key: string }[] = [
 const HANDLE_STYLE = { width: 9, height: 9, background: '#8b5cf6', border: '1px solid #0b0d10' };
 
 export default function TopicNode({ id, data, selected }: NodeProps) {
-  const { onEdit, onDelete, onTogglePin, onCycleStatus, pinningId } = useContext(MapNodeActionsContext);
+  const { onEdit, onDelete, onTogglePin, onCycleStatus, onHandleClick, connectFromId, pinningId } = useContext(MapNodeActionsContext);
   const d = data as TopicNodeData;
   const busy = pinningId === id;
   const sColor = statusColor(d.status);
+  const armed = connectFromId === id;
 
   // 3-second press-and-hold advances the learning status. A drag (pointer
   // moves) or an early release cancels it, so holding is distinct from moving
@@ -105,7 +112,7 @@ export default function TopicNode({ id, data, selected }: NodeProps) {
       onPointerMove={maybeCancelOnMove}
       onPointerUp={cancelHold}
       onPointerLeave={cancelHold}
-      className={`relative rounded-2xl border px-4 py-3 w-56 shadow-lg transition ${
+      className={`relative rounded-2xl border px-4 py-3 w-fit min-w-[14rem] max-w-[24rem] shadow-lg transition ${
         holding ? 'animate-pulse' : ''
       } ${d.pinned && !sColor ? 'ring-1 ring-violet-400/50' : ''}`}
       style={{
@@ -114,20 +121,27 @@ export default function TopicNode({ id, data, selected }: NodeProps) {
         boxShadow: sColor ? `0 0 0 1px ${sColor}, 0 8px 24px -12px ${sColor}` : undefined,
       }}
     >
-      {/* Four sides, each usable as connection start and end. */}
+      {/* Four sides, each usable as connection start and end. Drag between dots
+          to connect, or click one dot then another card's dot. */}
       {SIDES.map(({ pos, key }) => (
         <div key={key}>
           <Handle id={`t-${key}`} type="target" position={pos} style={HANDLE_STYLE} />
-          <Handle id={`s-${key}`} type="source" position={pos} style={HANDLE_STYLE} />
+          <Handle
+            id={`s-${key}`}
+            type="source"
+            position={pos}
+            onClick={() => onHandleClick(id, key)}
+            style={{ ...HANDLE_STYLE, ...(armed ? { background: '#22c55e', width: 12, height: 12 } : {}) }}
+          />
         </div>
       ))}
 
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <div className="font-bold text-sm truncate" style={{ color: 'var(--color-on-surface)' }}>{d.topic || 'Untitled topic'}</div>
+          <div className="font-bold text-sm break-words" style={{ color: 'var(--color-on-surface)' }}>{d.topic || 'Untitled topic'}</div>
           {d.link ? (
             <a href={d.link} target="_blank" rel="noopener noreferrer" onPointerDown={(e) => e.stopPropagation()}
-              className="mt-1 inline-flex items-center gap-1 text-[10px] text-violet-400 hover:text-violet-300 truncate max-w-[10rem]">
+              className="mt-1 flex items-center gap-1 text-[10px] text-violet-400 hover:text-violet-300 truncate max-w-full">
               <ExternalLink className="w-3 h-3 shrink-0" /> <span className="truncate">{d.link.replace(/^https?:\/\//, '')}</span>
             </a>
           ) : (

@@ -18,12 +18,15 @@ import {
   type Node,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { ArrowLeft, Check, Info, Loader2, Plus, X } from 'lucide-react';
+import { ArrowLeft, Check, Info, Link2, Loader2, MousePointerClick, Pin, Plus, Trash2, X } from 'lucide-react';
 
 import { apiFetch, errorMessage, readJson } from '@/lib/apiClient';
 import { useStore } from '@/store/useStore';
 import TopicNode, { MapNodeActionsContext, nextStatus, statusColor, type TopicNodeData } from '@/components/map/TopicNode';
+import DeletableEdge from '@/components/map/DeletableEdge';
 import type { MapGraph, MapNode } from '@/lib/mapsData';
+
+const TUTORIAL_KEY = 'clubcrumbs.map.tutorialSeen';
 
 type FlowNode = Node<TopicNodeData>;
 
@@ -69,11 +72,25 @@ function MapEditor() {
   const [pinningId, setPinningId] = useState<string | null>(null);
   const [editing, setEditing] = useState<{ id: string; topic: string; link: string } | null>(null);
   const [infoOpen, setInfoOpen] = useState(false);
+  const [connectFrom, setConnectFrom] = useState<{ nodeId: string; side: string } | null>(null);
 
   // Suppress the autosave that would otherwise fire right after the initial load.
   const hydratedRef = useRef(false);
 
   const nodeTypes = useMemo(() => ({ topic: TopicNode }), []);
+  const edgeTypes = useMemo(() => ({ deletable: DeletableEdge }), []);
+
+  // First-ever visit: open the tutorial once (skippable). Per-browser only.
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem(TUTORIAL_KEY)) setInfoOpen(true);
+    } catch { /* private mode — just skip the auto-open */ }
+  }, []);
+
+  const dismissTutorial = () => {
+    setInfoOpen(false);
+    try { localStorage.setItem(TUTORIAL_KEY, '1'); } catch { /* ignore */ }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -85,7 +102,7 @@ function MapEditor() {
         if (cancelled) return;
         setTitle(data.map.title);
         setNodes((data.map.data?.nodes || []).map((n) => ({ ...n, type: 'topic' })) as FlowNode[]);
-        setEdges((data.map.data?.edges || []) as Edge[]);
+        setEdges((data.map.data?.edges || []).map((e) => ({ ...e, type: 'deletable' })) as Edge[]);
       } catch (err) {
         if (!cancelled) setError(errorMessage(err, 'Could not load the map.'));
       } finally {
@@ -119,9 +136,35 @@ function MapEditor() {
   }, [title, nodes, edges, save]);
 
   const onConnect = useCallback(
-    (c: Connection) => setEdges((eds) => addEdge({ ...c, id: uid('e') }, eds)),
+    (c: Connection) => setEdges((eds) => addEdge({ ...c, id: uid('e'), type: 'deletable' }, eds)),
     [setEdges]
   );
+
+  // Click-to-connect: click one card's dot, then another's. First click arms
+  // the source; the second on a different card creates the link.
+  const onHandleClick = useCallback((nodeId: string, side: string) => {
+    setConnectFrom((from) => {
+      if (!from) return { nodeId, side };
+      if (from.nodeId === nodeId) return null; // same card → cancel
+      setEdges((eds) => addEdge({
+        id: uid('e'),
+        source: from.nodeId,
+        sourceHandle: `s-${from.side}`,
+        target: nodeId,
+        targetHandle: `t-${side}`,
+        type: 'deletable',
+      }, eds));
+      return null;
+    });
+  }, [setEdges]);
+
+  // Esc or a click on empty canvas cancels a pending click-connection.
+  useEffect(() => {
+    if (!connectFrom) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setConnectFrom(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [connectFrom]);
 
   const addCard = useCallback(() => {
     const center = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
@@ -185,8 +228,8 @@ function MapEditor() {
   }, [setNodes]);
 
   const actions = useMemo(
-    () => ({ onEdit, onDelete, onTogglePin, onCycleStatus, pinningId }),
-    [onEdit, onDelete, onTogglePin, onCycleStatus, pinningId]
+    () => ({ onEdit, onDelete, onTogglePin, onCycleStatus, onHandleClick, connectFromId: connectFrom?.nodeId ?? null, pinningId }),
+    [onEdit, onDelete, onTogglePin, onCycleStatus, onHandleClick, connectFrom, pinningId]
   );
 
   // Edges take the colour of the card they connect — target first, else source —
@@ -218,51 +261,25 @@ function MapEditor() {
           {saveState === 'saving' ? (<><Loader2 className="w-3 h-3 animate-spin" /> Saving</>)
             : saveState === 'saved' ? (<><Check className="w-3 h-3 text-emerald-400" /> Saved</>) : null}
         </span>
-        <div className="relative">
-          <button
-            onClick={() => setInfoOpen((v) => !v)}
-            title="How the cards work"
-            aria-label="How the cards work"
-            className="p-2 rounded-lg border transition cursor-pointer hover:text-violet-400"
-            style={{ borderColor: 'var(--color-outline)', color: 'var(--color-on-surface-variant)' }}
-          >
-            <Info className="w-4 h-4" />
-          </button>
-          {infoOpen && (
-            <>
-              <div className="fixed inset-0 z-[60]" onClick={() => setInfoOpen(false)} />
-              <div
-                className="absolute right-0 mt-2 w-72 rounded-xl border p-4 z-[61] shadow-xl text-xs space-y-2"
-                style={{ background: 'var(--color-surface)', borderColor: 'var(--color-outline)', color: 'var(--color-on-surface)' }}
-              >
-                <div className="font-bold flex items-center gap-1.5"><Info className="w-3.5 h-3.5" /> Track your learning</div>
-                <p style={{ color: 'var(--color-on-surface-variant)' }}>
-                  Press and <strong>hold a card for 3 seconds</strong> to mark progress:
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#C56BF5' }} />
-                  <span>Hold once → <strong>Learning</strong> (purple)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#22c55e' }} />
-                  <span>Hold again → <strong>Done</strong> (green)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="inline-block w-3 h-3 rounded-sm border" style={{ borderColor: 'var(--color-outline)' }} />
-                  <span>Hold a third time → clears it</span>
-                </div>
-                <p style={{ color: 'var(--color-on-surface-variant)' }}>
-                  Connecting lines take the colour of the card they point to, so a path lights up as you progress.
-                </p>
-              </div>
-            </>
-          )}
-        </div>
+        <button
+          onClick={() => setInfoOpen(true)}
+          title="How maps work"
+          aria-label="How maps work"
+          className="p-2 rounded-lg border transition cursor-pointer hover:text-violet-400"
+          style={{ borderColor: 'var(--color-outline)', color: 'var(--color-on-surface-variant)' }}
+        >
+          <Info className="w-4 h-4" />
+        </button>
         <button onClick={addCard} className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer hover:brightness-110" style={{ background: '#8b5cf6' }}>
           <Plus className="w-4 h-4" /> Add card
         </button>
       </div>
 
+      {connectFrom && (
+        <p className="text-[11px] font-mono mb-2 flex items-center gap-1.5" style={{ color: '#8b5cf6' }}>
+          <MousePointerClick className="w-3.5 h-3.5" /> Click another card&rsquo;s dot to connect · <kbd>Esc</kbd> to cancel
+        </p>
+      )}
       {error && <p className="text-[11px] text-rose-300 font-mono mb-2">{error}</p>}
 
       <div
@@ -279,8 +296,10 @@ function MapEditor() {
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
+              onPaneClick={() => setConnectFrom(null)}
               nodeTypes={nodeTypes}
-              defaultEdgeOptions={{ type: 'default' }}
+              edgeTypes={edgeTypes}
+              defaultEdgeOptions={{ type: 'deletable' }}
               colorMode={themeMode}
               fitView
               proOptions={{ hideAttribution: true }}
@@ -342,6 +361,46 @@ function MapEditor() {
             <div className="flex justify-end gap-3 pt-1">
               <button onClick={() => setEditing(null)} className="px-4 py-2 border rounded-xl text-xs font-bold cursor-pointer" style={{ borderColor: 'var(--color-outline)', color: 'var(--color-on-surface-variant)' }}>CANCEL</button>
               <button onClick={saveEdit} className="px-4 py-2 rounded-xl text-xs font-bold cursor-pointer text-white" style={{ background: '#8b5cf6' }}>SAVE</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {infoOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+          <div onClick={dismissTutorial} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div role="dialog" aria-modal="true" className="glass-panel border p-6 rounded-2xl max-w-md w-full relative z-10 space-y-4" style={{ background: 'var(--color-surface)', borderColor: 'var(--color-outline)', color: 'var(--color-on-surface)' }}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold flex items-center gap-2"><Info className="w-4 h-4 text-violet-400" /> How maps work</h3>
+              <button onClick={dismissTutorial} className="cursor-pointer" style={{ color: 'var(--color-on-surface-variant)' }}><X className="w-4 h-4" /></button>
+            </div>
+
+            <ul className="space-y-3 text-xs">
+              <li className="flex gap-3">
+                <Plus className="w-4 h-4 shrink-0 mt-0.5 text-violet-400" />
+                <span><strong>Add card</strong> — top-right. Each card is a topic with an optional course link.</span>
+              </li>
+              <li className="flex gap-3">
+                <Link2 className="w-4 h-4 shrink-0 mt-0.5 text-violet-400" />
+                <span><strong>Link cards</strong> — drag from one card&rsquo;s dot to another&rsquo;s. Or <strong>click one dot, then another card&rsquo;s dot</strong>.</span>
+              </li>
+              <li className="flex gap-3">
+                <Trash2 className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
+                <span><strong>Delete a link</strong> — press and <strong>hold the line for 3 seconds</strong>; a bin appears — tap it.</span>
+              </li>
+              <li className="flex gap-3">
+                <MousePointerClick className="w-4 h-4 shrink-0 mt-0.5 text-violet-400" />
+                <span><strong>Track learning</strong> — press and <strong>hold a card for 3 seconds</strong>: once → <span style={{ color: '#C56BF5' }}>Learning</span>, again → <span style={{ color: '#22c55e' }}>Done</span>, a third time clears it. Lines take the colour of the card they point to.</span>
+              </li>
+              <li className="flex gap-3">
+                <Pin className="w-4 h-4 shrink-0 mt-0.5 text-violet-400" />
+                <span><strong>Pin</strong> (top-right of a card) — adds that topic to your Courses and the browser extension.</span>
+              </li>
+            </ul>
+
+            <div className="flex justify-end gap-3 pt-1">
+              <button onClick={dismissTutorial} className="px-4 py-2 border rounded-xl text-xs font-bold cursor-pointer" style={{ borderColor: 'var(--color-outline)', color: 'var(--color-on-surface-variant)' }}>SKIP</button>
+              <button onClick={dismissTutorial} className="px-4 py-2 rounded-xl text-xs font-bold cursor-pointer text-white" style={{ background: '#8b5cf6' }}>GOT IT</button>
             </div>
           </div>
         </div>
