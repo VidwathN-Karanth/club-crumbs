@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { clerkClient } from '@clerk/nextjs/server';
-import { requireStudent } from '@/lib/authz';
+import { requireUser } from '@/lib/authz';
 
 /**
  * Puts a daily study reminder for each course into the student's own Google
@@ -81,7 +81,7 @@ function untilStamp(deadline: string): string {
 }
 
 export async function POST(request: Request) {
-  const guard = await requireStudent();
+  const guard = await requireUser();
   if (!guard.ok) return guard.response;
 
   try {

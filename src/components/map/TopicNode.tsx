@@ -43,9 +43,13 @@ export default function TopicNode({ id, data, selected }: NodeProps) {
 
   return (
     <div
-      className={`relative rounded-2xl border bg-[#1E2126] px-4 py-3 w-56 shadow-lg transition ${
-        selected ? 'border-violet-400' : 'border-white/15'
+      className={`relative rounded-2xl border px-4 py-3 w-56 shadow-lg transition ${
+        selected ? 'border-violet-400' : ''
       } ${d.pinned ? 'ring-1 ring-violet-400/50' : ''}`}
+      style={{
+        background: 'var(--color-surface)',
+        borderColor: selected ? '#a78bfa' : 'var(--color-outline)',
+      }}
     >
       {/* Four sides, each usable as connection start and end. */}
       {SIDES.map(({ pos, key }) => (
@@ -57,22 +61,23 @@ export default function TopicNode({ id, data, selected }: NodeProps) {
 
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <div className="font-bold text-white text-sm truncate">{d.topic || 'Untitled topic'}</div>
+          <div className="font-bold text-sm truncate" style={{ color: 'var(--color-on-surface)' }}>{d.topic || 'Untitled topic'}</div>
           {d.link ? (
             <a href={d.link} target="_blank" rel="noopener noreferrer"
-              className="mt-1 inline-flex items-center gap-1 text-[10px] text-violet-300 hover:text-violet-200 truncate max-w-[10rem]">
+              className="mt-1 inline-flex items-center gap-1 text-[10px] text-violet-400 hover:text-violet-300 truncate max-w-[10rem]">
               <ExternalLink className="w-3 h-3 shrink-0" /> <span className="truncate">{d.link.replace(/^https?:\/\//, '')}</span>
             </a>
           ) : (
-            <div className="mt-1 text-[10px] text-white/30">No course link</div>
+            <div className="mt-1 text-[10px]" style={{ color: 'var(--color-on-surface-variant)' }}>No course link</div>
           )}
         </div>
         <button
           onClick={() => onTogglePin(id)}
           disabled={busy}
           title={d.pinned ? 'Pinned to your courses — click to unpin' : 'Pin to your courses'}
+          style={d.pinned ? undefined : { borderColor: 'var(--color-outline)', color: 'var(--color-on-surface-variant)' }}
           className={`shrink-0 p-1 rounded-lg border transition cursor-pointer disabled:opacity-40 ${
-            d.pinned ? 'text-violet-300 border-violet-400/40 bg-violet-500/10' : 'text-white/40 border-white/10 hover:text-white'
+            d.pinned ? 'text-violet-300 border-violet-400/40 bg-violet-500/10' : 'hover:text-violet-400'
           }`}
         >
           {d.pinned ? <Pin className="w-3.5 h-3.5" /> : <PinOff className="w-3.5 h-3.5" />}
@@ -80,10 +85,10 @@ export default function TopicNode({ id, data, selected }: NodeProps) {
       </div>
 
       <div className="mt-2 flex items-center gap-1.5">
-        <button onClick={() => onEdit(id)} title="Edit" className="p-1 rounded-lg border border-white/10 text-white/40 hover:text-white transition cursor-pointer">
+        <button onClick={() => onEdit(id)} title="Edit" className="p-1 rounded-lg border transition cursor-pointer hover:text-violet-400" style={{ borderColor: 'var(--color-outline)', color: 'var(--color-on-surface-variant)' }}>
           <Pencil className="w-3 h-3" />
         </button>
-        <button onClick={() => onDelete(id)} title="Delete card" className="p-1 rounded-lg border border-white/10 text-white/40 hover:text-rose-400 hover:border-rose-400 transition cursor-pointer">
+        <button onClick={() => onDelete(id)} title="Delete card" className="p-1 rounded-lg border transition cursor-pointer hover:text-rose-400 hover:border-rose-400" style={{ borderColor: 'var(--color-outline)', color: 'var(--color-on-surface-variant)' }}>
           <Trash2 className="w-3 h-3" />
         </button>
       </div>

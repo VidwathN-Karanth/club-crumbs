@@ -85,6 +85,23 @@ function deny(status: number, error: string, reason?: AccessDenialReason): { ok:
   return { ok: false, response: NextResponse.json({ error, reason }, { status }) };
 }
 
+/**
+ * Requires any signed-in, allowed account — member, leader, or admin.
+ *
+ * For actions that only ever touch the caller's OWN data (their Google token,
+ * their own calendar, their own workspace), the member-only guard is wrong: a
+ * leader syncing their own calendar is not "using the student workspace", they
+ * are using their own account. This is that lighter guard.
+ */
+export async function requireUser(): Promise<Guard<Requester>> {
+  const requester = await getRequester();
+  if (!requester) return deny(401, 'Unauthorized', 'signed_out');
+  if (!requester.allowed) {
+    return deny(403, 'Your account is not on a club roster yet.', requester.denialReason ?? undefined);
+  }
+  return { ok: true, requester };
+}
+
 /** Requires a signed-in admin (holds an admin grant). */
 export async function requireAdmin(): Promise<Guard<Requester>> {
   const requester = await getRequester();

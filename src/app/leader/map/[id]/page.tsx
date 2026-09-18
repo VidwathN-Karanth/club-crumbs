@@ -21,6 +21,7 @@ import '@xyflow/react/dist/style.css';
 import { ArrowLeft, Check, Loader2, Plus, X } from 'lucide-react';
 
 import { apiFetch, errorMessage, readJson } from '@/lib/apiClient';
+import { useStore } from '@/store/useStore';
 import TopicNode, { MapNodeActionsContext, type TopicNodeData } from '@/components/map/TopicNode';
 import type { MapGraph, MapNode } from '@/lib/mapsData';
 
@@ -55,6 +56,8 @@ function MapEditor() {
   const router = useRouter();
   const mapId = String(useParams().id);
   const { screenToFlowPosition } = useReactFlow();
+  const themeMode = useStore((s) => s.themeMode);
+  const isLight = themeMode === 'light';
 
   const [title, setTitle] = useState('');
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>([]);
@@ -174,29 +177,33 @@ function MapEditor() {
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
       <div className="flex items-center gap-3 mb-3">
-        <button onClick={() => router.push('/leader/map')} className="p-2 rounded-lg border border-white/10 text-white/60 hover:text-white transition cursor-pointer" title="Back to maps">
+        <button onClick={() => router.push('/leader/map')} className="p-2 rounded-lg border transition cursor-pointer" style={{ borderColor: 'var(--color-outline)', color: 'var(--color-on-surface-variant)' }} title="Back to maps">
           <ArrowLeft className="w-4 h-4" />
         </button>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Untitled map"
-          className="flex-1 min-w-0 bg-transparent text-lg font-bold text-white focus:outline-none border-b border-transparent focus:border-white/20"
+          style={{ color: 'var(--color-on-surface)' }}
+          className="flex-1 min-w-0 bg-transparent text-lg font-bold focus:outline-none border-b border-transparent focus:border-white/20"
         />
-        <span className="text-[11px] font-mono text-white/40 flex items-center gap-1.5 w-20 justify-end">
+        <span className="text-[11px] font-mono flex items-center gap-1.5 w-20 justify-end" style={{ color: 'var(--color-on-surface-variant)' }}>
           {saveState === 'saving' ? (<><Loader2 className="w-3 h-3 animate-spin" /> Saving</>)
             : saveState === 'saved' ? (<><Check className="w-3 h-3 text-emerald-400" /> Saved</>) : null}
         </span>
-        <button onClick={addCard} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/15 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer">
+        <button onClick={addCard} className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer hover:brightness-110" style={{ background: '#8b5cf6' }}>
           <Plus className="w-4 h-4" /> Add card
         </button>
       </div>
 
       {error && <p className="text-[11px] text-rose-300 font-mono mb-2">{error}</p>}
 
-      <div className="flex-1 rounded-2xl border border-white/10 overflow-hidden bg-[#0b0d10]">
+      <div
+        className="flex-1 rounded-2xl border overflow-hidden"
+        style={{ background: 'var(--color-cyber-dark)', borderColor: 'var(--color-outline)' }}
+      >
         {loading ? (
-          <div className="h-full flex items-center justify-center text-xs text-white/40 font-mono">Loading…</div>
+          <div className="h-full flex items-center justify-center text-xs font-mono" style={{ color: 'var(--color-on-surface-variant)' }}>Loading…</div>
         ) : (
           <MapNodeActionsContext.Provider value={actions}>
             <ReactFlow
@@ -207,12 +214,39 @@ function MapEditor() {
               onConnect={onConnect}
               nodeTypes={nodeTypes}
               defaultEdgeOptions={{ type: 'default' }}
+              colorMode={themeMode}
               fitView
               proOptions={{ hideAttribution: true }}
             >
-              <Background variant={BackgroundVariant.Dots} gap={22} size={1.5} color="#2a2f38" />
-              <Controls className="!bg-white/5 !border-white/10" />
-              <MiniMap pannable zoomable className="!bg-[#16181C]" maskColor="rgba(0,0,0,0.6)" nodeColor="#8b5cf6" />
+              <Background
+                variant={BackgroundVariant.Dots}
+                gap={22}
+                size={1.6}
+                color={isLight ? '#b8bdc9' : '#5a6273'}
+              />
+              <Controls
+                style={{
+                  // Solid, theme-aware buttons — the default was invisible on the dark canvas.
+                  ['--xy-controls-button-background-color' as string]: isLight ? '#ffffff' : '#272B31',
+                  ['--xy-controls-button-background-color-hover' as string]: isLight ? '#eef0f4' : '#32373E',
+                  ['--xy-controls-button-color' as string]: isLight ? '#16181C' : '#F2F2F7',
+                  ['--xy-controls-button-color-hover' as string]: '#8b5cf6',
+                  ['--xy-controls-button-border-color' as string]: 'var(--color-outline)',
+                }}
+              />
+              <MiniMap
+                pannable
+                zoomable
+                bgColor={isLight ? '#eef0f4' : '#16181C'}
+                nodeColor="#8b5cf6"
+                nodeStrokeColor="#8b5cf6"
+                nodeStrokeWidth={3}
+                nodeBorderRadius={6}
+                maskColor={isLight ? 'rgba(120,130,150,0.18)' : 'rgba(0,0,0,0.55)'}
+                maskStrokeColor="#8b5cf6"
+                maskStrokeWidth={2}
+                style={{ border: '1px solid var(--color-outline)', borderRadius: 8 }}
+              />
             </ReactFlow>
           </MapNodeActionsContext.Provider>
         )}
@@ -221,24 +255,26 @@ function MapEditor() {
       {editing && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
           <div onClick={() => setEditing(null)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div role="dialog" aria-modal="true" className="glass-panel border border-white/15 p-6 rounded-2xl max-w-md w-full relative z-10 bg-[#1E2126] space-y-3">
+          <div role="dialog" aria-modal="true" className="glass-panel border p-6 rounded-2xl max-w-md w-full relative z-10 space-y-3" style={{ background: 'var(--color-surface)', borderColor: 'var(--color-outline)' }}>
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-white">Card</h3>
-              <button onClick={() => setEditing(null)} className="text-white/50 hover:text-white cursor-pointer"><X className="w-4 h-4" /></button>
+              <h3 className="text-base font-bold" style={{ color: 'var(--color-on-surface)' }}>Card</h3>
+              <button onClick={() => setEditing(null)} className="cursor-pointer" style={{ color: 'var(--color-on-surface-variant)' }}><X className="w-4 h-4" /></button>
             </div>
             <div>
-              <label className="text-[10px] font-mono uppercase text-white/40">Topic name</label>
+              <label className="text-[10px] font-mono uppercase" style={{ color: 'var(--color-on-surface-variant)' }}>Topic name</label>
               <input value={editing.topic} onChange={(e) => setEditing({ ...editing, topic: e.target.value })} autoFocus placeholder="e.g. Hooks & state"
-                className="mt-1 w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30" />
+                style={{ background: 'var(--color-surface-container-lowest)', borderColor: 'var(--color-outline)', color: 'var(--color-on-surface)' }}
+                className="mt-1 w-full border rounded-lg px-3 py-2 text-sm focus:outline-none" />
             </div>
             <div>
-              <label className="text-[10px] font-mono uppercase text-white/40">Course link (URL)</label>
+              <label className="text-[10px] font-mono uppercase" style={{ color: 'var(--color-on-surface-variant)' }}>Course link (URL)</label>
               <input value={editing.link} onChange={(e) => setEditing({ ...editing, link: e.target.value })} onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(); }} placeholder="https://…"
-                className="mt-1 w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30" />
+                style={{ background: 'var(--color-surface-container-lowest)', borderColor: 'var(--color-outline)', color: 'var(--color-on-surface)' }}
+                className="mt-1 w-full border rounded-lg px-3 py-2 text-sm focus:outline-none" />
             </div>
             <div className="flex justify-end gap-3 pt-1">
-              <button onClick={() => setEditing(null)} className="px-4 py-2 border border-white/10 text-white/60 hover:text-white rounded-xl text-xs font-bold cursor-pointer">CANCEL</button>
-              <button onClick={saveEdit} className="px-4 py-2 bg-white/10 border border-white/15 hover:bg-white/15 text-white rounded-xl text-xs font-bold cursor-pointer">SAVE</button>
+              <button onClick={() => setEditing(null)} className="px-4 py-2 border rounded-xl text-xs font-bold cursor-pointer" style={{ borderColor: 'var(--color-outline)', color: 'var(--color-on-surface-variant)' }}>CANCEL</button>
+              <button onClick={saveEdit} className="px-4 py-2 rounded-xl text-xs font-bold cursor-pointer text-white" style={{ background: '#8b5cf6' }}>SAVE</button>
             </div>
           </div>
         </div>

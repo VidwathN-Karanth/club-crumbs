@@ -69,11 +69,16 @@ export class Event {
    * Everything one student should see: their own entries, plus staff entries
    * aimed at their year or at the whole department.
    */
-  static async findForStudent(userId: string, cohort: Cohort): Promise<EventRow[]> {
+  static async findForStudent(userId: string, cohort: Cohort | null): Promise<EventRow[]> {
+    // A leader has no member cohort; they still get their own rows and
+    // everyone-audience events, plus their led club's when one is passed.
+    const or = cohort
+      ? `created_by.eq.${userId},audience.eq.${cohort},audience.eq.${EVERYONE_AUDIENCE}`
+      : `created_by.eq.${userId},audience.eq.${EVERYONE_AUDIENCE}`;
     const { data, error } = await supabaseAdmin
       .from('events')
       .select('*')
-      .or(`created_by.eq.${userId},audience.eq.${cohort},audience.eq.${EVERYONE_AUDIENCE}`)
+      .or(or)
       .order('event_date', { ascending: true });
 
     if (error) throw new Error(`Failed to load events: ${error.message}`);

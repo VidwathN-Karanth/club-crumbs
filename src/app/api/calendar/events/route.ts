@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { clerkClient } from '@clerk/nextjs/server';
 import { Event } from '@/lib/models/Event';
-import { requireStudent } from '@/lib/authz';
+import { requireUser } from '@/lib/authz';
 import { occurrencesInRange, toKey } from '@/lib/recurrence';
 
 /**
@@ -21,10 +21,13 @@ const HORIZON_DAYS = 120;
 const MAX_EVENTS = 200;
 
 export async function POST() {
-  const guard = await requireStudent();
+  const guard = await requireUser();
   if (!guard.ok) return guard.response;
 
-  const { userId, cohort } = guard.requester;
+  const { userId } = guard.requester;
+  // Member club if they have one, else the club they lead — so a leader syncs
+  // their own club's events, not nothing.
+  const cohort = guard.requester.cohort ?? guard.requester.ledCohorts[0] ?? null;
 
   try {
     const client = await clerkClient();
