@@ -19,13 +19,19 @@ export default function DeletableEdge({
   });
 
   const [showBin, setShowBin] = useState(false);
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Press the line → the bin shows straight away (no hold timer).
-  const reveal = () => {
-    setShowBin(true);
-    if (hideTimer.current) clearTimeout(hideTimer.current);
-    hideTimer.current = setTimeout(() => setShowBin(false), 4000);
+  const cancelHold = () => { if (holdTimer.current) { clearTimeout(holdTimer.current); holdTimer.current = null; } };
+
+  // Press and hold the line for 1s → the bin appears. Release early cancels.
+  const beginHold = () => {
+    cancelHold();
+    holdTimer.current = setTimeout(() => {
+      setShowBin(true);
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+      hideTimer.current = setTimeout(() => setShowBin(false), 4000);
+    }, 1000);
   };
 
   const remove = () => setEdges((eds) => eds.filter((e) => e.id !== id));
@@ -40,7 +46,9 @@ export default function DeletableEdge({
         stroke="transparent"
         strokeWidth={20}
         style={{ cursor: 'pointer' }}
-        onPointerDown={reveal}
+        onPointerDown={beginHold}
+        onPointerUp={cancelHold}
+        onPointerLeave={cancelHold}
       />
       {showBin && (
         <EdgeLabelRenderer>

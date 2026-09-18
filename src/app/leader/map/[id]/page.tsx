@@ -386,7 +386,7 @@ function MapEditor() {
               </li>
               <li className="flex gap-3">
                 <Trash2 className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
-                <span><strong>Delete a link</strong> — <strong>press the line</strong>; a bin appears — tap it.</span>
+                <span><strong>Delete a link</strong> — press and <strong>hold the line for 1 second</strong>; a bin appears — tap it.</span>
               </li>
               <li className="flex gap-3">
                 <MousePointerClick className="w-4 h-4 shrink-0 mt-0.5 text-violet-400" />
