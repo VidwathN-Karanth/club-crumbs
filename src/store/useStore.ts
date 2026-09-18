@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { Cohort } from '@/lib/cohorts';
+import { MAX_LAUNCHER_COURSE_ITEMS, MAX_TASKS_PER_DAY } from '@/lib/limits';
 import {
   DEFAULT_POMODORO_SETTINGS, normalizeSettings, recordSession,
   type PomodoroDay, type PomodoroSettings,
@@ -24,6 +25,14 @@ export interface Task {
   actualMinutesSpent: number;
   status: 'pending' | 'in_progress' | 'completed';
   completedAt?: string;
+  /** When the task was created (ISO). Drives the 40/day cap and weekly purge. */
+  createdAt?: string;
+}
+
+/** Tasks created on today's local calendar day — for the per-day cap. */
+export function tasksCreatedToday(tasks: Task[]): number {
+  const today = new Date().toDateString();
+  return tasks.filter((t) => t.createdAt && new Date(t.createdAt).toDateString() === today).length;
 }
 
 export interface Website {
@@ -635,9 +644,12 @@ export const useStore = create<AppState>()(
 
       // Frequently used sites
       websites: [],
-      addWebsite: (site) => set((state) => ({
-        websites: [...state.websites, { ...site, id: `site-${Date.now()}-${Math.random().toString(36).substring(2, 9)}` }]
-      })),
+      addWebsite: (site) => set((state) => {
+        // Launchers + courses share one cap. Guarded here as the backstop; the
+        // add forms check canAddLauncherOrCourse() first to explain the block.
+        if (state.websites.length + state.courses.length >= MAX_LAUNCHER_COURSE_ITEMS) return {};
+        return { websites: [...state.websites, { ...site, id: `site-${Date.now()}-${Math.random().toString(36).substring(2, 9)}` }] };
+      }),
       removeWebsite: (id) => set((state) => ({
         websites: state.websites.filter((w) => w.id !== id)
       })),
@@ -654,6 +666,8 @@ export const useStore = create<AppState>()(
       // Active Courses
       courses: [],
       addCourse: (course) => set((state) => {
+        // Shared launcher+course cap — see addWebsite.
+        if (state.websites.length + state.courses.length >= MAX_LAUNCHER_COURSE_ITEMS) return {};
         const created = { ...course, id: `course-${Date.now()}-${Math.random().toString(36).substring(2, 9)}` };
         // Placed once, here. Nothing re-places it later, so if the student
         // deletes the block it stays deleted.
@@ -690,9 +704,14 @@ export const useStore = create<AppState>()(
       // Task items
       tasks: [],
       addTask: (task) => {
-        set((state) => ({
-          tasks: [...state.tasks, { ...task, id: `task-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, actualMinutesSpent: 0, status: 'pending' }]
-        }));
+        set((state) => {
+          // Hard cap: at most MAX_TASKS_PER_DAY created per calendar day.
+          // Guarded here as the backstop; the tasks UI warns before this bites.
+          if (tasksCreatedToday(state.tasks) >= MAX_TASKS_PER_DAY) return {};
+          return {
+            tasks: [...state.tasks, { ...task, id: `task-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, actualMinutesSpent: 0, status: 'pending', createdAt: new Date().toISOString() }]
+          };
+        });
       },
       removeTask: (id) => {
         set((state) => {

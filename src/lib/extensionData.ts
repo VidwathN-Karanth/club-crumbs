@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { supabaseAdmin } from './supabaseAdmin';
+import { MAX_LAUNCHER_COURSE_ITEMS } from './limits';
 
 /**
  * The extension's read/write path into a student's workspace.
@@ -59,7 +60,7 @@ type UserState = Record<string, unknown> & {
   courses?: StoredCourse[];
 };
 
-async function readState(userId: string): Promise<UserState | null> {
+export async function readState(userId: string): Promise<UserState | null> {
   const { data, error } = await supabaseAdmin
     .from('user_states')
     .select('state')
@@ -71,7 +72,7 @@ async function readState(userId: string): Promise<UserState | null> {
   return state && typeof state === 'object' ? state : null;
 }
 
-async function writeState(userId: string, state: UserState): Promise<void> {
+export async function writeState(userId: string, state: UserState): Promise<void> {
   const { error } = await supabaseAdmin
     .from('user_states')
     .upsert({
@@ -139,11 +140,15 @@ export async function addQuickLauncher(
 ): Promise<QuickLauncher[]> {
   const state = (await readState(userId)) || {};
   const websites = Array.isArray(state.websites) ? [...state.websites] : [];
+  const courses = Array.isArray(state.courses) ? state.courses : [];
 
-  // A launcher list is a convenience, not a bookmark manager; a cap keeps one
-  // runaway client from bloating the state blob every device has to download.
-  if (websites.length >= 60) {
-    throw new Error('You have reached the maximum of 60 quick launchers.');
+  // Launchers and courses share one workspace, so they share one cap — a
+  // convenience, not a bookmark manager, and it keeps one runaway client from
+  // bloating the state blob every device has to download.
+  if (websites.length + courses.length >= MAX_LAUNCHER_COURSE_ITEMS) {
+    throw new Error(
+      `You have reached the maximum of ${MAX_LAUNCHER_COURSE_ITEMS} launchers and courses combined.`
+    );
   }
 
   websites.push({
@@ -211,6 +216,49 @@ function platformLabel(raw: string): string {
     return new URL(withScheme).hostname.replace(/^www\./i, '').slice(0, 40);
   } catch {
     return trimmed.slice(0, 40);
+  }
+}
+
+/** Launchers + courses together, for the shared cap. */
+export function countLauncherAndCourseItems(state: UserState | null): number {
+  const websites = Array.isArray(state?.websites) ? state!.websites.length : 0;
+  const courses = Array.isArray(state?.courses) ? state!.courses.length : 0;
+  return websites + courses;
+}
+
+/**
+ * Adds a course to the user's workspace and returns its generated id, or throws
+ * if the shared launcher+course cap is already reached. Used by the leader Map
+ * pin action to mirror a pinned card into the leader's own Courses.
+ */
+export async function addCourseToState(
+  userId: string,
+  input: { name: string; platform: string }
+): Promise<string> {
+  const state = (await readState(userId)) || {};
+  const courses = Array.isArray(state.courses) ? [...state.courses] : [];
+
+  if (countLauncherAndCourseItems(state) >= MAX_LAUNCHER_COURSE_ITEMS) {
+    throw new Error(
+      `You have reached the maximum of ${MAX_LAUNCHER_COURSE_ITEMS} launchers and courses combined.`
+    );
+  }
+
+  const id = `course-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  // Same shape the web form writes, so the dashboard renders it identically.
+  courses.push({ id, name: input.name.slice(0, 120), platform: input.platform, progress: 0 });
+
+  await writeState(userId, { ...state, courses });
+  return id;
+}
+
+/** Removes a course by id (used when a leader unpins a Map card). */
+export async function removeCourseFromState(userId: string, courseId: string): Promise<void> {
+  const state = (await readState(userId)) || {};
+  const courses = Array.isArray(state.courses) ? state.courses : [];
+  const remaining = courses.filter((c) => String(c.id) !== courseId);
+  if (remaining.length !== courses.length) {
+    await writeState(userId, { ...state, courses: remaining });
   }
 }
 

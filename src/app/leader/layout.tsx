@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth, useUser } from '@clerk/nextjs';
-import { BookMarked, CalendarDays, CheckSquare, ChevronLeft, ChevronRight, Clock, Code2, FilePenLine, LayoutDashboard, LogOut, Menu, Moon, Rocket, Settings, Sun, Timer, Trophy, Users, X } from 'lucide-react';
+import { BookMarked, CalendarDays, CheckSquare, ChevronLeft, ChevronRight, Clock, Code2, FilePenLine, LayoutDashboard, LogOut, Menu, Moon, Network, Rocket, Settings, Sun, Timer, Trophy, Users, X } from 'lucide-react';
 
 import { useStore } from '@/store/useStore';
 import { apiFetch } from '@/lib/apiClient';
@@ -35,6 +35,7 @@ const MENU = [
   { name: 'Attendance', path: '/leader/attendance', icon: CheckSquare },
   { name: 'Quick Launch', path: '/leader/quick-launch', icon: Rocket },
   { name: 'Courses', path: '/leader/courses', icon: BookMarked },
+  { name: 'Map', path: '/leader/map', icon: Network },
   { name: 'Reports', path: '/leader/reports', icon: FilePenLine },
 ];
 

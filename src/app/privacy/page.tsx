@@ -88,8 +88,22 @@ export default function PrivacyPolicyPage() {
               <span>4. Data Sharing & Security</span>
             </div>
             <p>
-              We do <strong className="text-white">not</strong> sell, rent, or trade your personal information with third parties. 
+              We do <strong className="text-white">not</strong> sell, rent, or trade your personal information with third parties.
               Only your public display name, public GitHub/LeetCode usernames, and total aggregated points/contribution counts are visible to other logged-in users on the public scoreboard. All private communication tokens (such as calendar sync variables or session hashes) are encrypted and stored securely.
+            </p>
+            <p>
+              <strong className="text-white">Google API Services — Limited Use.</strong> Club Crumbs requests the{' '}
+              <code className="text-primary">https://www.googleapis.com/auth/calendar.events</code> and{' '}
+              <code className="text-primary">https://www.googleapis.com/auth/drive.file</code> scopes only. We use them
+              solely to write the calendar events and Drive files that Club Crumbs itself creates on your behalf, and to
+              remove those same items when you re-sync or delete them. Club Crumbs&rsquo;s use and transfer of information
+              received from Google APIs adheres to the{' '}
+              <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" className="text-white/90 underline">
+                Google API Services User Data Policy
+              </a>
+              , including the Limited Use requirements. We do not read your existing calendar events or Drive files, do not
+              use this data for advertising, and do not transfer it to others except as required to provide the feature or
+              comply with the law.
             </p>
           </section>
 
@@ -109,7 +123,7 @@ export default function PrivacyPolicyPage() {
                 <strong className="text-white">What it never reads:</strong> your browsing history, your open tabs, or the content of any page you visit. The extension runs a script on exactly one page &mdash; Club Crumbs&apos;s own Extension page &mdash; and that script does nothing but pass the pairing token to the extension.
               </li>
               <li>
-                <strong className="text-white">Where it sends data:</strong> only to Club Crumbs at <span className="text-white/90">layora239.vercel.app</span>. It contacts no analytics service, no advertiser, and no other third party.
+                <strong className="text-white">Where it sends data:</strong> only to Club Crumbs at <span className="text-white/90">club-crumbs.vercel.app</span>. It contacts no analytics service, no advertiser, and no other third party.
               </li>
               <li>
                 <strong className="text-white">What it stores on your device:</strong> a pairing token and a cached copy of your own launchers and courses, kept in the browser&apos;s local extension storage so the popup opens instantly. Uninstalling the extension deletes both.

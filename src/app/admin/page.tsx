@@ -10,6 +10,7 @@ import {
 
 import { useStore } from '@/store/useStore';
 import { apiFetch, apiJson, errorMessage, readJson } from '@/lib/apiClient';
+import { MAX_LAUNCHER_COURSE_ITEMS } from '@/lib/limits';
 import { formatDate, formatLongDate, toDateKey } from '@/lib/dateFormat';
 import { occursOn, type RepeatRule } from '@/lib/recurrence';
 import { useAdmin } from './AdminContext';
@@ -383,6 +384,7 @@ export default function AdminOverviewPage() {
  */
 function QuickLaunchers() {
   const websites = useStore((s) => s.websites);
+  const courses = useStore((s) => s.courses);
   const addWebsite = useStore((s) => s.addWebsite);
   const removeWebsite = useStore((s) => s.removeWebsite);
 
@@ -402,6 +404,10 @@ function QuickLaunchers() {
       new URL(withScheme);
     } catch {
       setFormError('That does not look like a web address.');
+      return;
+    }
+    if (websites.length + courses.length >= MAX_LAUNCHER_COURSE_ITEMS) {
+      setFormError(`Launchers and courses are capped at ${MAX_LAUNCHER_COURSE_ITEMS} combined. Remove one to add another.`);
       return;
     }
 

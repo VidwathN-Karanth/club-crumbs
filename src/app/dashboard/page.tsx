@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '@/store/useStore';
 import { formatDate } from '@/lib/dateFormat';
+import { MAX_LAUNCHER_COURSE_ITEMS } from '@/lib/limits';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Flame, Globe, ExternalLink, ChevronRight, AlertCircle, Sparkles, Check, Plus, Trash,
@@ -83,6 +84,11 @@ export default function DashboardHome() {
       new URL(formattedUrl);
     } catch (_) {
       setLauncherError('Please enter a valid URL.');
+      return;
+    }
+
+    if (websites.length + courses.length >= MAX_LAUNCHER_COURSE_ITEMS) {
+      setLauncherError(`Launchers and courses are capped at ${MAX_LAUNCHER_COURSE_ITEMS} combined. Remove one to add another.`);
       return;
     }
 

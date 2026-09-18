@@ -49,11 +49,20 @@ export async function POST(request: Request) {
   const endTime = (body as { end_time?: string }).end_time || null;
   const registrationStart = (body as { registration_start?: string }).registration_start || null;
 
+  // Optional platform tag — Unstop / HackerRank buttons preset it and we hold
+  // the link to that host so an Unstop card can't quietly point elsewhere.
+  const rawPlatform = String((body as { platform?: string }).platform || '').toLowerCase();
+  const platform = rawPlatform === 'unstop' || rawPlatform === 'hackerrank' ? rawPlatform : null;
+  const PLATFORM_HOST: Record<string, string> = { unstop: 'unstop.com', hackerrank: 'hackerrank.com' };
+
   if (!name) return NextResponse.json({ error: 'A name is required.' }, { status: 400 });
   if (!link) return NextResponse.json({ error: `A ${config.linkLabel} is required.` }, { status: 400 });
   try {
     const u = new URL(link);
     if (u.protocol !== 'https:') throw new Error('not https');
+    if (platform && !u.hostname.endsWith(PLATFORM_HOST[platform])) {
+      return NextResponse.json({ error: `That does not look like a ${PLATFORM_HOST[platform]} link.` }, { status: 400 });
+    }
   } catch {
     return NextResponse.json({ error: `The ${config.linkLabel} must be a valid https:// URL.` }, { status: 400 });
   }
@@ -89,6 +98,7 @@ export async function POST(request: Request) {
       end_time: endTime,
       registration_start: registrationStart,
       link,
+      platform,
       event_id: eventId,
       created_by: guard.requester.email,
     })

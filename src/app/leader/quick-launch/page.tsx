@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ExternalLink, Plus, Rocket, Trash2, X } from 'lucide-react';
 
 import { useStore } from '@/store/useStore';
+import { MAX_LAUNCHER_COURSE_ITEMS } from '@/lib/limits';
 
 /**
  * The leader's own quick launchers — the same links the browser extension
@@ -12,8 +13,10 @@ import { useStore } from '@/store/useStore';
  */
 export default function LeaderQuickLaunchPage() {
   const websites = useStore((s) => s.websites);
+  const courses = useStore((s) => s.courses);
   const addWebsite = useStore((s) => s.addWebsite);
   const removeWebsite = useStore((s) => s.removeWebsite);
+  const atCap = websites.length + courses.length >= MAX_LAUNCHER_COURSE_ITEMS;
 
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState('');
@@ -25,6 +28,7 @@ export default function LeaderQuickLaunchPage() {
     const trimmedName = name.trim();
     let link = url.trim();
     if (!trimmedName || !link) { setError('Give it a name and a link.'); return; }
+    if (atCap) { setError(`Launchers and courses are capped at ${MAX_LAUNCHER_COURSE_ITEMS} combined. Remove one to add another.`); return; }
     if (!/^https?:\/\//i.test(link)) link = `https://${link}`;
     try { new URL(link); } catch { setError('That does not look like a valid link.'); return; }
     addWebsite({ name: trimmedName, url: link, timeSpentGoal: 0 });

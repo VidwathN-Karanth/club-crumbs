@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useStore, Task } from '@/store/useStore';
+import { useStore, tasksCreatedToday, Task } from '@/store/useStore';
+import { MAX_TASKS_PER_DAY, TASK_SOFT_WARN } from '@/lib/limits';
 import { formatDate } from '@/lib/dateFormat';
 import { 
   CheckSquare, Plus, Clock, Play, Pause, Check, 
@@ -92,6 +93,10 @@ export default function TasksPage() {
     }
     if (!newTaskEstimate) {
       errors.estimate = "This field cannot be empty";
+    }
+
+    if (tasksCreatedToday(store.tasks) >= MAX_TASKS_PER_DAY) {
+      errors.title = `Daily limit reached — you can create up to ${MAX_TASKS_PER_DAY} tasks per day.`;
     }
 
     if (Object.keys(errors).length > 0) {
@@ -371,7 +376,14 @@ export default function TasksPage() {
               className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm glass-panel p-6 rounded-2xl z-50 border border-white/10"
             >
               <h3 className="text-sm font-geist font-bold text-cyber-blue border-b border-white/10 pb-2 mb-4">Create Academic Milestone</h3>
-              
+
+              {tasksCreatedToday(store.tasks) >= TASK_SOFT_WARN && (
+                <p className={`text-[11px] font-mono mb-3 ${tasksCreatedToday(store.tasks) >= MAX_TASKS_PER_DAY ? 'text-rose-300' : 'text-amber-300'}`}>
+                  {tasksCreatedToday(store.tasks)}/{MAX_TASKS_PER_DAY} tasks created today
+                  {tasksCreatedToday(store.tasks) >= MAX_TASKS_PER_DAY ? ' — daily limit reached.' : ' — nearing the daily limit.'}
+                </p>
+              )}
+
               <form onSubmit={handleCreateTask} noValidate className="space-y-4">
                 <div>
                   <label className="block text-[10px] font-mono text-white/50 mb-1">Milestone Title</label>

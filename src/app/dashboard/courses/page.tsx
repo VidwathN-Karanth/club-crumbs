@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getPlatformDisplay, formatCourseLink } from '@/lib/courseUtils';
+import { MAX_LAUNCHER_COURSE_ITEMS } from '@/lib/limits';
 import DateField from '@/components/DateField';
 
 /** What the card shows when a course has no reminder time of its own. */
@@ -182,6 +183,10 @@ export default function CoursesPage() {
     const errors: Record<string, string> = {};
     if (!name.trim()) {
       errors.name = "This field cannot be empty";
+    }
+
+    if (store.websites.length + store.courses.length >= MAX_LAUNCHER_COURSE_ITEMS) {
+      errors.name = `Launchers and courses are capped at ${MAX_LAUNCHER_COURSE_ITEMS} combined. Remove one to add another.`;
     }
 
     if (Object.keys(errors).length > 0) {

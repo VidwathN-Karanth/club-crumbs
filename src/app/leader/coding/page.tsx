@@ -17,9 +17,19 @@ interface CodingEvent {
   end_time: string | null;
   registration_start: string | null;
   link: string;
+  platform: string | null;
 }
 
 const EMPTY = { name: '', competition_date: '', start_time: '', end_time: '', registration_start: '', link: '' };
+
+type Platform = 'unstop' | 'hackerrank' | 'generic';
+
+/** Per-platform copy + host guard for the shared create modal. */
+const PLATFORM_META: Record<Platform, { title: string; linkLabel: string; placeholder: string; host?: string }> = {
+  unstop: { title: 'New Unstop event', linkLabel: 'Unstop link', placeholder: 'https://unstop.com/...', host: 'unstop.com' },
+  hackerrank: { title: 'New HackerRank contest', linkLabel: 'HackerRank link', placeholder: 'https://www.hackerrank.com/contests/...', host: 'hackerrank.com' },
+  generic: { title: 'New competition', linkLabel: 'Link', placeholder: 'https://...' },
+};
 
 export default function LeaderCodingPage() {
   const { cohort } = useLeader();
@@ -33,6 +43,7 @@ export default function LeaderCodingPage() {
   const [error, setError] = useState('');
 
   const [creating, setCreating] = useState(false);
+  const [platform, setPlatform] = useState<Platform>('generic');
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
@@ -56,8 +67,26 @@ export default function LeaderCodingPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  const meta = platform === 'generic'
+    ? { title: 'New competition', linkLabel, placeholder: linkPlaceholder, host: undefined as string | undefined }
+    : PLATFORM_META[platform];
+
+  const openCreate = (p: Platform) => { setPlatform(p); setForm(EMPTY); setFormError(''); setCreating(true); };
+
   const create = async () => {
     if (!form.name.trim() || !form.link.trim()) return;
+    const link = form.link.trim();
+    if (meta.host) {
+      try {
+        if (!new URL(/^https?:\/\//i.test(link) ? link : `https://${link}`).hostname.endsWith(meta.host)) {
+          setFormError(`That does not look like a ${meta.host} link.`);
+          return;
+        }
+      } catch {
+        setFormError('That does not look like a valid link.');
+        return;
+      }
+    }
     setSaving(true);
     setFormError('');
     try {
@@ -71,7 +100,8 @@ export default function LeaderCodingPage() {
           start_time: form.start_time || null,
           end_time: form.end_time || null,
           registration_start: form.registration_start ? new Date(form.registration_start).toISOString() : null,
-          link: form.link.trim(),
+          link,
+          platform: platform === 'generic' ? null : platform,
         }),
       }));
       setCreating(false);
@@ -106,12 +136,26 @@ export default function LeaderCodingPage() {
           </h1>
           <p className="text-xs text-white/40 mt-0.5">Post competitions — members open them straight from the card, and they appear on the club calendar.</p>
         </div>
-        <button
-          onClick={() => { setForm(EMPTY); setFormError(''); setCreating(true); }}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/15 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer"
-        >
-          <Plus className="w-4 h-4" /> New competition
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => openCreate('unstop')}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/15 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer"
+          >
+            <Plus className="w-4 h-4" /> Unstop
+          </button>
+          <button
+            onClick={() => openCreate('hackerrank')}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/15 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer"
+          >
+            <Plus className="w-4 h-4" /> HackerRank
+          </button>
+          <button
+            onClick={() => openCreate('generic')}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer"
+          >
+            <Plus className="w-4 h-4" /> Other
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -125,7 +169,12 @@ export default function LeaderCodingPage() {
           {events.map((ev) => (
             <div key={ev.id} className="glass-panel border border-white/10 rounded-2xl p-5 flex flex-col gap-3">
               <div className="flex items-start justify-between gap-2">
-                <h3 className="font-bold text-white leading-snug">{ev.name}</h3>
+                <h3 className="font-bold text-white leading-snug">
+                  {ev.name}
+                  {ev.platform && (
+                    <span className="ml-2 align-middle text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded border border-white/15 text-white/60">{ev.platform}</span>
+                  )}
+                </h3>
                 <button onClick={() => setConfirmDelete(ev)} className="p-1.5 rounded-lg border border-white/10 hover:border-rose-400 text-white/50 hover:text-rose-400 transition cursor-pointer shrink-0" title="Delete">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -149,7 +198,7 @@ export default function LeaderCodingPage() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => !saving && setCreating(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} role="dialog" aria-modal="true" className="glass-panel border border-white/15 p-6 rounded-2xl max-w-md w-full relative z-10 bg-[#1E2126] space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-white">New competition</h3>
+                <h3 className="text-base font-bold text-white">{meta.title}</h3>
                 <button onClick={() => setCreating(false)} className="text-white/50 hover:text-white cursor-pointer"><X className="w-4 h-4" /></button>
               </div>
               <div className="space-y-3">
@@ -176,8 +225,8 @@ export default function LeaderCodingPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-[10px] font-mono uppercase text-white/40">{linkLabel}</label>
-                  <input className={`${input} mt-1`} value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} placeholder={linkPlaceholder} />
+                  <label className="text-[10px] font-mono uppercase text-white/40">{meta.linkLabel}</label>
+                  <input className={`${input} mt-1`} value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} placeholder={meta.placeholder} />
                 </div>
                 {formError && <p className="text-[11px] text-rose-300 font-mono">{formError}</p>}
               </div>
