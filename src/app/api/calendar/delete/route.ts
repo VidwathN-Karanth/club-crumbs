@@ -33,8 +33,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing or invalid parameters' }, { status: 400 });
     }
 
-    // 3. List events containing "Synced from Layora Student Planner"
-    const listUrl = `https://www.googleapis.com/calendar/v3/calendars/primary/events?q=Synced+from+Layora+Student+Planner&maxResults=250`;
+    // 3. List the events we created. Broad query on "Synced from" so it catches
+    //    both the current "Synced from Club Crumbs" marker and legacy events
+    //    still tagged "Synced from Layora"; the filter below re-checks precisely.
+    const listUrl = `https://www.googleapis.com/calendar/v3/calendars/primary/events?q=Synced+from&maxResults=250`;
     const listResponse = await fetch(listUrl, {
       headers: {
         'Authorization': `Bearer ${googleToken}`,
@@ -57,11 +59,10 @@ export async function POST(request: Request) {
 
     // Filter events to delete
     const targetEvents = events.filter((evt: any) => {
-      // Safety check: ensure description or summary confirms it was created by Layora
-      const isLayoraEvent = (evt.description && evt.description.includes('Synced from Layora Student Planner')) ||
-                            (evt.summary && evt.summary.includes('Synced from Layora Student Planner'));
-      
-      if (!isLayoraEvent) return false;
+      // Safety check: only touch events we created — the current marker or the
+      // legacy one, so events synced before the rename are still cleaned up.
+      const isOurs = (t?: string) => !!t && (t.includes('Synced from Club Crumbs') || t.includes('Synced from Layora'));
+      if (!isOurs(evt.description) && !isOurs(evt.summary)) return false;
 
       if (scope === 'week') return true;
 

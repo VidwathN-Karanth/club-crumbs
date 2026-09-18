@@ -80,7 +80,7 @@ export async function POST() {
           },
           body: JSON.stringify({
             summary: occurrence.title,
-            description: `${occurrence.description || ''}\n\n(Synced from Layora)`.trim(),
+            description: `${occurrence.description || ''}\n\n(Synced from Club Crumbs)`.trim(),
             start: { date: occurrence.date },
             end: { date: endKey },
           }),

@@ -160,7 +160,7 @@ export async function POST(request: Request) {
           body: JSON.stringify({
             summary: `Study: ${name}`,
             description:
-              `Daily study reminder${course.platform ? ` · ${course.platform}` : ''}\n\n(Synced from Layora)`,
+              `Daily study reminder${course.platform ? ` · ${course.platform}` : ''}\n\n(Synced from Club Crumbs)`,
             start: { dateTime: wallClock(start), timeZone },
             end: { dateTime: wallClock(end), timeZone },
             recurrence: [`RRULE:FREQ=DAILY;UNTIL=${untilStamp(deadline)}`],

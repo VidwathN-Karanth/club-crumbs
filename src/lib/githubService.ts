@@ -49,7 +49,7 @@ async function queryGitHub(query: string, variables: Record<string, unknown> = {
         headers: {
           'Authorization': `bearer ${token}`,
           'Content-Type': 'application/json',
-          'User-Agent': 'Layora-Backend'
+          'User-Agent': 'ClubCrumbs-Backend'
         },
         timeout: 10000
       }

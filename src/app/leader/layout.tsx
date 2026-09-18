@@ -352,7 +352,7 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
             {/* Live clock + light/dark switch, matching the member dashboard. */}
             <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-2.5 border border-white/10 bg-white/5 px-4 py-1.5 rounded-full font-mono">
               <Clock className="w-4 h-4 text-primary" strokeWidth={1.5} />
-              <span className="text-white font-bold font-mono text-lg min-w-[100px] text-center leading-none">{timeStr || '00:00:00'}</span>
+              <span className="text-white font-bold font-mono text-lg min-w-[100px] text-center leading-none tabular-nums">{timeStr || '00:00:00'}</span>
               <div className="h-4 w-[1px] bg-white/15 ml-1.5 mr-0.5 shrink-0" />
               <button
                 onClick={() => setThemeMode(themeMode === 'light' ? 'dark' : 'light')}

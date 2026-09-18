@@ -66,7 +66,7 @@ export async function POST(request: Request) {
 
       const eventData = {
         summary: block.title,
-        description: `${block.details || ''} [Day: ${block.day}] (Synced from Layora Student Planner)`,
+        description: `${block.details || ''} [Day: ${block.day}] (Synced from Club Crumbs)`,
         start: {
           dateTime: startDateTime.toISOString(),
           timeZone: 'UTC'
