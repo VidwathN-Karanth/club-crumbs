@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   BaseEdge,
   EdgeLabelRenderer,
@@ -21,8 +21,20 @@ export default function DeletableEdge({
   const [showBin, setShowBin] = useState(false);
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const btnRef = useRef<HTMLButtonElement | null>(null);
 
   const cancelHold = () => { if (holdTimer.current) { clearTimeout(holdTimer.current); holdTimer.current = null; } };
+
+  // Once the bin is up, a press anywhere but the bin itself dismisses it.
+  useEffect(() => {
+    if (!showBin) return;
+    const onDown = (e: PointerEvent) => {
+      if (btnRef.current?.contains(e.target as Node)) return; // let the delete click through
+      setShowBin(false);
+    };
+    const t = setTimeout(() => document.addEventListener('pointerdown', onDown), 0);
+    return () => { clearTimeout(t); document.removeEventListener('pointerdown', onDown); };
+  }, [showBin]);
 
   // Press and hold the line for 1s → the bin appears. Release early cancels.
   const beginHold = () => {
@@ -61,6 +73,7 @@ export default function DeletableEdge({
             className="nodrag nopan"
           >
             <button
+              ref={btnRef}
               onClick={remove}
               title="Delete this link"
               className="p-1.5 rounded-lg border shadow-lg text-rose-400 hover:bg-rose-500/15 hover:border-rose-400 transition cursor-pointer"
