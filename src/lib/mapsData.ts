@@ -15,7 +15,14 @@ import { supabaseAdmin } from './supabaseAdmin';
 export interface MapNode {
   id: string;
   position: { x: number; y: number };
-  data: { topic: string; link: string; pinned: boolean; courseId?: string };
+  data: {
+    topic: string;
+    link: string;
+    pinned: boolean;
+    courseId?: string;
+    /** Learning progress, set by a 3s long-press. Absent = not started. */
+    status?: 'learning' | 'done';
+  };
   type?: string;
 }
 

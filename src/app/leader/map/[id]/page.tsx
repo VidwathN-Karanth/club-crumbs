@@ -18,11 +18,11 @@ import {
   type Node,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { ArrowLeft, Check, Loader2, Plus, X } from 'lucide-react';
+import { ArrowLeft, Check, Info, Loader2, Plus, X } from 'lucide-react';
 
 import { apiFetch, errorMessage, readJson } from '@/lib/apiClient';
 import { useStore } from '@/store/useStore';
-import TopicNode, { MapNodeActionsContext, type TopicNodeData } from '@/components/map/TopicNode';
+import TopicNode, { MapNodeActionsContext, nextStatus, statusColor, type TopicNodeData } from '@/components/map/TopicNode';
 import type { MapGraph, MapNode } from '@/lib/mapsData';
 
 type FlowNode = Node<TopicNodeData>;
@@ -40,6 +40,7 @@ function serialize(nodes: FlowNode[], edges: Edge[]): MapGraph {
         link: n.data.link || '',
         pinned: Boolean(n.data.pinned),
         ...(n.data.courseId ? { courseId: n.data.courseId } : {}),
+        ...(n.data.status ? { status: n.data.status } : {}),
       },
     })) as MapNode[],
     edges: edges.map((e) => ({
@@ -67,6 +68,7 @@ function MapEditor() {
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [pinningId, setPinningId] = useState<string | null>(null);
   const [editing, setEditing] = useState<{ id: string; topic: string; link: string } | null>(null);
+  const [infoOpen, setInfoOpen] = useState(false);
 
   // Suppress the autosave that would otherwise fire right after the initial load.
   const hydratedRef = useRef(false);
@@ -172,7 +174,32 @@ function MapEditor() {
     }
   }, [nodes, mapId, save, setNodes]);
 
-  const actions = useMemo(() => ({ onEdit, onDelete, onTogglePin, pinningId }), [onEdit, onDelete, onTogglePin, pinningId]);
+  const onCycleStatus = useCallback((id: string) => {
+    setNodes((nds) => nds.map((n) => {
+      if (n.id !== id) return n;
+      const next = nextStatus(n.data.status);
+      const data = { ...n.data };
+      if (next) data.status = next; else delete data.status;
+      return { ...n, data };
+    }));
+  }, [setNodes]);
+
+  const actions = useMemo(
+    () => ({ onEdit, onDelete, onTogglePin, onCycleStatus, pinningId }),
+    [onEdit, onDelete, onTogglePin, onCycleStatus, pinningId]
+  );
+
+  // Edges take the colour of the card they connect — target first, else source —
+  // so a path lights up (purple = learning, green = done) as you progress.
+  const styledEdges = useMemo(() => {
+    const statusById = new Map(nodes.map((n) => [n.id, n.data.status]));
+    return edges.map((e) => {
+      const color = statusColor(statusById.get(e.target)) ?? statusColor(statusById.get(e.source));
+      return color
+        ? { ...e, style: { stroke: color, strokeWidth: 2.5 } }
+        : e;
+    });
+  }, [edges, nodes]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
@@ -191,6 +218,46 @@ function MapEditor() {
           {saveState === 'saving' ? (<><Loader2 className="w-3 h-3 animate-spin" /> Saving</>)
             : saveState === 'saved' ? (<><Check className="w-3 h-3 text-emerald-400" /> Saved</>) : null}
         </span>
+        <div className="relative">
+          <button
+            onClick={() => setInfoOpen((v) => !v)}
+            title="How the cards work"
+            aria-label="How the cards work"
+            className="p-2 rounded-lg border transition cursor-pointer hover:text-violet-400"
+            style={{ borderColor: 'var(--color-outline)', color: 'var(--color-on-surface-variant)' }}
+          >
+            <Info className="w-4 h-4" />
+          </button>
+          {infoOpen && (
+            <>
+              <div className="fixed inset-0 z-[60]" onClick={() => setInfoOpen(false)} />
+              <div
+                className="absolute right-0 mt-2 w-72 rounded-xl border p-4 z-[61] shadow-xl text-xs space-y-2"
+                style={{ background: 'var(--color-surface)', borderColor: 'var(--color-outline)', color: 'var(--color-on-surface)' }}
+              >
+                <div className="font-bold flex items-center gap-1.5"><Info className="w-3.5 h-3.5" /> Track your learning</div>
+                <p style={{ color: 'var(--color-on-surface-variant)' }}>
+                  Press and <strong>hold a card for 3 seconds</strong> to mark progress:
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#C56BF5' }} />
+                  <span>Hold once → <strong>Learning</strong> (purple)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#22c55e' }} />
+                  <span>Hold again → <strong>Done</strong> (green)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-3 h-3 rounded-sm border" style={{ borderColor: 'var(--color-outline)' }} />
+                  <span>Hold a third time → clears it</span>
+                </div>
+                <p style={{ color: 'var(--color-on-surface-variant)' }}>
+                  Connecting lines take the colour of the card they point to, so a path lights up as you progress.
+                </p>
+              </div>
+            </>
+          )}
+        </div>
         <button onClick={addCard} className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer hover:brightness-110" style={{ background: '#8b5cf6' }}>
           <Plus className="w-4 h-4" /> Add card
         </button>
@@ -208,7 +275,7 @@ function MapEditor() {
           <MapNodeActionsContext.Provider value={actions}>
             <ReactFlow
               nodes={nodes}
-              edges={edges}
+              edges={styledEdges}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
@@ -222,7 +289,7 @@ function MapEditor() {
                 variant={BackgroundVariant.Dots}
                 gap={22}
                 size={1.6}
-                color={isLight ? '#b8bdc9' : '#5a6273'}
+                color={isLight ? '#98a0b0' : '#5a6273'}
               />
               <Controls
                 style={{
@@ -238,8 +305,8 @@ function MapEditor() {
                 pannable
                 zoomable
                 bgColor={isLight ? '#eef0f4' : '#16181C'}
-                nodeColor="#8b5cf6"
-                nodeStrokeColor="#8b5cf6"
+                nodeColor={(n) => statusColor((n.data as TopicNodeData)?.status) ?? '#8b5cf6'}
+                nodeStrokeColor={(n) => statusColor((n.data as TopicNodeData)?.status) ?? '#8b5cf6'}
                 nodeStrokeWidth={3}
                 nodeBorderRadius={6}
                 maskColor={isLight ? 'rgba(120,130,150,0.18)' : 'rgba(0,0,0,0.55)'}
