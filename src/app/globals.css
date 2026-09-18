@@ -81,8 +81,8 @@ html {
   --font-geist: var(--font-sora), system-ui, sans-serif;
   --font-hanken: var(--font-sora), system-ui, sans-serif;
   --font-inter: var(--font-sora), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
-  --font-jetbrains: var(--font-jetbrains), monospace;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+  --font-jetbrains: var(--font-plex-mono), ui-monospace, monospace;
 
   /* Border radius */
   --radius-sm: 0.25rem;
@@ -1638,7 +1638,7 @@ html.light-mode .zen-overlay,
 html.light-mode .zen-overlay p,
 html.light-mode .zen-overlay span,
 html.light-mode .zen-overlay button {
-  font-family: var(--font-geist-mono), var(--font-geist), monospace !important;
+  font-family: var(--font-mono), var(--font-geist), monospace !important;
 }
 
 /* ────────────────────────────────────────────────────────────────
