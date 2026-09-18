@@ -27,6 +27,7 @@ import { useSectionData } from '../_components/useSectionData';
 interface TelemetryUser {
   id: string;
   updated_at: string;
+  isLeader?: boolean;
   state: {
     user?: {
       name?: string;
@@ -95,7 +96,7 @@ export default function AdminStudentsPage() {
     setSelected(null);
     setConfirmDelete(null);
     try {
-      const rows = await readJson<{ id: string; state?: TelemetryUser['state']; updated_at?: string }[]>(
+      const rows = await readJson<{ id: string; state?: TelemetryUser['state']; updated_at?: string; isLeader?: boolean }[]>(
         await apiFetch(`/api/admin/users?cohort=${encodeURIComponent(selectedCohort)}`)
       );
 
@@ -103,6 +104,7 @@ export default function AdminStudentsPage() {
         id: row.id,
         state: row.state || {},
         updated_at: row.updated_at || '',
+        isLeader: Boolean(row.isLeader),
       }));
       mapped.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
       setUsers(mapped);
@@ -268,8 +270,11 @@ export default function AdminStudentsPage() {
                             {profile.name?.charAt(0).toUpperCase() || 'U'}
                           </span>
                           <span className="min-w-0">
-                            <span className="block font-bold text-white group-hover:text-cyber-blue transition truncate">
-                              {profile.name || 'Anonymous student'}
+                            <span className="flex items-center gap-1.5 font-bold text-white group-hover:text-cyber-blue transition truncate">
+                              <span className="truncate">{profile.name || 'Anonymous student'}</span>
+                              {u.isLeader && (
+                                <span className="shrink-0 px-1.5 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 text-[9px] font-semibold uppercase tracking-wider">Leader</span>
+                              )}
                             </span>
                             <span className="block text-[10px] text-white/40 truncate">
                               {profile.email || 'No email synced'}

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { requireAdminCohort } from '@/lib/authz';
 import { emailsForCohort } from '@/lib/roster';
+import { leaderEmailsForCohort } from '@/lib/accessGrants';
 
 /**
  * Student state rows for one academic year.
@@ -26,10 +27,18 @@ export async function GET(request: Request) {
     if (error) throw error;
 
     const rosterEmails = new Set(await emailsForCohort(cohort));
-    const scoped = (data || []).filter((row: any) => {
-      const email = (row?.state?.user?.email || '').trim().toLowerCase();
-      return rosterEmails.has(email);
-    });
+    // Who leads this club, so a member who is also a leader gets flagged.
+    const leaderEmails = new Set((await leaderEmailsForCohort(cohort)).map((e) => e.toLowerCase()));
+
+    const scoped = (data || [])
+      .filter((row: any) => {
+        const email = (row?.state?.user?.email || '').trim().toLowerCase();
+        return rosterEmails.has(email);
+      })
+      .map((row: any) => ({
+        ...row,
+        isLeader: leaderEmails.has((row?.state?.user?.email || '').trim().toLowerCase()),
+      }));
 
     return NextResponse.json(scoped);
   } catch (err: unknown) {
