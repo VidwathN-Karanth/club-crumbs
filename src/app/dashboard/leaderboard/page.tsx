@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useStore } from '@/store/useStore';
 import { apiFetch } from '@/lib/apiClient';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { 
   Trophy, Award, TrendingUp, Calendar, RefreshCw,
   AlertTriangle, Terminal, GitBranch
@@ -171,7 +172,7 @@ export default function LeaderboardPage() {
               <div className="text-[9px] text-primary font-bold uppercase tracking-wider flex items-center gap-1">
                 <Trophy className="w-3.5 h-3.5" /> All-Time Points
               </div>
-              <div className="text-2xl font-black text-white mt-1.5">{userStats.allTime.points} <span className="text-[10px] font-normal text-outline">pts</span></div>
+              <div className="text-2xl font-black text-white mt-1.5"><AnimatedCounter value={userStats.allTime.points} /> <span className="text-[10px] font-normal text-outline">pts</span></div>
               <div className="text-[9px] text-outline border-t border-outline-variant/30 pt-1.5 mt-1.5">
                 {userStats.allTime.solves} Solves | {userStats.allTime.commits} Commits
               </div>

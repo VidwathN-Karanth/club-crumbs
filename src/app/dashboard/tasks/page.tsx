@@ -5,10 +5,11 @@ import { useStore, tasksCreatedToday, Task } from '@/store/useStore';
 import { MAX_TASKS_PER_DAY, TASK_SOFT_WARN } from '@/lib/limits';
 import { formatDate } from '@/lib/dateFormat';
 import { 
-  CheckSquare, Plus, Clock, Play, Pause, Check, 
-  Trash, Calendar, Sparkles, PlusCircle, AlertCircle 
+  CheckSquare, Plus, Clock, Play, Pause, Check,
+  Calendar, Sparkles, PlusCircle, AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { DeleteButton } from '@/components/ui/delete-button';
 
 export default function TasksPage() {
   const store = useStore();
@@ -346,15 +347,13 @@ export default function TasksPage() {
                         <Check className="w-3 h-3" strokeWidth={1.5} />
                       </button>
 
-                      <button 
-                        onClick={() => store.removeTask(task.id)}
-                        /* Solid, not a 20%-opacity ghost — same reasoning as the
-                           edit button on a course card. */
-                        className="p-1.5 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:border-red-400 transition cursor-pointer"
-                        title="Delete milestone"
-                      >
-                        <Trash className="w-3 h-3" strokeWidth={1.5} />
-                      </button>
+                      {/* Confirm-in-place: the delete used to fire on a single
+                          click with no undo. DeleteButton asks first, in place. */}
+                      <DeleteButton
+                        onConfirm={() => store.removeTask(task.id)}
+                        className="scale-[0.6] -m-2"
+                        aria-label="Delete milestone"
+                      />
                     </div>
                   </div>
                 </div>
