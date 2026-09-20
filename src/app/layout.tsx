@@ -24,8 +24,34 @@ const mulish = Mulish({
 });
 
 export const metadata: Metadata = {
-  title: "Club Crumbs — MITE Club Dashboard",
-  description: "A unified dashboard for MITE's tech clubs — Coders Club, Crypton Club and DevStudio: activity tracking, leaderboards, certificates and more.",
+  metadataBase: new URL("https://club-crumbs.vercel.app"),
+  title: "Club Crumbs — MITE CSE Clubs Dashboard",
+  description: "Club Crumbs is the shared dashboard for MITE's CSE branch clubs — Coders Club, Crypton Club and DevStudio: activity tracking, leaderboards, certificates and more.",
+  keywords: [
+    "MITE CSE clubs",
+    "MITE clubs",
+    "CSE clubs MITE",
+    "Club Crumbs",
+    "Coders Club MITE",
+    "Crypton Club MITE",
+    "DevStudio MITE",
+    "Mangalore Institute of Technology and Engineering clubs",
+  ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Club Crumbs — MITE CSE Clubs Dashboard",
+    description: "The shared home for MITE's CSE branch clubs — Coders Club, Crypton Club and DevStudio.",
+    url: "https://club-crumbs.vercel.app",
+    siteName: "Club Crumbs",
+    type: "website",
+    images: ["/club-crumbs-logo.png"],
+  },
+  twitter: {
+    card: "summary",
+    title: "Club Crumbs — MITE CSE Clubs Dashboard",
+    description: "The shared home for MITE's CSE branch clubs — Coders Club, Crypton Club and DevStudio.",
+    images: ["/club-crumbs-logo.png"],
+  },
   // The manifest is what lets a phone install Club Crumbs to the Home Screen,
   // which on iOS is the only way the Notification API exists at all.
   manifest: "/manifest.webmanifest",

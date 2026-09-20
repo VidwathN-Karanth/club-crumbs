@@ -176,7 +176,7 @@ function Hero({ onSignIn }: { onSignIn: () => void }) {
         </motion.h1>
 
         <motion.p {...rise(0.16)} className="mt-7 max-w-xl text-[15px] leading-relaxed text-white/55 sm:text-base">
-          Club Crumbs is the shared home for MITE&rsquo;s tech clubs. Sign in with your college
+          Club Crumbs is the shared home for MITE&rsquo;s CSE branch clubs. Sign in with your college
           account and land straight in your club&rsquo;s workspace — a live leaderboard from your
           GitHub and LeetCode, a planner, your certificates and everything your club is working on.
         </motion.p>
