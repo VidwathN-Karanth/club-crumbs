@@ -7,7 +7,7 @@ import { CalendarDays, Clock, BookMarked, MessageCircle, X } from 'lucide-react'
 import { isExternalUrl, onToast, OPEN_CHAT_EVENT, type Toast, type ToastKind } from '@/lib/notifications';
 
 /** How long a toast stays *once the student can actually see it*. */
-const LIFETIME_MS = 20_000;
+const LIFETIME_MS = 5_000;
 
 const ICONS: Record<ToastKind, typeof CalendarDays> = {
   event: CalendarDays,
