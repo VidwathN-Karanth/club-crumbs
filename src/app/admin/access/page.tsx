@@ -133,20 +133,6 @@ export default function AdminAccessPage() {
     return { added: res.added ?? [], skipped: res.skipped ?? [] };
   };
 
-  const patch = async (body: object) => {
-    setWorking(true);
-    try {
-      await readJson(await apiFetch('/api/access/grants', {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
-      }));
-      await load();
-    } catch (err) {
-      setError(errorMessage(err, 'Could not change that role.'));
-    } finally {
-      setWorking(false);
-    }
-  };
-
   const doRemove = async (target: PendingRemove) => {
     setWorking(true);
     try {
@@ -256,14 +242,6 @@ export default function AdminAccessPage() {
                 <span className="text-sm text-white truncate">{email}</span>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
-                    onClick={() => patch({ email, cohort: club, to: 'member' })}
-                    disabled={working}
-                    className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg border border-white/10 text-white/60 hover:text-white hover:border-white/30 transition cursor-pointer disabled:opacity-40"
-                    title="Make an ordinary member"
-                  >
-                    Make member
-                  </button>
-                  <button
                     onClick={() => requestRemove({ email, role: 'leader', cohort: club })}
                     disabled={working}
                     className="p-1.5 rounded-lg border border-white/10 hover:border-rose-400 text-white/60 hover:text-rose-400 transition cursor-pointer disabled:opacity-40"
@@ -290,14 +268,6 @@ export default function AdminAccessPage() {
               <div key={email} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5">
                 <span className="text-sm text-white truncate">{email}</span>
                 <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => patch({ email, cohort: club, to: 'leader' })}
-                    disabled={working}
-                    className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg border border-cyber-blue/30 text-cyber-blue hover:bg-cyber-blue/10 transition cursor-pointer disabled:opacity-40"
-                    title="Promote to club leader"
-                  >
-                    Make leader
-                  </button>
                   <button
                     onClick={() => requestRemove({ email, role: 'member', cohort: club })}
                     disabled={working}

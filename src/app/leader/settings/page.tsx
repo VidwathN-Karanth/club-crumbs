@@ -1,8 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ChevronRight, Puzzle, Settings } from 'lucide-react';
+import { ChevronRight, Lock, Puzzle, Settings, User } from 'lucide-react';
 import ResumePanel from '@/components/ResumePanel';
+import { RemindersControl, InterfacePanel } from '@/components/DeviceSettings';
 import { useLeader } from '../LeaderContext';
 
 export default function LeaderSettingsPage() {
@@ -10,10 +11,45 @@ export default function LeaderSettingsPage() {
   const { leaderName, leaderEmail } = useLeader();
 
   return (
-    <div className="space-y-6 max-w-xl">
+    <div className="space-y-6 max-w-3xl">
       <div>
         <h1 className="text-lg font-bold text-white flex items-center gap-2"><Settings className="w-5 h-5" /> Settings</h1>
-        <p className="text-xs text-white/40 mt-0.5">{leaderName} · {leaderEmail}</p>
+        <p className="text-xs text-white/40 mt-0.5">Reminders and how the console looks on this device.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* --- ACCOUNT & REMINDERS --- */}
+        <div className="glass-card rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2.5 border-b border-outline-variant pb-2">
+            <User className="w-4 h-4 text-primary" />
+            <h3 className="text-xs font-mono font-bold tracking-wider text-primary">Account</h3>
+          </div>
+
+          {/* Neither is editable: both come from the college Google account. */}
+          <div>
+            <span className="block text-[10px] font-mono text-outline mb-1">Name</span>
+            <div className="w-full bg-surface-container border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-on-surface-variant flex items-center justify-between gap-2">
+              <span className="truncate">{leaderName}</span>
+              <Lock className="w-3 h-3 text-outline shrink-0" />
+            </div>
+          </div>
+
+          <div>
+            <span className="block text-[10px] font-mono text-outline mb-1">Leader email</span>
+            <div className="w-full bg-surface-container border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-on-surface-variant flex items-center justify-between gap-2">
+              <span className="truncate">{leaderEmail}</span>
+              <Lock className="w-3 h-3 text-outline shrink-0" />
+            </div>
+            <p className="text-[9px] font-mono text-outline mt-1">
+              Leader access is granted by this address. It is set in the console, not here.
+            </p>
+          </div>
+
+          <RemindersControl />
+        </div>
+
+        {/* --- INTERFACE --- */}
+        <InterfacePanel />
       </div>
 
       {/* Reuses the shared CV panel, pointed at the staff endpoint. Admins can

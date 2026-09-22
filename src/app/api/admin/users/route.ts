@@ -27,13 +27,14 @@ export async function GET(request: Request) {
     if (error) throw error;
 
     const rosterEmails = new Set(await emailsForCohort(cohort));
-    // Who leads this club, so a member who is also a leader gets flagged.
+    // Who leads this club, so a leader's own workspace shows alongside members'
+    // — flagged with isLeader — even when they hold no member grant.
     const leaderEmails = new Set((await leaderEmailsForCohort(cohort)).map((e) => e.toLowerCase()));
 
     const scoped = (data || [])
       .filter((row: any) => {
         const email = (row?.state?.user?.email || '').trim().toLowerCase();
-        return rosterEmails.has(email);
+        return rosterEmails.has(email) || leaderEmails.has(email);
       })
       .map((row: any) => ({
         ...row,

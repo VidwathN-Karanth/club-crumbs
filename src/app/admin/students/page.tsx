@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Activity, Building2, Calendar, Clock, ExternalLink, Eye, Flame, RefreshCw,
+  Activity, Building2, Calendar, Clock, Crown, ExternalLink, Eye, Flame, RefreshCw,
   Search, Settings, Trash2, Users, X,
 } from 'lucide-react';
 
@@ -263,17 +263,19 @@ export default function AdminStudentsPage() {
                   const done = tasks.filter((t) => t.status === 'completed').length;
 
                   return (
-                    <tr key={u.id} className="hover:bg-white/3 transition group">
+                    <tr key={u.id} className={`transition group ${u.isLeader ? 'bg-amber-400/10 hover:bg-amber-400/15' : 'hover:bg-white/3'}`}>
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          <span className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center font-bold text-sm text-cyber-blue shrink-0">
-                            {profile.name?.charAt(0).toUpperCase() || 'U'}
+                          <span className={`w-8 h-8 rounded-lg border flex items-center justify-center font-bold text-sm shrink-0 ${u.isLeader ? 'bg-amber-400/15 border-amber-400/30 text-amber-300' : 'bg-white/5 border-white/10 text-cyber-blue'}`}>
+                            {u.isLeader ? <Crown className="w-4 h-4" /> : (profile.name?.charAt(0).toUpperCase() || 'U')}
                           </span>
                           <span className="min-w-0">
                             <span className="flex items-center gap-1.5 font-bold text-white group-hover:text-cyber-blue transition truncate">
                               <span className="truncate">{profile.name || 'Anonymous student'}</span>
                               {u.isLeader && (
-                                <span className="shrink-0 px-1.5 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 text-[9px] font-semibold uppercase tracking-wider">Leader</span>
+                                <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-400/15 text-amber-300 border border-amber-400/40 text-[9px] font-semibold uppercase tracking-wider">
+                                  <Crown className="w-2.5 h-2.5" /> Leader
+                                </span>
                               )}
                             </span>
                             <span className="block text-[10px] text-white/40 truncate">

@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import {
-  CalendarDays, ChevronLeft, ChevronRight, Loader2, Plus, Repeat, Trash, Users, X,
+  CalendarDays, ChevronLeft, ChevronRight, Loader2, Plus, Repeat, RefreshCw, Trash, Users, X,
 } from 'lucide-react';
 
 import { apiFetch, errorMessage, readJson } from '@/lib/apiClient';
@@ -68,6 +68,8 @@ export default function AdminEventsPage() {
   const [repeatUntil, setRepeatUntil] = useState('');
   const [audience, setAudience] = useState<'cohort' | 'everyone'>('cohort');
   const [saving, setSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -159,6 +161,29 @@ export default function AdminEventsPage() {
 
   const shiftMonth = (delta: number) =>
     setCursor((c) => new Date(c.getFullYear(), c.getMonth() + delta, 1));
+
+  /** Pushes department events into the admin's own Google Calendar. */
+  const syncToGoogle = async () => {
+    setSyncing(true);
+    setSyncMessage('');
+    setError('');
+    try {
+      const data = await readJson<{ syncedCount: number; skipped: number }>(
+        await apiFetch('/api/calendar/events', { method: 'POST' })
+      );
+      setSyncMessage(
+        data.syncedCount === 0
+          ? 'Nothing to sync — there are no upcoming events.'
+          : `Added ${data.syncedCount} event${data.syncedCount === 1 ? '' : 's'} to your Google Calendar.` +
+            (data.skipped ? ` ${data.skipped} could not be added.` : '')
+      );
+      setTimeout(() => setSyncMessage(''), 6000);
+    } catch (err) {
+      setError(errorMessage(err, 'Could not sync to Google Calendar.'));
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   /* Rendered twice — as the desktop column and as the phone sheet — so the two
      can never drift apart. */
@@ -338,10 +363,24 @@ export default function AdminEventsPage() {
         >
           Today
         </button>
+        <button
+          onClick={syncToGoogle}
+          disabled={syncing || events.length === 0}
+          title="Add these events to your own Google Calendar"
+          className="px-3.5 py-2 rounded-xl border border-primary/40 bg-primary/10 hover:bg-primary/20 text-xs font-mono font-bold text-primary transition cursor-pointer flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {syncing
+            ? <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> Syncing…</>
+            : <><CalendarDays className="w-3.5 h-3.5" /> Sync to Google Calendar</>}
+        </button>
         <span className="px-3 py-2 rounded-xl border border-outline-variant bg-white/3 text-[10px] font-mono uppercase tracking-wider text-outline">
           {events.length} scheduled
         </span>
       </SectionHeader>
+
+      {syncMessage && (
+        <div className="p-3.5 rounded-xl bg-primary/10 border border-primary/25 text-primary text-xs font-mono">{syncMessage}</div>
+      )}
 
       {error && <PanelError message={error} onRetry={load} />}
 
