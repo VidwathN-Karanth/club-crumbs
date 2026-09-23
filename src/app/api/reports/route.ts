@@ -1,11 +1,23 @@
 import { NextResponse } from 'next/server';
-import { requireClubManager } from '@/lib/authz';
+import { requireAdmin, requireClubManager } from '@/lib/authz';
 import { isCohort } from '@/lib/cohorts';
 import { Report } from '@/lib/models/Report';
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const cohort = url.searchParams.get('cohort');
+
+  // Admins can list every club's reports at once.
+  if (cohort === 'all') {
+    const guard = await requireAdmin();
+    if (!guard.ok) return guard.response;
+    try {
+      return NextResponse.json({ reports: await Report.findForCohort(null) });
+    } catch (err: any) {
+      console.error('[reports/GET] failed:', err);
+      return NextResponse.json({ error: err.message || 'Could not load reports.' }, { status: 500 });
+    }
+  }
 
   if (!isCohort(cohort)) {
     return NextResponse.json(

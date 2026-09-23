@@ -511,9 +511,13 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // Prevent syncing empty/null states during logout or unauthenticated phases
-      if (!state.isAuthenticated || !state.user) {
-        serverLog(`SyncProvider - store is unauthenticated or user is null, skipping sync. isAuthenticated=${state.isAuthenticated}, hasUser=${!!state.user}`);
+      // Prevent syncing empty/null states during logout (which nulls `user`).
+      // Deliberately NOT gated on `isAuthenticated`: only the member dashboard
+      // calls login(), so that gate silently dropped every leader/admin edit
+      // (quick launchers, courses) — the extension never saw them. Clerk
+      // sign-in and the roster check above already gate this effect.
+      if (!state.user) {
+        serverLog('SyncProvider - store user is null, skipping sync');
         return;
       }
 

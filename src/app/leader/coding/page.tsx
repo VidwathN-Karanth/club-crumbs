@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Calendar, Clock, Code2, ExternalLink, Plus, Trash2, X } from 'lucide-react';
+import { Calendar, Clock, Code2, ExternalLink, Plus, Trash2, Trophy, X } from 'lucide-react';
 
 import { apiFetch, errorMessage, readJson } from '@/lib/apiClient';
 import { formatDate, formatDateTime } from '@/lib/dateFormat';
 import { tournamentFor } from '@/lib/cohorts';
+import { pointsConfig } from '@/lib/points';
 import { useLeader } from '../LeaderContext';
 
 interface CodingEvent {
@@ -18,7 +19,15 @@ interface CodingEvent {
   registration_start: string | null;
   link: string;
   platform: string | null;
+  results?: { place: number; email: string; name: string }[];
 }
+
+interface Member { email: string; name: string }
+
+const PLACES = [1, 2, 3] as const;
+const PLACE_LABEL: Record<number, string> = { 1: '1st', 2: '2nd', 3: '3rd' };
+/** How a member shows in the search box; the email in brackets is the key. */
+const memberLabel = (m: Member) => `${m.name} (${m.email})`;
 
 const EMPTY = { name: '', competition_date: '', start_time: '', end_time: '', registration_start: '', link: '' };
 
@@ -50,14 +59,22 @@ export default function LeaderCodingPage() {
 
   const [confirmDelete, setConfirmDelete] = useState<CodingEvent | null>(null);
 
+  const [members, setMembers] = useState<Member[]>([]);
+  const [resultsFor, setResultsFor] = useState<CodingEvent | null>(null);
+  // One search box per place, holding what the leader typed/picked.
+  const [picks, setPicks] = useState<Record<number, string>>({});
+  const [savingResults, setSavingResults] = useState(false);
+  const [resultsError, setResultsError] = useState('');
+
   const load = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
-      const data = await readJson<{ events: CodingEvent[] }>(
+      const data = await readJson<{ events: CodingEvent[]; members?: Member[] }>(
         await apiFetch(`/api/coding/events?cohort=${encodeURIComponent(cohort)}`)
       );
       setEvents(Array.isArray(data.events) ? data.events : []);
+      setMembers(Array.isArray(data.members) ? data.members : []);
     } catch (err) {
       setError(errorMessage(err, 'Could not load coding events.'));
     } finally {
@@ -125,6 +142,48 @@ export default function LeaderCodingPage() {
     }
   };
 
+  const openResults = (ev: CodingEvent) => {
+    const initial: Record<number, string> = {};
+    for (const r of ev.results || []) initial[r.place] = memberLabel(r);
+    setPicks(initial);
+    setResultsError('');
+    setResultsFor(ev);
+  };
+
+  /** Accepts a picked "Name (email)", a bare email, or an exact name. */
+  const resolvePick = (text: string): Member | null => {
+    const t = text.trim().toLowerCase();
+    if (!t) return null;
+    return members.find((m) => memberLabel(m).toLowerCase() === t || m.email === t || m.name.toLowerCase() === t) || null;
+  };
+
+  const saveResults = async () => {
+    if (!resultsFor) return;
+    const results: { place: number; email: string }[] = [];
+    for (const place of PLACES) {
+      const text = picks[place] || '';
+      if (!text.trim()) continue;
+      const m = resolvePick(text);
+      if (!m) { setResultsError(`${PLACE_LABEL[place]} place: pick a member from the list.`); return; }
+      results.push({ place, email: m.email });
+    }
+    setSavingResults(true);
+    setResultsError('');
+    try {
+      const { event } = await readJson<{ event: CodingEvent }>(await apiFetch(`/api/coding/events/${resultsFor.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ results }),
+      }));
+      setEvents((prev) => prev.map((e) => (e.id === event.id ? { ...e, results: event.results } : e)));
+      setResultsFor(null);
+    } catch (err) {
+      setResultsError(errorMessage(err, 'Could not save the results.'));
+    } finally {
+      setSavingResults(false);
+    }
+  };
+
   const input = 'w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-white/30';
 
   return (
@@ -175,14 +234,29 @@ export default function LeaderCodingPage() {
                     <span className="ml-2 align-middle text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded border border-white/15 text-white/60">{ev.platform}</span>
                   )}
                 </h3>
-                <button onClick={() => setConfirmDelete(ev)} className="p-1.5 rounded-lg border border-white/10 hover:border-rose-400 text-white/50 hover:text-rose-400 transition cursor-pointer shrink-0" title="Delete">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button onClick={() => openResults(ev)} className="p-1.5 rounded-lg border border-white/10 hover:border-amber-400 text-white/50 hover:text-amber-400 transition cursor-pointer" title="Results (1st / 2nd / 3rd)">
+                    <Trophy className="w-3.5 h-3.5" />
+                  </button>
+                  <button onClick={() => setConfirmDelete(ev)} className="p-1.5 rounded-lg border border-white/10 hover:border-rose-400 text-white/50 hover:text-rose-400 transition cursor-pointer" title="Delete">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
               <div className="text-[11px] text-white/50 font-mono space-y-1">
                 {ev.competition_date && <div className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> {formatDate(ev.competition_date)}{ev.start_time ? ` · ${ev.start_time}` : ''}{ev.end_time ? `–${ev.end_time}` : ''}</div>}
                 {ev.registration_start && <div className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Reg. opens {formatDateTime(new Date(ev.registration_start))}</div>}
               </div>
+              {ev.results && ev.results.length > 0 && (
+                <div className="text-[11px] font-mono space-y-0.5">
+                  {ev.results.map((r) => (
+                    <div key={r.place} className="flex items-center gap-1.5 text-amber-300/90">
+                      <Trophy className="w-3 h-3" /> {PLACE_LABEL[r.place]} · {r.name}
+                      <span className="text-white/30">+{pointsConfig.eventPlaces[r.place]}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
               <a href={ev.link} target="_blank" rel="noopener noreferrer" className="mt-auto flex items-center gap-1.5 text-[11px] text-cyber-blue hover:underline truncate">
                 <ExternalLink className="w-3.5 h-3.5 shrink-0" /> {ev.link}
               </a>
@@ -233,6 +307,45 @@ export default function LeaderCodingPage() {
               <div className="flex justify-end gap-3 pt-1">
                 <button onClick={() => setCreating(false)} disabled={saving} className="px-4 py-2 border border-white/10 text-white/60 hover:text-white rounded-xl text-xs font-bold cursor-pointer disabled:opacity-40">CANCEL</button>
                 <button onClick={create} disabled={saving || !form.name.trim() || !form.link.trim()} className="px-4 py-2 bg-white/10 border border-white/15 hover:bg-white/15 text-white rounded-xl text-xs font-bold cursor-pointer disabled:opacity-40">{saving ? 'CREATING…' : 'CREATE'}</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Results modal */}
+      <AnimatePresence>
+        {resultsFor && (
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => !savingResults && setResultsFor(null)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} role="dialog" aria-modal="true" className="glass-panel border border-white/15 p-6 rounded-2xl max-w-md w-full relative z-10 bg-[#1E2126] space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-white flex items-center gap-2"><Trophy className="w-4 h-4 text-amber-400" /> Results · {resultsFor.name}</h3>
+                <button onClick={() => setResultsFor(null)} className="text-white/50 hover:text-white cursor-pointer"><X className="w-4 h-4" /></button>
+              </div>
+              <p className="text-[11px] text-white/40 font-mono">Search a member by name or email. Points go straight to the leaderboard.</p>
+              {/* Native datalist: a searchable dropdown with no extra code. */}
+              <datalist id="club-members">
+                {members.map((m) => <option key={m.email} value={memberLabel(m)} />)}
+              </datalist>
+              {PLACES.map((place) => (
+                <div key={place}>
+                  <label className="text-[10px] font-mono uppercase text-white/40">
+                    {PLACE_LABEL[place]} place · +{pointsConfig.eventPlaces[place]} pts
+                  </label>
+                  <input
+                    list="club-members"
+                    className={`${input} mt-1`}
+                    value={picks[place] || ''}
+                    onChange={(e) => setPicks({ ...picks, [place]: e.target.value })}
+                    placeholder="Search members..."
+                  />
+                </div>
+              ))}
+              {resultsError && <p className="text-[11px] text-rose-300 font-mono">{resultsError}</p>}
+              <div className="flex justify-end gap-3 pt-1">
+                <button onClick={() => setResultsFor(null)} disabled={savingResults} className="px-4 py-2 border border-white/10 text-white/60 hover:text-white rounded-xl text-xs font-bold cursor-pointer disabled:opacity-40">CANCEL</button>
+                <button onClick={saveResults} disabled={savingResults} className="px-4 py-2 bg-white/10 border border-white/15 hover:bg-white/15 text-white rounded-xl text-xs font-bold cursor-pointer disabled:opacity-40">{savingResults ? 'SAVING…' : 'SAVE RESULTS'}</button>
               </div>
             </motion.div>
           </div>

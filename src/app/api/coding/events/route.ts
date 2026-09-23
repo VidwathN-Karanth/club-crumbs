@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { requireClubManager } from '@/lib/authz';
 import { isCohort, isTournamentClub, tournamentFor } from '@/lib/cohorts';
 import { Event } from '@/lib/models/Event';
+import { memberListForCohort } from '@/lib/clubMembers';
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -28,7 +29,9 @@ export async function GET(request: Request) {
     .order('created_at', { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ events: data || [], config: tournamentFor(cohort) });
+  // Members feed the results picker (1st / 2nd / 3rd place).
+  const members = await memberListForCohort(cohort).catch(() => []);
+  return NextResponse.json({ events: data || [], config: tournamentFor(cohort), members });
 }
 
 export async function POST(request: Request) {

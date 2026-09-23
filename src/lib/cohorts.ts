@@ -44,6 +44,12 @@ export const CLUB_TOURNAMENTS: Partial<Record<Cohort, ClubTournament>> = {
     linkPlaceholder: 'https://ctf.example.com/...',
     actionLabel: 'Enter the CTF',
   },
+  DevStudio: {
+    section: 'Coding',
+    linkLabel: 'Competition link',
+    linkPlaceholder: 'https://...',
+    actionLabel: 'Register / Start',
+  },
 };
 
 export function tournamentFor(cohort: Cohort | null | undefined): ClubTournament | null {

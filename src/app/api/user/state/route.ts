@@ -88,7 +88,23 @@ export async function GET() {
       throw error;
     }
 
-    return NextResponse.json({ state: data?.state || null, cohort });
+    // A row the extension created first (adding a launcher before the portal
+    // was ever opened) has no `user`. Staff never run login(), so without one
+    // the client would refuse to sync their edits back.
+    const state = data?.state || null;
+    const isStaff = requester.isAdmin || requester.ledCohorts.length > 0;
+    if (state && !state.user && isStaff) {
+      state.user = {
+        name: requester.name,
+        email: requester.email,
+        streakCount: 0,
+        totalStudyHours: 0,
+        isOnboarded: true,
+        freeBlocks: [],
+      };
+    }
+
+    return NextResponse.json({ state, cohort });
   } catch (error: any) {
     console.error('Server GET state failed:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

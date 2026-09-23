@@ -72,12 +72,11 @@ function mapRow(row: DatabaseReportRow): ReportRow {
 }
 
 export class Report {
-  static async findForCohort(cohort: Cohort): Promise<ReportRow[]> {
-    const { data, error } = await supabaseAdmin
-      .from('event_reports')
-      .select('*')
-      .eq('cohort', cohort)
-      .order('created_at', { ascending: false });
+  /** Pass null for every club (admin overview). */
+  static async findForCohort(cohort: Cohort | null): Promise<ReportRow[]> {
+    let query = supabaseAdmin.from('event_reports').select('*');
+    if (cohort) query = query.eq('cohort', cohort);
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) throw new Error(`Failed to load reports: ${error.message}`);
     return (data || []).map((r: unknown) => mapRow(r as DatabaseReportRow));

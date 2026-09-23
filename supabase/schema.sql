@@ -319,6 +319,10 @@ create table if not exists public.coding_events (
   created_at         timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
+-- Podium set by the leader after the competition: [{ place: 1|2|3, email, name }].
+-- Points per place live in src/lib/points.ts and are summed into the leaderboard.
+alter table public.coding_events add column if not exists results jsonb not null default '[]'::jsonb;
+
 alter table public.coding_events enable row level security;
 create index if not exists idx_coding_events_cohort on public.coding_events(cohort, competition_date);
 

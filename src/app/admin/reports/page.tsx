@@ -42,6 +42,9 @@ export default function AdminReportsPage() {
   const { selectedCohort } = useAdmin();
 
   const [reports, setReports] = useState<ReportItem[]>([]);
+  // Admins see every club's reports by default; toggle to just the selected club.
+  const [showAll, setShowAll] = useState(true);
+  const scope = showAll ? 'all clubs' : selectedCohort;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -55,15 +58,15 @@ export default function AdminReportsPage() {
     setError('');
     try {
       const data = await readJson<{ reports: ReportItem[] }>(
-        await apiFetch(`/api/reports/?cohort=${encodeURIComponent(selectedCohort)}`)
+        await apiFetch(`/api/reports/?cohort=${showAll ? 'all' : encodeURIComponent(selectedCohort)}`)
       );
       setReports(data.reports || []);
     } catch (err) {
-      setError(errorMessage(err, `Could not load reports for ${selectedCohort}.`));
+      setError(errorMessage(err, `Could not load reports for ${scope}.`));
     } finally {
       setLoading(false);
     }
-  }, [selectedCohort]);
+  }, [selectedCohort, showAll, scope]);
 
   useEffect(() => {
     loadReports();
@@ -90,7 +93,7 @@ export default function AdminReportsPage() {
 
       setCreateModalOpen(false);
       setNewTitle('');
-      router.push(`/leader/reports/${data.report.id}/edit`);
+      router.push(`/admin/reports/${data.report.id}/edit`);
     } catch (err) {
       setCreateError(errorMessage(err, 'Could not create report.'));
       setCreating(false);
@@ -121,8 +124,14 @@ export default function AdminReportsPage() {
       <SectionHeader
         icon={FileSpreadsheet}
         title="Event Reports"
-        subtitle={`Official A4 reports, audits, and exportable documentation for ${selectedCohort}.`}
+        subtitle={`Official A4 reports, audits, and exportable documentation for ${scope}.`}
       >
+        <button
+          onClick={() => setShowAll((v) => !v)}
+          className="px-3.5 py-2 rounded-xl border border-outline-variant text-xs font-mono text-outline hover:text-on-surface transition cursor-pointer"
+        >
+          {showAll ? `Only ${selectedCohort}` : 'All clubs'}
+        </button>
         <button
           onClick={() => setCreateModalOpen(true)}
           className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-black text-xs font-mono font-bold transition cursor-pointer shadow-lg shadow-primary/20"
@@ -131,7 +140,7 @@ export default function AdminReportsPage() {
         </button>
       </SectionHeader>
 
-      {loading && <PanelLoading message={`Loading reports for ${selectedCohort}...`} />}
+      {loading && <PanelLoading message={`Loading reports for ${scope}...`} />}
       {error && <PanelError message={error} onRetry={loadReports} />}
 
       {!loading && !error && reports.length === 0 && (
@@ -141,7 +150,7 @@ export default function AdminReportsPage() {
               <FileText className="w-8 h-8 text-outline" />
             </div>
             <div className="font-mono text-sm text-on-surface font-semibold">
-              No Reports in {selectedCohort}
+              No Reports in {scope}
             </div>
             <p className="text-xs text-outline max-w-sm">
               Create an official A4 event report with locked institutional headers, images, and signature blocks.
@@ -169,7 +178,7 @@ export default function AdminReportsPage() {
                     {report.status}
                   </span>
                   <span className="text-[10px] font-mono text-outline">
-                    {formatShortDate(new Date(report.createdAt))}
+                    {report.cohort} · {formatShortDate(new Date(report.createdAt))}
                   </span>
                 </div>
 
@@ -187,7 +196,7 @@ export default function AdminReportsPage() {
               <div className="pt-3 border-t border-outline-variant/60 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5">
                   <button
-                    onClick={() => router.push(`/leader/reports/${report.id}/edit`)}
+                    onClick={() => router.push(`/admin/reports/${report.id}/edit`)}
                     className="p-1.5 rounded-lg border border-outline-variant hover:border-primary text-outline hover:text-primary transition cursor-pointer"
                     title="Edit in Report Builder"
                   >
@@ -195,7 +204,7 @@ export default function AdminReportsPage() {
                   </button>
 
                   <button
-                    onClick={() => router.push(`/leader/reports/${report.id}/preview`)}
+                    onClick={() => router.push(`/admin/reports/${report.id}/preview`)}
                     className="p-1.5 rounded-lg border border-outline-variant hover:border-primary text-outline hover:text-primary transition cursor-pointer"
                     title="Print / Save as PDF"
                   >

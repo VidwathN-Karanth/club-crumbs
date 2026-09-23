@@ -228,7 +228,7 @@ export default function AdminEventsPage() {
             <div className="flex items-center gap-2.5 mt-2 flex-wrap">
               <span className="inline-flex items-center gap-1 text-[8px] font-mono font-bold uppercase tracking-wider text-outline">
                 <Users className="w-2.5 h-2.5" />
-                {e.audience === 'Everyone' ? 'Every year' : e.audience}
+                {e.audience === 'Everyone' ? 'All clubs' : e.audience}
               </span>
               {e.repeat && e.repeat !== 'none' && (
                 <span className="inline-flex items-center gap-1 text-[8px] font-mono font-bold uppercase tracking-wider text-primary">
@@ -301,7 +301,7 @@ export default function AdminEventsPage() {
             <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-outline-variant">
               {([
                 { key: 'cohort' as const, label: `${selectedCohort} only` },
-                { key: 'everyone' as const, label: 'Every year' },
+                { key: 'everyone' as const, label: 'All clubs' },
               ]).map((opt) => (
                 <button
                   key={opt.key}
@@ -489,7 +489,7 @@ export default function AdminEventsPage() {
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /> {selectedCohort} only
                 </span>
                 <span className="flex items-center gap-1.5 text-[9px] font-mono text-outline">
-                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400" /> Every year
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400" /> All clubs
                 </span>
               </div>
             </div>

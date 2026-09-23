@@ -48,6 +48,9 @@ window.addEventListener('message', (event) => {
         );
       })
       .catch((error) => {
+        // A copy orphaned by an extension update/reinstall: stay quiet and let
+        // the freshly injected copy answer instead of reporting a failure.
+        if (/context invalidated/i.test(String((error && error.message) || error))) return;
         window.postMessage(
           {
             type: 'layora:connect:result',

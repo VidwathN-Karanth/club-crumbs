@@ -21,7 +21,27 @@ const REFRESH_ALARM = 'layora-refresh';
 ext.runtime.onInstalled.addListener(() => {
   ext.alarms.create(REFRESH_ALARM, { periodInMinutes: 15 });
   void migrateLegacy().then(refresh);
+  void injectIntoOpenTabs();
 });
+
+/**
+ * Manifest content scripts only reach pages loaded AFTER install, so a student
+ * who installs from the store and goes back to the already-open /extension
+ * tab would find Connect dead until they refreshed. Inject the bridge into
+ * those tabs now instead.
+ */
+async function injectIntoOpenTabs() {
+  if (!ext.scripting || !ext.tabs) return;
+  const patterns = ext.runtime.getManifest().content_scripts?.[0]?.matches || [];
+  try {
+    const tabs = await ext.tabs.query({ url: patterns });
+    await Promise.all(tabs.map((tab) =>
+      ext.scripting.executeScript({ target: { tabId: tab.id }, files: ['connect.js'] }).catch(() => {})
+    ));
+  } catch {
+    // Worst case the student refreshes, same as before.
+  }
+}
 
 ext.runtime.onStartup.addListener(() => {
   void migrateLegacy().then(refresh);

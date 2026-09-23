@@ -10,5 +10,11 @@ export const pointsConfig = {
   },
   codechef: {
     perSolve: 5
-  }
+  },
+  /** Club competition podium (Coding / Gym results), by place. */
+  eventPlaces: {
+    1: 500,
+    2: 400,
+    3: 300
+  } as Record<number, number>
 };

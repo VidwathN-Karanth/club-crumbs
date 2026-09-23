@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, use } from 'react';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { apiFetch, errorMessage, readJson } from '@/lib/apiClient';
 
@@ -18,6 +18,8 @@ export default function LeaderReportEditPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
+  // Shared by /leader and /admin (the admin route re-exports this page).
+  const base = usePathname().startsWith('/admin') ? '/admin/reports' : '/leader/reports';
 
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -66,7 +68,7 @@ export default function LeaderReportEditPage({
       <div className="h-screen w-screen flex flex-col items-center justify-center gap-4 bg-[#16181C] text-white p-6 text-center font-mono">
         <div className="text-rose-400 text-sm">{error || 'Report not found'}</div>
         <button
-          onClick={() => router.push('/leader/reports')}
+          onClick={() => router.push(base)}
           className="px-4 py-2 bg-white/10 hover:bg-white/15 text-xs rounded-xl transition"
         >
           Back to Reports
@@ -75,5 +77,5 @@ export default function LeaderReportEditPage({
     );
   }
 
-  return <ReportEditor report={report} backUrl="/leader/reports" />;
+  return <ReportEditor report={report} backUrl={base} />;
 }

@@ -801,7 +801,7 @@ export default function ReportEditor({ report, backUrl }: ReportEditorProps) {
     }
   };
 
-  const previewUrl = `/leader/reports/${report.id}/preview/`;
+  const previewUrl = `${backUrl || '/leader/reports'}/${report.id}/preview/`;
 
   // Rendered through a portal on document.body so the full-screen editor
   // escapes the portal layout's stacking/containing-block contexts and reliably

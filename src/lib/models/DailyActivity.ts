@@ -258,6 +258,10 @@ export class DailyActivity {
       }
     }
 
+    // 4.6 Competition podiums (Coding / Gym results). Winners score even with
+    // no linked coding handle, so they are added to the board if missing.
+    await addEventPoints(leaderboardMap, users, { startDate, endDate, allowedEmails });
+
     // 5. Convert to array and sort descending by totalPoints
     const sortedLeaderboard = Object.values(leaderboardMap).sort((a, b) => {
       if (b.totalPoints !== a.totalPoints) {
@@ -314,5 +318,69 @@ export class DailyActivity {
       throw new Error(`Failed to measure the activity ledger: ${error.message}`);
     }
     return { rows: count ?? 0 };
+  }
+}
+
+interface EventResult { place: number; email: string; name?: string }
+
+/** Folds 1st/2nd/3rd place points from club competitions into the board. */
+async function addEventPoints(
+  board: { [key: string]: LeaderboardUser },
+  users: { id: string; email: string; name: string }[],
+  opts: { startDate: string | null; endDate: string | null; allowedEmails: Set<string> | null }
+): Promise<void> {
+  const { data, error } = await supabaseAdmin
+    .from('coding_events')
+    .select('results, competition_date, created_at');
+  // Column not migrated yet, or a blip: the rest of the board still stands.
+  if (error) {
+    console.warn('[leaderboard] event results skipped:', error.message);
+    return;
+  }
+
+  const pointsByEmail = new Map<string, { points: number; name: string }>();
+  for (const row of (data || []) as { results: EventResult[] | null; competition_date: string | null; created_at: string }[]) {
+    const day = row.competition_date || row.created_at.slice(0, 10);
+    if (opts.startDate && day < opts.startDate) continue;
+    if (opts.endDate && day > opts.endDate) continue;
+    for (const r of Array.isArray(row.results) ? row.results : []) {
+      const email = (r.email || '').trim().toLowerCase();
+      const pts = pointsConfig.eventPlaces[r.place] || 0;
+      if (!email || !pts) continue;
+      if (opts.allowedEmails && !opts.allowedEmails.has(email)) continue;
+      const cur = pointsByEmail.get(email) || { points: 0, name: r.name || email.split('@')[0] };
+      cur.points += pts;
+      pointsByEmail.set(email, cur);
+    }
+  }
+  if (pointsByEmail.size === 0) return;
+
+  const idByEmail = new Map(users.map((u) => [(u.email || '').trim().toLowerCase(), u.id]));
+
+  // Winners without a linked handle are not in `users`; find their account so
+  // the row keys on the real id (self-highlighting on the member board).
+  const missing = [...pointsByEmail.keys()].filter((e) => !idByEmail.has(e));
+  if (missing.length > 0) {
+    const { data: extra } = await supabaseAdmin.from('users').select('id, email').in('email', missing);
+    for (const u of (extra || []) as { id: string; email: string }[]) {
+      idByEmail.set((u.email || '').trim().toLowerCase(), u.id);
+    }
+  }
+
+  for (const [email, { points, name }] of pointsByEmail) {
+    const id = idByEmail.get(email) || `email:${email}`;
+    board[id] ??= {
+      userId: id,
+      name,
+      leetcodeUsername: null,
+      githubUsername: null,
+      codechefUsername: null,
+      linkedinUrl: null,
+      totalPoints: 0,
+      totalLeetcodeSolved: 0,
+      totalGithubContributions: 0,
+      totalCodechefSolved: 0,
+    };
+    board[id].totalPoints += points;
   }
 }

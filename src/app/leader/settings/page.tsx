@@ -1,13 +1,11 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { ChevronRight, Lock, Puzzle, Settings, User } from 'lucide-react';
 import ResumePanel from '@/components/ResumePanel';
 import { RemindersControl, InterfacePanel } from '@/components/DeviceSettings';
 import { useLeader } from '../LeaderContext';
 
 export default function LeaderSettingsPage() {
-  const router = useRouter();
   const { leaderName, leaderEmail } = useLeader();
 
   return (
@@ -58,7 +56,9 @@ export default function LeaderSettingsPage() {
 
       {/* Browser extension — opens the shared pairing page and returns here. */}
       <button
-        onClick={() => router.push('/extension?return=/leader/settings')}
+        // Full load, not router.push: the extension's bridge is a content script
+        // that only injects on a real page load of /extension.
+        onClick={() => window.location.assign('/extension?return=/leader/settings')}
         className="w-full glass-card rounded-2xl p-5 flex items-center justify-between gap-3 hover:border-primary/40 border border-transparent transition cursor-pointer text-left"
       >
         <span className="flex items-center gap-3">

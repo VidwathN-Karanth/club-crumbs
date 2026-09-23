@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, use } from 'react';
 import { createPortal } from 'react-dom';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ArrowLeft, Download, FileDown, Loader2, Printer } from 'lucide-react';
 import { apiFetch, errorMessage, readJson } from '@/lib/apiClient';
 import { downloadReportDocx } from '@/lib/docxExport';
@@ -15,6 +15,8 @@ export default function LeaderReportPreviewPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
+  // Shared by /leader and /admin (the admin route re-exports this page).
+  const base = usePathname().startsWith('/admin') ? '/admin/reports' : '/leader/reports';
 
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -88,7 +90,7 @@ export default function LeaderReportPreviewPage({
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#16181C] text-white p-6 font-mono text-center">
         <div className="text-rose-400 text-sm">{error || 'Report not found'}</div>
         <button
-          onClick={() => router.push('/leader/reports')}
+          onClick={() => router.push(base)}
           className="px-4 py-2 bg-white/10 hover:bg-white/15 text-xs rounded-xl transition"
         >
           Back to Reports
@@ -112,7 +114,7 @@ export default function LeaderReportPreviewPage({
       {/* ── FLOATING CONTROLS (HIDDEN DURING PRINT) ── */}
       <nav className="no-print sticky top-4 z-50 flex items-center gap-2 bg-[#1E2126]/95 backdrop-blur-md border border-white/15 rounded-2xl px-4 py-2.5 shadow-2xl text-white font-mono text-xs mb-6">
         <button
-          onClick={() => router.push(`/leader/reports/${id}/edit`)}
+          onClick={() => router.push(`${base}/${id}/edit`)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-white/10 text-white/70 hover:text-white transition cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" /> Editor
