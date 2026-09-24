@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
-import { TASK_RETENTION_DAYS } from '@/lib/limits';
+import { CHAT_RETENTION_DAYS, TASK_RETENTION_DAYS } from '@/lib/limits';
 
 /**
  * Weekly task purge. Tasks live inside each user's user_states.state blob, so
@@ -31,6 +31,82 @@ function isOld(task: StoredTask, cutoff: number): boolean {
   return Number.isFinite(t) && t < cutoff;
 }
 
+const CHAT_BUCKET = 'chat-images';
+const CHAT_BUCKET_MARKER = `/${CHAT_BUCKET}/`;
+
+/** The storage key of a chat image we host, or null (Drive / external URL). */
+function chatImageKey(url: string | null): string | null {
+  if (!url) return null;
+  const at = url.indexOf(CHAT_BUCKET_MARKER);
+  return at === -1 ? null : decodeURIComponent(url.slice(at + CHAT_BUCKET_MARKER.length).split('?')[0]);
+}
+
+/**
+ * Chat cleanup, never touching pinned messages:
+ *  1. messages removed more than CHAT_RETENTION_DAYS ago are hard-deleted
+ *     (and their stored image with them);
+ *  2. unpinned messages older than that lose their Supabase-hosted image.
+ *     Drive-hosted images cost us nothing and are left alone.
+ *
+ * ponytail: 1000 rows per step per run; a backlog drains over a few weeks.
+ */
+async function purgeChat() {
+  const cutoffIso = new Date(Date.now() - CHAT_RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data: removed, error: removedError } = await supabaseAdmin
+    .from('club_messages')
+    .select('id, image_url')
+    .not('deleted_at', 'is', null)
+    .lt('deleted_at', cutoffIso)
+    .limit(1000);
+  if (removedError) throw removedError;
+
+  const { data: aged, error: agedError } = await supabaseAdmin
+    .from('club_messages')
+    .select('id, body, image_url')
+    .is('deleted_at', null)
+    .is('pinned_at', null)
+    .lt('created_at', cutoffIso)
+    .like('image_url', `%${CHAT_BUCKET_MARKER}%`)
+    .limit(1000);
+  if (agedError) throw agedError;
+
+  const keys = [...(removed ?? []), ...(aged ?? [])]
+    .map((r) => chatImageKey((r as { image_url: string | null }).image_url))
+    .filter((k): k is string => !!k);
+
+  // Storage first: if it fails the rows stay, and the next run retries.
+  if (keys.length) {
+    const { error } = await supabaseAdmin.storage.from(CHAT_BUCKET).remove(keys);
+    if (error) throw error;
+  }
+
+  const removedIds = (removed ?? []).map((r) => (r as { id: string }).id);
+  if (removedIds.length) {
+    const { error } = await supabaseAdmin.from('club_messages').delete().in('id', removedIds);
+    if (error) throw error;
+  }
+
+  const agedRows = (aged ?? []) as { id: string; body: string }[];
+  if (agedRows.length) {
+    const { error } = await supabaseAdmin
+      .from('club_messages')
+      .update({ image_url: null })
+      .in('id', agedRows.map((r) => r.id));
+    if (error) throw error;
+    // An image-only message would otherwise render as an empty bubble.
+    const emptied = agedRows.filter((r) => !r.body.trim()).map((r) => r.id);
+    if (emptied.length) {
+      await supabaseAdmin
+        .from('club_messages')
+        .update({ body: `(image removed after ${CHAT_RETENTION_DAYS} days)` })
+        .in('id', emptied);
+    }
+  }
+
+  return { chatMessagesDeleted: removedIds.length, chatImagesRemoved: keys.length };
+}
+
 export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) {
@@ -38,6 +114,15 @@ export async function GET(request: Request) {
   }
   if (request.headers.get('Authorization') !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Chat cleanup runs independently: a failure here must not block the task purge.
+  let chat: Awaited<ReturnType<typeof purgeChat>> | { chatError: string };
+  try {
+    chat = await purgeChat();
+  } catch (err) {
+    console.error('weekly-purge: chat cleanup failed:', err);
+    chat = { chatError: (err as { message?: string })?.message ?? String(err) };
   }
 
   const cutoff = Date.now() - TASK_RETENTION_DAYS * 24 * 60 * 60 * 1000;
@@ -92,10 +177,10 @@ export async function GET(request: Request) {
     users_touched: usersTouched,
     tasks_archived: tasksArchived,
     tasks_deleted: tasksDeleted,
-    note: `retention ${TASK_RETENTION_DAYS}d`,
+    note: `retention ${TASK_RETENTION_DAYS}d; chat ${JSON.stringify(chat)}`,
   });
 
-  return NextResponse.json({ ok: true, usersTouched, tasksArchived, tasksDeleted });
+  return NextResponse.json({ ok: true, usersTouched, tasksArchived, tasksDeleted, ...chat });
 }
 
 export const dynamic = 'force-dynamic';

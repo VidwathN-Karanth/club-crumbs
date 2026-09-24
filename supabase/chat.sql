@@ -55,3 +55,12 @@ alter table public.club_message_reads enable row level security;
 insert into storage.buckets (id, name, public)
 values ('chat-images', 'chat-images', true)
 on conflict (id) do nothing;
+
+-- 4. Pinned announcements
+-- A club manager can pin a message; the feed returns pinned messages alongside
+-- the tail so they stay visible however old they are. Pinned messages are also
+-- exempt from the 90-day image/tombstone cleanup (/api/cron/weekly-purge).
+alter table public.club_messages add column if not exists pinned_at timestamptz;
+
+create index if not exists idx_club_messages_pinned
+  on public.club_messages (cohort, pinned_at desc) where pinned_at is not null;

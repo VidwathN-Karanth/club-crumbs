@@ -17,6 +17,7 @@ export interface ChatMessage {
   imageUrl: string | null;
   edited: boolean;
   deleted: boolean;
+  pinned?: boolean;
   createdAt: string;
 }
 
@@ -51,6 +52,7 @@ export function useClubChat(open: boolean, opts: UseClubChatOptions = {}) {
   const inactive = manage && !cohort;
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [pinned, setPinned] = useState<ChatMessage[]>([]);
   const [unread, setUnread] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -86,7 +88,8 @@ export function useClubChat(open: boolean, opts: UseClubChatOptions = {}) {
     setLoading(true);
     setError('');
     try {
-      const data = await apiJson<{ messages: ChatMessage[] }>(feedUrl(null));
+      const data = await apiJson<{ messages: ChatMessage[]; pinned?: ChatMessage[] }>(feedUrl(null));
+      if (Array.isArray(data.pinned)) setPinned(data.pinned);
       const list = Array.isArray(data.messages) ? data.messages : [];
       seenRef.current = new Set(list.map((m) => m.id));
       cursorRef.current = list.length ? list[list.length - 1].createdAt : null;
@@ -101,7 +104,9 @@ export function useClubChat(open: boolean, opts: UseClubChatOptions = {}) {
   const poll = useCallback(async () => {
     if (inactive) return;
     try {
-      const data = await apiJson<{ messages: ChatMessage[] }>(feedUrl(cursorRef.current));
+      const data = await apiJson<{ messages: ChatMessage[]; pinned?: ChatMessage[] }>(feedUrl(cursorRef.current));
+      // Pins are returned whole on every poll, so a pin/unpin by anyone shows up within one tick.
+      if (Array.isArray(data.pinned)) setPinned(data.pinned);
       const incoming = (Array.isArray(data.messages) ? data.messages : []).filter(
         (m) => !seenRef.current.has(m.id)
       );
@@ -191,7 +196,7 @@ export function useClubChat(open: boolean, opts: UseClubChatOptions = {}) {
       try {
         const fd = new FormData();
         fd.append('cohort', cohort as string);
-        fd.append('file', file);
+        fd.append('file', await compressImage(file));
         const res = await apiFetch('/api/chat/upload', { method: 'POST', body: fd });
         const data = await readJson<{ url: string }>(res);
         return data.url ?? null;
@@ -247,6 +252,7 @@ export function useClubChat(open: boolean, opts: UseClubChatOptions = {}) {
         });
         const data = await readJson<{ message: ChatMessage }>(res);
         setMessages((prev) => prev.map((m) => (m.id === id ? data.message : m)));
+        setPinned((prev) => prev.map((m) => (m.id === id ? data.message : m)));
         return true;
       } catch (err) {
         setError(errorMessage(err, 'Could not edit the message.'));
@@ -265,8 +271,9 @@ export function useClubChat(open: boolean, opts: UseClubChatOptions = {}) {
           method: 'DELETE',
         });
         setMessages((prev) =>
-          prev.map((m) => (m.id === id ? { ...m, deleted: true, body: '', imageUrl: null } : m))
+          prev.map((m) => (m.id === id ? { ...m, deleted: true, pinned: false, body: '', imageUrl: null } : m))
         );
+        setPinned((prev) => prev.filter((m) => m.id !== id));
         return true;
       } catch (err) {
         setError(errorMessage(err, 'Could not delete the message.'));
@@ -276,8 +283,31 @@ export function useClubChat(open: boolean, opts: UseClubChatOptions = {}) {
     [canPost, cohort]
   );
 
+  /** Pin or unpin a message (any manager of the club). */
+  const togglePin = useCallback(
+    async (id: string, pin: boolean): Promise<boolean> => {
+      if (!canPost) return false;
+      try {
+        const res = await apiFetch(`/api/chat/manage/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cohort, pinned: pin }),
+        });
+        const data = await readJson<{ message: ChatMessage }>(res);
+        setMessages((prev) => prev.map((m) => (m.id === id ? data.message : m)));
+        setPinned((prev) => (pin ? [data.message, ...prev.filter((m) => m.id !== id)] : prev.filter((m) => m.id !== id)));
+        return true;
+      } catch (err) {
+        setError(errorMessage(err, 'Could not update the pin.'));
+        return false;
+      }
+    },
+    [canPost, cohort]
+  );
+
   return {
     messages,
+    pinned,
     unread,
     loading,
     error,
@@ -288,5 +318,29 @@ export function useClubChat(open: boolean, opts: UseClubChatOptions = {}) {
     uploadImage,
     editMessage,
     deleteMessage,
+    togglePin,
   };
+}
+
+/**
+ * Re-encode a picked image as WebP, capped at 1600px on the long edge — a
+ * phone photo drops from ~4MB to ~200KB. GIFs keep their animation, and the
+ * original is kept whenever re-encoding would not make it smaller.
+ */
+async function compressImage(file: File): Promise<File> {
+  if (file.type === 'image/gif') return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext('2d')?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    const blob = await new Promise<Blob | null>(r => canvas.toBlob(r, 'image/webp', 0.8));
+    if (!blob || blob.type !== 'image/webp' || blob.size >= file.size) return file;
+    return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.webp', { type: 'image/webp' });
+  } catch {
+    return file;
+  }
 }

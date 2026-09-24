@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { requireClubManager } from '@/lib/authz';
 import { isCohort } from '@/lib/cohorts';
+import { uploadToUserDrive } from '@/lib/googleDrive';
 
 const BUCKET = 'chat-images';
 /** Vercel's serverless request body cap is ~4.5MB — stay under it. */
@@ -16,6 +17,11 @@ const EXT: Record<string, string> = {
 
 /**
  * Upload one image for a club chat message, returning its public URL.
+ *
+ * The image goes into the uploader's own Google Drive, shared "anyone with the
+ * link", so it costs us no storage. Only if Drive is unavailable (no Google
+ * account linked, API error) does it fall back to the Supabase bucket, so
+ * image sharing never breaks. The composer compresses images before upload.
  *
  * Only a club manager (admin, or a leader of that club) may upload, and only
  * into a club they manage — the cohort is a form field, checked with
@@ -50,8 +56,21 @@ export async function POST(request: Request) {
   // cohort/authorId/<timestamp>-<rand>.ext — grouped by club, attributed to the uploader.
   const key = `${cohort}/${guard.requester.userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
+  const bytes = Buffer.from(await file.arrayBuffer());
+
   try {
-    const bytes = Buffer.from(await file.arrayBuffer());
+    const drive = await uploadToUserDrive(
+      guard.requester.userId,
+      { bytes, name: `club-chat-${cohort}-${Date.now()}.${ext}`, mimeType: file.type },
+      true
+    );
+    // Direct image URL (the /view link is an HTML page and won't render in <img>).
+    return NextResponse.json({ url: `https://lh3.googleusercontent.com/d/${drive.id}=w1600` });
+  } catch (err) {
+    console.warn('[chat/upload] Drive upload failed, falling back to storage:', err);
+  }
+
+  try {
     const { error: uploadError } = await supabaseAdmin.storage
       .from(BUCKET)
       .upload(key, bytes, { contentType: file.type, upsert: false });

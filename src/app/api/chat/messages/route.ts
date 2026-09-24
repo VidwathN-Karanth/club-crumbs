@@ -26,8 +26,11 @@ export async function GET(request: Request) {
   const limit = limitRaw ? Number(limitRaw) : undefined;
 
   try {
-    const messages = await ChatMessage.listForCohort(guard.requester.cohort, { after, limit });
-    return NextResponse.json({ messages });
+    const [messages, pinned] = await Promise.all([
+      ChatMessage.listForCohort(guard.requester.cohort, { after, limit }),
+      ChatMessage.listPinned(guard.requester.cohort),
+    ]);
+    return NextResponse.json({ messages, pinned });
   } catch (err) {
     console.error('[chat/messages] read failed:', err);
     return NextResponse.json({ error: 'Could not load the chat.' }, { status: 500 });

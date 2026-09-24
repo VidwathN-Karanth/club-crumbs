@@ -15,3 +15,10 @@ export const TASK_SOFT_WARN = 35;
 
 /** Tasks older than this (days) are archived and purged by the weekly cron. */
 export const TASK_RETENTION_DAYS = 7;
+
+/**
+ * Chat retention (days), applied by the weekly cron: removed messages are
+ * hard-deleted, and images older than this are dropped from Supabase storage.
+ * Pinned messages are never touched.
+ */
+export const CHAT_RETENTION_DAYS = 90;

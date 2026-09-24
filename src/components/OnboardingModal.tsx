@@ -875,6 +875,14 @@ export default function OnboardingModal() {
           </button>
 
           {step < totalSteps ? (
+            <div className="flex items-center gap-2">
+            {/* Saves whatever was entered so far; everything can be filled in later from the dashboard. */}
+            <button
+              onClick={handleSave}
+              className="px-4 py-2 rounded-xl text-xs font-mono text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition cursor-pointer"
+            >
+              Skip for now
+            </button>
             <button
               onClick={() => {
                 setStepErrors({});
@@ -884,6 +892,7 @@ export default function OnboardingModal() {
             >
               Next <ChevronRight className="w-4 h-4" />
             </button>
+            </div>
           ) : (
             <button
               onClick={handleSave}

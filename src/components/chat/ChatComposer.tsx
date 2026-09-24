@@ -5,6 +5,8 @@ import { ImagePlus, Loader2, Send, X } from 'lucide-react';
 
 const MAX_BODY = 4000;
 const MAX_BYTES = 4 * 1024 * 1024;
+/** Stills are shrunk to WebP before upload, so a big phone photo is fine. */
+const MAX_STILL_BYTES = 20 * 1024 * 1024;
 
 /**
  * The message input, rendered only for club managers (leaders/admins). Enter
@@ -45,8 +47,8 @@ export default function ChatComposer({
       setFileError('Only images can be attached.');
       return;
     }
-    if (f.size > MAX_BYTES) {
-      setFileError('Images must be 4MB or smaller.');
+    if (f.type === 'image/gif' ? f.size > MAX_BYTES : f.size > MAX_STILL_BYTES) {
+      setFileError(f.type === 'image/gif' ? 'GIFs must be 4MB or smaller.' : 'Images must be 20MB or smaller.');
       return;
     }
     if (preview) URL.revokeObjectURL(preview);

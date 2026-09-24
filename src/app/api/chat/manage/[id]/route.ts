@@ -34,7 +34,7 @@ async function loadModifiable(
   return { ok: true };
 }
 
-/** Edit a message's text (author, or an admin moderating). */
+/** Edit a message's text (author, or an admin moderating), or pin/unpin it (any manager of the club). */
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -48,6 +48,24 @@ export async function PATCH(
 
   const guard = await requireClubManager(cohort);
   if (!guard.ok) return guard.response;
+
+  // Pin / unpin: any manager of this club may pin any live message in it —
+  // pinning is curation, not authorship, so it is not limited to the author.
+  const pinned = (body as { pinned?: unknown }).pinned;
+  if (typeof pinned === 'boolean') {
+    try {
+      const target = await ChatMessage.findById(id);
+      if (!target || target.deleted || target.cohort !== cohort) {
+        return NextResponse.json({ error: 'Message not found.' }, { status: 404 });
+      }
+      const message = await ChatMessage.setPinned(id, pinned);
+      await pingChatChannel(cohort);
+      return NextResponse.json({ message });
+    } catch (err) {
+      console.error('[chat/manage] pin failed:', err);
+      return NextResponse.json({ error: 'Could not update the pin.' }, { status: 500 });
+    }
+  }
 
   const text = String((body as { body?: string }).body ?? '').trim();
   if (!text) return NextResponse.json({ error: 'A message cannot be empty.' }, { status: 400 });

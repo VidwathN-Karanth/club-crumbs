@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { Eye, X } from 'lucide-react';
+import { Eye, Pin, X } from 'lucide-react';
 
 import ChatComposer from './ChatComposer';
 import ChatMessageList from './ChatMessageList';
@@ -21,6 +21,7 @@ export default function ChatPanel({
   onClose,
   title,
   messages,
+  pinned = [],
   loading,
   error,
   canPost,
@@ -33,6 +34,7 @@ export default function ChatPanel({
   onClose: () => void;
   title: string;
   messages: ChatMessageT[];
+  pinned?: ChatMessageT[];
   loading: boolean;
   error: string;
   canPost?: boolean;
@@ -79,6 +81,32 @@ export default function ChatPanel({
                 <X className="w-5 h-5" strokeWidth={1.5} />
               </button>
             </div>
+
+            {/* Pinned announcements stay on top however far the feed scrolls. */}
+            {pinned.length > 0 && (
+              <div className="shrink-0 max-h-40 overflow-y-auto border-b border-outline-variant bg-primary/5 divide-y divide-outline-variant/50">
+                {pinned.map((m) => (
+                  <div key={m.id} className="flex items-start gap-2 px-4 py-2">
+                    <Pin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-primary" strokeWidth={2} />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-mono text-on-surface-variant/70">{m.senderName}</p>
+                      <p className="text-xs text-on-surface line-clamp-2 whitespace-pre-wrap break-words">
+                        {m.body || (m.imageUrl ? '📷 Image' : '')}
+                      </p>
+                    </div>
+                    {actions?.canManage && actions.onTogglePin && (
+                      <button
+                        onClick={() => actions.onTogglePin?.(m.id, false)}
+                        aria-label="Unpin message"
+                        className="p-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-on-surface/5"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
 
             <ChatMessageList messages={messages} loading={loading} error={error} actions={actions} />
 

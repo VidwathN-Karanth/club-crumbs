@@ -26,6 +26,7 @@ export interface ChatMessageRow {
   imageUrl: string | null;
   edited: boolean;
   deleted: boolean;
+  pinned: boolean;
   createdAt: string;
 }
 
@@ -39,12 +40,15 @@ interface DatabaseChatMessageRow {
   image_url: string | null;
   edited_at: string | null;
   deleted_at: string | null;
+  pinned_at?: string | null; // absent until supabase/chat.sql §4 is applied
   created_at: string;
 }
 
 /** The most a single feed read ever returns. */
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 100;
+/** Pinned messages shown above the feed. */
+const MAX_PINNED = 5;
 
 function mapRow(row: DatabaseChatMessageRow): ChatMessageRow {
   const deleted = row.deleted_at !== null;
@@ -59,6 +63,7 @@ function mapRow(row: DatabaseChatMessageRow): ChatMessageRow {
     imageUrl: deleted ? null : row.image_url,
     edited: row.edited_at !== null,
     deleted,
+    pinned: !deleted && !!row.pinned_at,
     createdAt: row.created_at,
   };
 }
@@ -209,6 +214,36 @@ export const ChatMessage = {
     const { data, error } = await supabaseAdmin
       .from('club_messages')
       .update({ body, edited_at: new Date().toISOString() })
+      .eq('id', id)
+      .select('*')
+      .single();
+    if (error) throw error;
+    return mapRow(data as DatabaseChatMessageRow);
+  },
+
+  /** A club's pinned messages, most recently pinned first. */
+  async listPinned(cohort: Cohort): Promise<ChatMessageRow[]> {
+    const { data, error } = await supabaseAdmin
+      .from('club_messages')
+      .select('*')
+      .eq('cohort', cohort)
+      .not('pinned_at', 'is', null)
+      .is('deleted_at', null)
+      .order('pinned_at', { ascending: false })
+      .limit(MAX_PINNED);
+    if (error) {
+      // Column not migrated yet — the feed still works, just without pins.
+      if (error.message?.includes('pinned_at')) return [];
+      throw error;
+    }
+    return (data as DatabaseChatMessageRow[]).map(mapRow);
+  },
+
+  /** Pin or unpin a message. Returns the updated row. */
+  async setPinned(id: string, pinned: boolean): Promise<ChatMessageRow> {
+    const { data, error } = await supabaseAdmin
+      .from('club_messages')
+      .update({ pinned_at: pinned ? new Date().toISOString() : null })
       .eq('id', id)
       .select('*')
       .single();

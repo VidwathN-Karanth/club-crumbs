@@ -40,7 +40,7 @@ export default function ChatLauncher({
 
   const cohort = manage ? cohortProp : memberCohort;
   const {
-    messages, unread, loading, error, sending, canPost, send, uploadImage, editMessage, deleteMessage,
+    messages, pinned, unread, loading, error, sending, canPost, send, uploadImage, editMessage, deleteMessage, togglePin,
   } = useClubChat(open, { manage, cohort });
 
   const label = cohort ? title ?? shortCohortLabel(cohort) : '';
@@ -101,6 +101,7 @@ export default function ChatLauncher({
         onClose={() => setOpen(false)}
         title={label}
         messages={messages}
+        pinned={pinned}
         loading={loading}
         error={error}
         canPost={canPost}
@@ -109,7 +110,7 @@ export default function ChatLauncher({
         onUpload={canPost ? uploadImage : undefined}
         actions={
           manage
-            ? { canManage: true, isAdmin, currentUserId: user?.id, onEdit: editMessage, onDelete: deleteMessage }
+            ? { canManage: true, isAdmin, currentUserId: user?.id, onEdit: editMessage, onDelete: deleteMessage, onTogglePin: togglePin }
             : undefined
         }
       />
