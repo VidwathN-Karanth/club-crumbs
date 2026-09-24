@@ -1432,5 +1432,23 @@
     "seen": 1790264176.3292985,
     "ast_hash": "23dec24ae368dab5cab9c367c65fc1e9",
     "semantic_hash": ""
+  },
+  "src/app/api/desktop-auth/token/route.ts": {
+    "mtime": 1790267772.689368,
+    "seen": 1790267916.0623925,
+    "ast_hash": "580207d800302959a8cd295f05092221",
+    "semantic_hash": ""
+  },
+  "src/app/desktop-auth/page.tsx": {
+    "mtime": 1790267787.6923218,
+    "seen": 1790267916.0624714,
+    "ast_hash": "c039dce0bb90c281b26b67ae0a6cbadc",
+    "semantic_hash": ""
+  },
+  "src/app/desktop-callback/page.tsx": {
+    "mtime": 1790267812.34615,
+    "seen": 1790267916.0624735,
+    "ast_hash": "f6dd826b12f2138984df9542f3708068",
+    "semantic_hash": ""
   }
 }
