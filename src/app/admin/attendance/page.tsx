@@ -1,48 +1,64 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { CheckSquare, Download, Eye, RefreshCw, X } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { CalendarDays, Check, CheckSquare, Clock, Eye, RefreshCw } from 'lucide-react';
 
 import { apiFetch, errorMessage, readJson } from '@/lib/apiClient';
-import { formatDate, formatDateTime } from '@/lib/dateFormat';
+import { formatDate, formatDateTime, formatLongDate } from '@/lib/dateFormat';
+import {
+  counts,
+  downloadClubsDay,
+  downloadDay,
+  downloadHistory,
+  isValidDateKey,
+  todayKey,
+  type AttendanceRecord,
+} from '@/lib/attendance';
+import { ExportButtons, RegisterDrawer } from '@/components/attendance/AttendanceUI';
 import { useAdmin } from '../AdminContext';
 import { PanelEmpty, PanelError, PanelLoading, SectionHeader } from '../_components/PanelState';
 import { useSectionData } from '../_components/useSectionData';
 
-interface Member { email: string; name: string }
-interface Record { date: string; present: string[]; marked_by: string | null; updated_at: string | null }
-
-function cell(v: string): string {
-  return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
-}
-function download(filename: string, csv: string) {
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
-}
+interface ClubDay { cohort: string; memberCount: number; record: AttendanceRecord | null }
 
 export default function AdminAttendancePage() {
   const { selectedCohort } = useAdmin();
+  const [viewing, setViewing] = useState<AttendanceRecord | null>(null);
 
-  const [members, setMembers] = useState<Member[]>([]);
-  const [records, setRecords] = useState<Record[]>([]);
+  /* ── Daily overview: all clubs, one date ─────────────────────────────── */
+  const [day, setDay] = useState(todayKey());
+  const [clubs, setClubs] = useState<ClubDay[]>([]);
+  const [dayLoading, setDayLoading] = useState(true);
+  const [dayError, setDayError] = useState('');
+
+  const loadDay = useCallback(async (date: string) => {
+    setDayLoading(true);
+    setDayError('');
+    try {
+      const data = await readJson<{ clubs: ClubDay[] }>(await apiFetch(`/api/admin/attendance/day?date=${date}`));
+      setClubs(data.clubs || []);
+    } catch (err) {
+      setDayError(errorMessage(err, 'Could not load the daily overview.'));
+    } finally {
+      setDayLoading(false);
+    }
+  }, []);
+
+  const loadSelectedDay = useCallback(() => loadDay(day), [day, loadDay]);
+  useSectionData(loadSelectedDay);
+
+  /* ── One club's full history ─────────────────────────────────────────── */
+  const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [openDate, setOpenDate] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError('');
-    setOpenDate(null);
     try {
-      const data = await readJson<{ members: Member[]; records: Record[] }>(
+      const data = await readJson<{ records: AttendanceRecord[] }>(
         await apiFetch(`/api/admin/attendance?cohort=${encodeURIComponent(selectedCohort)}`)
       );
-      setMembers(data.members || []);
       setRecords(data.records || []);
     } catch (err) {
       setError(errorMessage(err, 'Could not load attendance.'));
@@ -53,56 +69,103 @@ export default function AdminAttendancePage() {
 
   useSectionData(load);
 
-  const total = members.length;
-  const presentSetFor = (date: string) =>
-    new Set((records.find((r) => r.date === date)?.present || []).map((e) => e.toLowerCase()));
-
-  const csvForDate = (date: string) => {
-    const present = presentSetFor(date);
-    const header = ['Date', 'Name', 'Email', 'Present'].join(',');
-    const rows = members.map((m) => [date, m.name, m.email, present.has(m.email) ? 'Yes' : 'No'].map(cell).join(','));
-    return [header, ...rows].join('\n');
-  };
-  const downloadDate = (date: string) =>
-    download(`attendance-${selectedCohort.replace(/\s+/g, '_')}-${date}.csv`, csvForDate(date));
-
-  const downloadAll = () => {
-    const header = ['Date', 'Name', 'Email', 'Present'].join(',');
-    const rows: string[] = [];
-    for (const rec of records) {
-      const present = new Set((rec.present || []).map((e) => e.toLowerCase()));
-      for (const m of members) rows.push([rec.date, m.name, m.email, present.has(m.email) ? 'Yes' : 'No'].map(cell).join(','));
-    }
-    download(`attendance-${selectedCohort.replace(/\s+/g, '_')}-ALL.csv`, [header, ...rows].join('\n'));
-  };
-
-  const openRecord = openDate ? presentSetFor(openDate) : null;
-  const sortedMembers = useMemo(() => [...members].sort((a, b) => a.name.localeCompare(b.name)), [members]);
+  const reloadAll = () => { loadDay(day); load(); };
+  const takenCount = clubs.filter((c) => c.record).length;
 
   return (
     <div className="space-y-6">
-      <SectionHeader
-        icon={CheckSquare}
-        title="Attendance"
-        subtitle={`Sessions the ${selectedCohort} leaders recorded. Only days attendance was taken appear.`}
-      >
-        {records.length > 0 && (
-          <button
-            onClick={downloadAll}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-cyber-blue text-white/70 hover:text-white transition cursor-pointer text-[10px] uppercase font-bold tracking-wider"
-          >
-            <Download className="w-3 h-3" /> Export all
-          </button>
-        )}
+      <SectionHeader icon={CheckSquare} title="Attendance" subtitle="Registers the club leaders have saved. Only days attendance was taken appear.">
         <button
-          onClick={load}
+          onClick={reloadAll}
           className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-cyber-blue text-white/70 hover:text-white transition cursor-pointer text-[10px] uppercase font-bold tracking-wider"
         >
-          <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} /> Reload
+          <RefreshCw className={`w-3 h-3 ${dayLoading || loading ? 'animate-spin' : ''}`} /> Reload
         </button>
       </SectionHeader>
 
+      {/* Daily overview */}
       <section className="glass-panel border border-white/10 rounded-2xl overflow-hidden">
+        <div className="p-4 border-b border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-black text-white flex items-center gap-2"><CalendarDays className="w-4 h-4" /> All clubs · {formatLongDate(day)}</h2>
+            <p className="text-[10px] text-white/40 font-mono mt-0.5">
+              {dayLoading ? 'Checking…' : `${takenCount} of ${clubs.length} clubs have taken attendance.`}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="date"
+              value={day}
+              max={todayKey()}
+              onChange={(e) => isValidDateKey(e.target.value) && setDay(e.target.value)}
+              className="bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-white/30"
+            />
+            {day !== todayKey() && (
+              <button onClick={() => setDay(todayKey())} className="px-3 py-1.5 rounded-xl border border-white/10 text-white/60 hover:text-white text-[10px] font-bold uppercase tracking-wider cursor-pointer">Today</button>
+            )}
+            {takenCount > 0 && <ExportButtons label="Day" onExport={(f) => downloadClubsDay(day, clubs, f)} />}
+          </div>
+        </div>
+
+        {dayLoading ? (
+          <PanelLoading message="Loading the day…" />
+        ) : dayError ? (
+          <PanelError message={dayError} onRetry={() => loadDay(day)} />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/5">
+            {clubs.map(({ cohort, memberCount, record }) => {
+              const c = record ? counts(record) : null;
+              const pct = c && c.total ? Math.round((c.present / c.total) * 100) : 0;
+              return (
+                <div key={cohort} className="bg-[#16181C] p-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-sm font-bold text-white truncate">{cohort}</h3>
+                    {record ? (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-emerald-500/15 text-emerald-400 border border-emerald-500/25"><Check className="w-3 h-3" /> Taken</span>
+                    ) : (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-amber-500/10 text-amber-300 border border-amber-500/25"><Clock className="w-3 h-3" /> Not taken</span>
+                    )}
+                  </div>
+
+                  {record && c ? (
+                    <>
+                      <div className="flex items-end gap-4">
+                        <div><div className="text-2xl font-black text-emerald-400 leading-none">{c.present}</div><div className="text-[9px] uppercase tracking-wider text-white/40 mt-1">Present</div></div>
+                        <div><div className="text-2xl font-black text-rose-300 leading-none">{c.absent}</div><div className="text-[9px] uppercase tracking-wider text-white/40 mt-1">Absent</div></div>
+                        <div className="ml-auto text-right"><div className="text-sm font-bold text-white/80 leading-none">{pct}%</div><div className="text-[9px] uppercase tracking-wider text-white/40 mt-1">of {c.total}</div></div>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-white/5 overflow-hidden"><div className="h-full bg-emerald-500/60" style={{ width: `${pct}%` }} /></div>
+                      <p className="text-[10px] text-white/40 font-mono truncate" title={record.marked_by || ''}>
+                        {record.marked_by || '—'} · {formatDateTime(new Date(record.updated_at))}
+                      </p>
+                      <div className="flex items-center justify-between gap-2">
+                        <button onClick={() => setViewing(record)} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-white/10 hover:border-cyber-blue text-white/60 hover:text-cyber-blue text-[10px] font-bold uppercase transition cursor-pointer">
+                          <Eye className="w-3 h-3" /> View
+                        </button>
+                        <ExportButtons compact onExport={(f) => downloadDay(record, f)} />
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-xs text-white/40">
+                      {memberCount === 0 ? 'No members in this club yet.' : `${memberCount} members — waiting for a leader to save the register.`}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* One club's history */}
+      <section className="glass-panel border border-white/10 rounded-2xl overflow-hidden">
+        <div className="p-4 border-b border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-black text-white">{selectedCohort} · every session</h2>
+            <p className="text-[10px] text-white/40 font-mono mt-0.5">Switch club from the selector at the top of the console.</p>
+          </div>
+          {records.length > 0 && <ExportButtons label="All dates" onExport={(f) => downloadHistory(selectedCohort, records, f)} />}
+        </div>
         {loading ? (
           <PanelLoading message="Loading attendance…" />
         ) : error ? (
@@ -119,31 +182,25 @@ export default function AdminAttendancePage() {
                   <th className="p-4 font-normal text-center">Absent</th>
                   <th className="p-4 font-normal">Recorded by</th>
                   <th className="p-4 font-normal">Updated</th>
-                  <th className="p-4 font-normal text-center w-28">Actions</th>
+                  <th className="p-4 font-normal text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {records.map((r) => {
-                  const present = (r.present || []).length;
+                  const c = counts(r);
                   return (
                     <tr key={r.date} className="hover:bg-white/3 transition">
-                      <td className="p-4 font-bold text-white">{formatDate(r.date)}</td>
-                      <td className="p-4 text-center">
-                        <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 font-bold">{present}</span>
-                      </td>
-                      <td className="p-4 text-center">
-                        <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-white/70 font-bold">{Math.max(0, total - present)}</span>
-                      </td>
+                      <td className="p-4 font-bold text-white whitespace-nowrap">{formatDate(r.date)}</td>
+                      <td className="p-4 text-center"><span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 font-bold">{c.present}</span></td>
+                      <td className="p-4 text-center"><span className="px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/25 font-bold">{c.absent}</span></td>
                       <td className="p-4 text-white/60 truncate max-w-[180px]">{r.marked_by || '—'}</td>
-                      <td className="p-4 text-white/50">{r.updated_at ? formatDateTime(new Date(r.updated_at)) : '—'}</td>
+                      <td className="p-4 text-white/50 whitespace-nowrap">{formatDateTime(new Date(r.updated_at))}</td>
                       <td className="p-4">
                         <div className="flex items-center justify-center gap-2">
-                          <button onClick={() => setOpenDate(r.date)} title="View" className="p-1.5 rounded-lg border border-white/10 hover:border-cyber-blue text-white/60 hover:text-cyber-blue transition cursor-pointer">
+                          <button onClick={() => setViewing(r)} title="View" className="p-1.5 rounded-lg border border-white/10 hover:border-cyber-blue text-white/60 hover:text-cyber-blue transition cursor-pointer">
                             <Eye className="w-3.5 h-3.5" />
                           </button>
-                          <button onClick={() => downloadDate(r.date)} title="Download CSV" className="p-1.5 rounded-lg border border-white/10 hover:border-white/30 text-white/60 hover:text-white transition cursor-pointer">
-                            <Download className="w-3.5 h-3.5" />
-                          </button>
+                          <ExportButtons compact onExport={(f) => downloadDay(r, f)} />
                         </div>
                       </td>
                     </tr>
@@ -155,43 +212,7 @@ export default function AdminAttendancePage() {
         )}
       </section>
 
-      {/* Drill-in: who was present/absent on a date */}
-      <AnimatePresence>
-        {openDate && openRecord && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-end">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOpenDate(null)} className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-md h-screen bg-[#1A1D22]/95 border-l border-white/10 flex flex-col z-10 shadow-2xl">
-              <div className="p-5 border-b border-white/10 flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-black text-white">{formatDate(openDate)}</h3>
-                  <p className="text-[10px] text-white/40 font-mono">{openRecord.size} present · {Math.max(0, total - openRecord.size)} absent</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => downloadDate(openDate)} title="Download CSV" className="p-1.5 rounded-lg border border-white/10 hover:border-white/30 text-white/60 hover:text-white transition cursor-pointer"><Download className="w-4 h-4" /></button>
-                  <button onClick={() => setOpenDate(null)} aria-label="Close" className="p-1.5 rounded-lg border border-white/10 hover:border-white/30 text-white/50 hover:text-white transition cursor-pointer"><X className="w-4 h-4" /></button>
-                </div>
-              </div>
-              <div className="flex-1 overflow-y-auto divide-y divide-white/5">
-                {sortedMembers.map((m) => {
-                  const here = openRecord.has(m.email);
-                  return (
-                    <div key={m.email} className="flex items-center justify-between gap-3 px-5 py-3">
-                      <div className="min-w-0">
-                        <div className="text-sm font-bold text-white truncate">{m.name}</div>
-                        <div className="text-[10px] text-white/40 truncate">{m.email}</div>
-                      </div>
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase shrink-0 ${here ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25' : 'bg-white/5 text-white/40 border border-white/10'}`}>
-                        {here ? 'Present' : 'Absent'}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <RegisterDrawer record={viewing} onClose={() => setViewing(null)} />
     </div>
   );
 }
