@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { requireClubManager } from '@/lib/authz';
 import { memberListForCohort } from '@/lib/clubMembers';
-import { isCohort, normalizeEmail } from '@/lib/cohorts';
+import { isCohort, normalizeEmail, type Cohort } from '@/lib/cohorts';
 import { byName, isValidDateKey, type RosterEntry } from '@/lib/attendance';
 import { clubAttendance, recordFor } from '@/lib/attendanceStore';
 
@@ -25,10 +25,25 @@ export async function GET(request: Request) {
   if (!guard.ok) return guard.response;
 
   try {
+    if (new URL(request.url).searchParams.get('online') === '1') return NextResponse.json({ online: await onlineMembers(cohort) });
     return NextResponse.json(await clubAttendance(cohort));
   } catch (error: unknown) {
     return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
+}
+
+/** Heartbeats come every 60s, so 2 minutes tolerates one missed ping. */
+const ONLINE_WINDOW_MS = 2 * 60 * 1000;
+
+/** Emails of this club's members whose app was open in the last couple of minutes. */
+async function onlineMembers(cohort: Cohort): Promise<string[]> {
+  const members = new Set((await memberListForCohort(cohort)).map((m) => m.email));
+  const { data, error } = await supabaseAdmin
+    .from('users')
+    .select('email')
+    .gte('last_seen_at', new Date(Date.now() - ONLINE_WINDOW_MS).toISOString());
+  if (error) throw new Error(error.message);
+  return (data || []).map((u) => normalizeEmail(u.email)).filter((e) => members.has(e));
 }
 
 function emailList(value: unknown): string[] | null {

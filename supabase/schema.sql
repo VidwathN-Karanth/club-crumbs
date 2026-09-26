@@ -350,3 +350,7 @@ create table if not exists public.attendance (
 alter table public.attendance enable row level security;
 create index if not exists idx_attendance_cohort_date on public.attendance(cohort, date);
 create index if not exists idx_attendance_date on public.attendance(date);
+
+-- Presence: bumped by a heartbeat while a signed-in tab is open. The leader's
+-- take-attendance screen pre-marks anyone seen in the last couple of minutes.
+alter table public.users add column if not exists last_seen_at timestamp with time zone;

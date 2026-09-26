@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Check, CheckSquare, Eye, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, Check, CheckSquare, Eye, Plus, RefreshCw, Search, Trash2, Wifi, X } from 'lucide-react';
 
 import { ApiError, apiFetch, errorMessage, readJson } from '@/lib/apiClient';
 import { formatDate, formatDateTime } from '@/lib/dateFormat';
@@ -43,6 +43,10 @@ export default function LeaderAttendancePage() {
   const [query, setQuery] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<{ message: string; conflict: boolean } | null>(null);
+  const [online, setOnline] = useState<Set<string>>(new Set());
+  const [onlineNote, setOnlineNote] = useState('');
+  const [checkingOnline, setCheckingOnline] = useState(false);
+  const takeDateRef = useRef(takeDate); // lets a late online check see the date is still current
 
   const load = useCallback(async (): Promise<AttendanceRecord[] | null> => {
     setLoading(true);
@@ -85,12 +89,44 @@ export default function LeaderAttendancePage() {
     const next = new Map<string, Mark>();
     if (existing) for (const m of existing.roster) next.set(m.email, existing.present.includes(m.email) ? 'P' : 'A');
     setTakeDate(date);
+    takeDateRef.current = date;
     setBase(existing);
     setSheet([...people.values()].sort(byName));
     setMarks(next);
     setDirty(false);
     setQuery('');
     setSaveError(null);
+    setOnlineNote('');
+    // A fresh register for today starts with whoever has the app open marked
+    // present. Past dates and saved registers are never touched.
+    if (!existing && date === todayKey()) void markOnline(date);
+  };
+
+  /** Marks members who are online right now as present — only those not marked yet, so a manual change is never overridden. */
+  const markOnline = async (date: string) => {
+    setCheckingOnline(true);
+    try {
+      const { online: emails } = await readJson<{ online: string[] }>(
+        await apiFetch(`/api/leader/attendance?cohort=${encodeURIComponent(cohort)}&online=1`)
+      );
+      if (takeDateRef.current !== date) return; // leader moved to another date meanwhile
+      const set = new Set(emails);
+      setOnline(set);
+      let added = 0;
+      setMarks((prev) => {
+        const next = new Map(prev);
+        for (const e of set) if (!next.has(e)) { next.set(e, 'P'); added++; }
+        return next;
+      });
+      if (added) setDirty(true);
+      setOnlineNote(set.size === 0
+        ? 'No members are online right now.'
+        : `${set.size} member${set.size === 1 ? ' is' : 's are'} online${added ? ` — ${added} marked present automatically` : ''}. Check the list and change anyone who isn't actually here.`);
+    } catch {
+      setOnlineNote("Couldn't check who's online. Mark everyone by hand.");
+    } finally {
+      setCheckingOnline(false);
+    }
   };
 
   const openTake = (date: string) => {
@@ -207,7 +243,7 @@ export default function LeaderAttendancePage() {
               <CheckSquare className="w-5 h-5" /> {base ? 'Edit attendance' : 'Take attendance'}
             </h1>
             <p className="text-xs text-white/40 mt-0.5">
-              Tap a member to mark them present; tap again for absent. Everyone must be marked before you can save.
+              Tap a member to mark them present; tap again for absent. Members online right now are marked present for you. Everyone must be marked before you can save.
             </p>
           </div>
           <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wider text-white/40 font-bold">
@@ -239,12 +275,23 @@ export default function LeaderAttendancePage() {
             />
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            {takeDate === today && (
+              <button onClick={() => markOnline(takeDate)} disabled={checkingOnline} title="Mark members who have the app open right now as present" className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-sky-500/30 text-sky-300 hover:bg-sky-500/10 text-[10px] font-bold uppercase tracking-wider cursor-pointer disabled:opacity-40">
+                <Wifi className="w-3 h-3" /> {checkingOnline ? 'Checking…' : 'Online present'}
+              </button>
+            )}
             <button onClick={() => markAll('P')} className="px-3 py-2 rounded-xl border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10 text-[10px] font-bold uppercase tracking-wider cursor-pointer">All present</button>
             <button onClick={() => markAll('A')} className="px-3 py-2 rounded-xl border border-rose-500/30 text-rose-300 hover:bg-rose-500/10 text-[10px] font-bold uppercase tracking-wider cursor-pointer">All absent</button>
             <button onClick={() => markAll('A', true)} disabled={tally.unmarked === 0} className="px-3 py-2 rounded-xl border border-white/15 text-white/70 hover:text-white text-[10px] font-bold uppercase tracking-wider cursor-pointer disabled:opacity-30">Rest absent</button>
             <button onClick={clearMarks} disabled={marks.size === 0} className="px-3 py-2 rounded-xl border border-white/10 text-white/50 hover:text-white text-[10px] font-bold uppercase tracking-wider cursor-pointer disabled:opacity-30">Clear</button>
           </div>
         </div>
+
+        {onlineNote && (
+          <p className="text-[11px] font-mono text-sky-300/90 bg-sky-500/10 border border-sky-500/20 rounded-xl px-3 py-2 flex items-center gap-2">
+            <Wifi className="w-3.5 h-3.5 shrink-0" /> {onlineNote}
+          </p>
+        )}
 
         <section className="glass-panel border border-white/10 rounded-2xl overflow-hidden">
           {sheet.length === 0 ? (
@@ -273,7 +320,14 @@ export default function LeaderAttendancePage() {
                         {mark === 'P' ? <Check className="w-4 h-4" /> : mark === 'A' ? <X className="w-4 h-4" /> : null}
                       </span>
                       <span className="min-w-0">
-                        <span className="block font-bold text-white truncate text-sm">{m.name}</span>
+                        <span className="flex items-center gap-1.5 font-bold text-white text-sm min-w-0">
+                          <span className="truncate">{m.name}</span>
+                          {takeDate === today && online.has(m.email) && (
+                            <span className="shrink-0 flex items-center gap-1 text-[9px] font-mono font-bold uppercase tracking-wider text-sky-300">
+                              <span className="w-1.5 h-1.5 rounded-full bg-sky-400" /> online
+                            </span>
+                          )}
+                        </span>
                         <span className="block text-[10px] text-white/40 truncate">{m.email}</span>
                       </span>
                     </button>

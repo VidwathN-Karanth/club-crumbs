@@ -348,9 +348,9 @@
     "semantic_hash": ""
   },
   "src/app/page.tsx": {
-    "mtime": 1789879748.0560956,
-    "seen": 1790095215.3257954,
-    "ast_hash": "1a67480d6e4892db013a58b6dab81eaa",
+    "mtime": 1790428751.6387844,
+    "seen": 1790429291.7675233,
+    "ast_hash": "882a343c3c60c8f25ebccb7e1a2f19d2",
     "semantic_hash": ""
   },
   "src/app/privacy/page.tsx": {
@@ -426,9 +426,9 @@
     "semantic_hash": ""
   },
   "src/components/SyncProvider.tsx": {
-    "mtime": 1790163539.2284756,
-    "seen": 1790163756.22583,
-    "ast_hash": "60c0f7249814793f0bd84879e59e0c31",
+    "mtime": 1790430112.767568,
+    "seen": 1790430159.225918,
+    "ast_hash": "1535455a3950cad334ed9483e8fd02ed",
     "semantic_hash": ""
   },
   "src/components/ZenMode.tsx": {
@@ -612,9 +612,9 @@
     "semantic_hash": ""
   },
   "supabase/schema.sql": {
-    "mtime": 1790359016.0295048,
-    "seen": 1790359860.3515568,
-    "ast_hash": "55676d5254b6b9396cc14dd7eb7884b9",
+    "mtime": 1790430112.7680457,
+    "seen": 1790430159.225999,
+    "ast_hash": "4f6d433068ddf600bcdc585623140590",
     "semantic_hash": ""
   },
   "tsconfig.json": {
@@ -972,9 +972,9 @@
     "semantic_hash": ""
   },
   "src/app/api/leader/attendance/route.ts": {
-    "mtime": 1790359130.7603967,
-    "seen": 1790359860.3513176,
-    "ast_hash": "e491f54263d53498f8a7c462d1576645",
+    "mtime": 1790430112.7519534,
+    "seen": 1790430159.2258306,
+    "ast_hash": "d339fef488a0063f426d2b3aef0bc5cd",
     "semantic_hash": ""
   },
   "src/app/api/leader/events/route.ts": {
@@ -1002,9 +1002,9 @@
     "semantic_hash": ""
   },
   "src/app/leader/attendance/page.tsx": {
-    "mtime": 1790359790.4856017,
-    "seen": 1790359860.3513806,
-    "ast_hash": "f05c3b3003cd99398c03c8fdaebd783a",
+    "mtime": 1790430112.7519534,
+    "seen": 1790430159.2258763,
+    "ast_hash": "c129f86f3ba21f0919ab767994839f2a",
     "semantic_hash": ""
   },
   "src/app/leader/coding/page.tsx": {
@@ -1479,6 +1479,12 @@
     "mtime": 1790359486.5705554,
     "seen": 1790359860.3515427,
     "ast_hash": "f426b6b0687b976c372814537f232083",
+    "semantic_hash": ""
+  },
+  "src/app/api/user/presence/route.ts": {
+    "mtime": 1790430024.2892427,
+    "seen": 1790430159.2258468,
+    "ast_hash": "5047e85cab6c40b2d4518695770e328a",
     "semantic_hash": ""
   }
 }

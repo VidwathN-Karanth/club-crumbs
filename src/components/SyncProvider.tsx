@@ -555,6 +555,23 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
     };
   }, [isLoaded, user?.id, hasHydrated, accessAllowed]);
 
+  // Presence heartbeat: while this tab is visible, tell the server we're online
+  // once a minute. Leaders' take-attendance screen pre-marks anyone seen in the
+  // last 2 minutes (ONLINE_WINDOW_MS in the attendance route).
+  useEffect(() => {
+    if (!isLoaded || !user?.id || !accessAllowed || !isSupabaseConfigured) return;
+    const ping = () => {
+      if (document.visibilityState === 'visible') apiFetch('/api/user/presence', { method: 'POST' }).catch(() => {});
+    };
+    ping();
+    const timer = setInterval(ping, 60_000);
+    document.addEventListener('visibilitychange', ping);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', ping);
+    };
+  }, [isLoaded, user?.id, accessAllowed]);
+
   // 3. Force Flush Pending State/Queue on Unload/Visibility Change
   useEffect(() => {
     if (!hasHydrated || !isLoaded || !user) return;
