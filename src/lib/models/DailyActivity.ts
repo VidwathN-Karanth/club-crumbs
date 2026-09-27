@@ -225,37 +225,13 @@ export class DailyActivity {
       const summary = leaderboardMap[row.user_id];
       if (!summary) continue;
 
-      if (range === 'all') {
-        // All-time points come from the User profile totals in step 4.5; the
-        // ledger only contributes the GitHub contribution count.
-        summary.totalGithubContributions += Number(row.github_contributions);
-      } else {
-        // For today/week, the daily ledger is the whole story.
-        summary.totalPoints += Number(row.points);
-        summary.totalLeetcodeSolved += Number(row.leetcode_solved);
-        summary.totalGithubContributions += Number(row.github_contributions);
-        summary.totalCodechefSolved += Number(row.codechef_solved);
-      }
-    }
-
-    // 4.5 For all-time, add the cumulative LeetCode and CodeChef solved counts from the User profile
-    if (range === 'all') {
-      for (const user of users) {
-        const summary = leaderboardMap[user.id];
-        if (summary) {
-          const lcSolved = user.leetcodeEasyTotal + user.leetcodeMediumTotal + user.leetcodeHardTotal;
-          const lcPoints = user.leetcodeEasyTotal * pointsConfig.leetcode.Easy +
-                           user.leetcodeMediumTotal * pointsConfig.leetcode.Medium +
-                           user.leetcodeHardTotal * pointsConfig.leetcode.Hard;
-          
-          const ccSolved = user.codechefSolvedTotal || 0;
-          const ccPoints = ccSolved * (pointsConfig.codechef?.perSolve || 15);
-
-          summary.totalLeetcodeSolved = lcSolved;
-          summary.totalCodechefSolved = ccSolved;
-          summary.totalPoints += lcPoints + ccPoints;
-        }
-      }
+      // Every range, all-time included, is the daily ledger: it only ever
+      // holds solves made after linking. All-time used to multiply the
+      // profile's lifetime totals, which credited years of pre-club solves.
+      summary.totalPoints += Number(row.points);
+      summary.totalLeetcodeSolved += Number(row.leetcode_solved);
+      summary.totalGithubContributions += Number(row.github_contributions);
+      summary.totalCodechefSolved += Number(row.codechef_solved);
     }
 
     // 4.6 Competition podiums (Coding / Gym results). Winners score even with

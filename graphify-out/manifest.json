@@ -246,15 +246,15 @@
     "semantic_hash": ""
   },
   "src/app/api/users/[id]/activity-stats/route.ts": {
-    "mtime": 1789118188.7006133,
-    "seen": 1789132232.8865352,
-    "ast_hash": "9dc81031412a7c42e5483591b04eb78f",
+    "mtime": 1790552383.7188668,
+    "seen": 1790552443.445989,
+    "ast_hash": "a6807887f24932f6c2afb34e64747736",
     "semantic_hash": ""
   },
   "src/app/api/users/[id]/link-accounts/route.ts": {
-    "mtime": 1789118188.7006133,
-    "seen": 1789132232.886536,
-    "ast_hash": "e3e432de7c1c733236cc1ce3a8f3d752",
+    "mtime": 1790552317.0582616,
+    "seen": 1790552443.4459906,
+    "ast_hash": "0fbdb22b86cc25f356e47fd40c6ca686",
     "semantic_hash": ""
   },
   "src/app/api/users/route.ts": {
@@ -516,9 +516,9 @@
     "semantic_hash": ""
   },
   "src/lib/models/DailyActivity.ts": {
-    "mtime": 1790163539.2284756,
-    "seen": 1790163756.2259965,
-    "ast_hash": "0abc21a4a4e0422be89f908913ba8e86",
+    "mtime": 1790552371.1310136,
+    "seen": 1790552443.4461024,
+    "ast_hash": "ef4819870b5cb0fa1e197cbd82ad019b",
     "semantic_hash": ""
   },
   "src/lib/models/Event.ts": {
@@ -534,9 +534,9 @@
     "semantic_hash": ""
   },
   "src/lib/models/User.ts": {
-    "mtime": 1789427700.6723502,
-    "seen": 1789475970.0898032,
-    "ast_hash": "633b6ce221a95859294a625c37c6a792",
+    "mtime": 1790552304.290428,
+    "seen": 1790552443.4461062,
+    "ast_hash": "22ccfee575cde6521c2e209b8b01d776",
     "semantic_hash": ""
   },
   "src/lib/notifications.ts": {
@@ -588,9 +588,9 @@
     "semantic_hash": "30b325003dbad45376a98f8139093ad0"
   },
   "src/lib/syncLogic.ts": {
-    "mtime": 1789118188.7255971,
-    "seen": 1789132232.8865879,
-    "ast_hash": "78b8e20b9e17a0de24306ec5ab9c128e",
+    "mtime": 1790552359.225558,
+    "seen": 1790552443.4461164,
+    "ast_hash": "29865d19a992a0d3755bedc6f2b53447",
     "semantic_hash": ""
   },
   "src/lib/timeUtils.ts": {
@@ -612,9 +612,9 @@
     "semantic_hash": ""
   },
   "supabase/schema.sql": {
-    "mtime": 1790430112.7680457,
-    "seen": 1790430159.225999,
-    "ast_hash": "4f6d433068ddf600bcdc585623140590",
+    "mtime": 1790552427.6953332,
+    "seen": 1790552443.4461284,
+    "ast_hash": "8036ec3af8bf5e146cd4a8c250f4bfe2",
     "semantic_hash": ""
   },
   "tsconfig.json": {
@@ -1485,6 +1485,12 @@
     "mtime": 1790430024.2892427,
     "seen": 1790430159.2258468,
     "ast_hash": "5047e85cab6c40b2d4518695770e328a",
+    "semantic_hash": ""
+  },
+  "supabase/solve-baselines.sql": {
+    "mtime": 1790552427.7428732,
+    "seen": 1790552443.44613,
+    "ast_hash": "2818062d85d63c62a5608bea3a880d4d",
     "semantic_hash": ""
   }
 }

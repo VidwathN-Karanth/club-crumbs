@@ -1,41 +1,41 @@
-# Graph Report - club-crumbs  (2026-09-27)
+# Graph Report - club-crumbs  (2026-09-28)
 
 ## Corpus Check
-- 233 files · ~194,722 words
+- 234 files · ~195,618 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1520 nodes · 3784 edges · 92 communities (71 shown, 21 thin omitted)
+- 1525 nodes · 3789 edges · 101 communities (80 shown, 21 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 42 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `61be31d8`
+- Built from commit: `afe60e07`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- leader/attendance/route.ts
+- supabaseAdmin.ts
 - app/page.tsx
 - requireAdmin
 - attendance-selfcheck.mjs
 - Club Chat — Implementation Plan (Club Crumbs)
-- authz.ts
+- errorMessage
 - popup.js
 - delete-button.tsx
 - compilerOptions
-- formatDate
+- dateFormat.ts
 - manifest.json
-- dashboard/courses/page.tsx
+- useStore
 - Zen Focus Mode Fullscreen Timer
 - isCohort
-- admin/certificates/page.tsx
+- students/page.tsx
 - dependencies
 - devDependencies
 - ZenMode.tsx
-- dateFormat.ts
+- admin/events/page.tsx
 - useStore.ts
-- roster.ts
+- requireAdminCohort
 - Bearer Token Pairing (extension auth)
 - syncLogic.ts
 - syncLogic.ts (activity aggregator & points calculator)
@@ -60,12 +60,12 @@
 - cohorts.ts
 - download/route.ts
 - postcss.config.mjs
-- requireStudent
-- uploadToUserDrive
-- NotificationAgent.tsx
+- Event.ts
+- chat/upload/route.ts
+- apiClient.ts
 - cn
 - vercel.json
-- desktop-auth/token/route.ts
+- authz.ts
 - draw_mark
 - docx
 - [id]/page.tsx
@@ -73,26 +73,34 @@
 - animated-counter.tsx
 - coders-club/page.tsx
 - @radix-ui/react-slot
-- useClubChat.ts
-- supabaseAdmin.ts
-- getRequester
+- ChatMessage.tsx
+- accessGrants.ts
+- requireStudent
 - task-list.tsx
-- leader/layout.tsx
+- admin/layout.tsx
 - chat.sql
 - dashboard/leaderboard/page.tsx
 - react-dom
+- accessContext.ts
+- limits.ts
 - components.json
+- LayoraMark.tsx
 - Cohort
-- students/page.tsx
+- admin/certificates/page.tsx
 - extension.ts
 - notification-bell.tsx
 - reports.sql
+- SyncProvider.tsx
 - leetcodeService.ts
+- calendar/courses/route.ts
+- dashboard/courses/page.tsx
+- choose-access/page.tsx
 - retention.sql
+- githubService.ts
 - cn
 - framer-motion
 - grapesjs
-- useStore
+- codechefService.ts
 - @vercel/speed-insights
 - maps.sql
 - clsx
@@ -132,19 +140,19 @@
 - **Extension pairing and authenticated-request flow** — extension_popup_connect_gate, extension_readme_connect_js, extension_readme_background_js, extension_readme_lib_js, extension_readme_bearer_token_pairing, extension_readme_token_hashing [EXTRACTED 1.00]
 - **Zustand-to-Supabase state write path with race protection** — readme_sync_provider, readme_client_write_timestamp_queue, structure_api_user_state, structure_table_user_states, structure_supabase_admin_service_role, extension_readme_launcher_overwrite_limit [INFERRED 0.85]
 
-## Communities (92 total, 21 thin omitted)
+## Communities (101 total, 21 thin omitted)
 
-### Community 0 - "leader/attendance/route.ts"
+### Community 0 - "supabaseAdmin.ts"
 Cohesion: 0.16
-Nodes (22): dynamic, GET(), dynamic, GET(), dynamic, PATCH(), conflict(), dynamic (+14 more)
+Nodes (21): dynamic, GET(), dynamic, PATCH(), conflict(), DELETE(), dynamic, emailList() (+13 more)
 
 ### Community 1 - "app/page.tsx"
-Cohesion: 0.07
-Nodes (12): cardFor(), ChooseAccessPage(), contextString(), Identity, CLUB_ICON, CLUB_LINK, STEPS, LayoraMark() (+4 more)
+Cohesion: 0.14
+Nodes (3): CLUB_ICON, CLUB_LINK, STEPS
 
 ### Community 2 - "requireAdmin"
-Cohesion: 0.11
-Nodes (23): GET(), dynamic, GET(), dynamic, dynamic, GET(), POST(), maxDuration (+15 more)
+Cohesion: 0.13
+Nodes (20): GET(), dynamic, GET(), dynamic, GET(), POST(), DELETE(), describeStudent() (+12 more)
 
 ### Community 3 - "attendance-selfcheck.mjs"
 Cohesion: 0.11
@@ -154,33 +162,33 @@ Nodes (13): att, csv, d1, d2, files, keep(), lines, out (+5 more)
 Cohesion: 0.11
 Nodes (18): 0. Reality check — what the original plan got wrong, 10. Testing, 11. Future work, 12. Concrete file checklist, 1. Scope (v1), 2. Data model (Supabase / Postgres), 3. Image storage, 4. API routes (Next.js route handlers) (+10 more)
 
-### Community 5 - "authz.ts"
-Cohesion: 0.16
-Nodes (16): ActiveContext, cache, coerceCohort(), emailsForRole(), getGrantsForEmail(), Grant, GrantError, GrantResult (+8 more)
+### Community 5 - "errorMessage"
+Cohesion: 0.12
+Nodes (22): AddEmails(), AddResult, AdminAccessPage(), Grant, PendingRemove, Role, AdminCertificatesPage(), Connection (+14 more)
 
 ### Community 6 - "popup.js"
 Cohesion: 0.11
 Nodes (50): handleMessage(), refresh(), respond(), api(), ApiError, cacheKey(), clearToken(), connectedServices() (+42 more)
 
 ### Community 7 - "delete-button.tsx"
-Cohesion: 0.06
-Nodes (34): chatImageKey(), dynamic, GET(), isOld(), purgeChat(), StoredTask, TasksPage(), LeaderQuickLaunchPage() (+26 more)
+Cohesion: 0.08
+Nodes (23): TasksPage(), circleMotion, DeleteButton(), DeleteButtonProps, EASE, EASE_LID, HOLD, ICON (+15 more)
 
 ### Community 8 - "compilerOptions"
 Cohesion: 0.07
 Nodes (28): dom, dom.iterable, esnext, **/*.mts, .next/dev/types/**/*.ts, next-env.d.ts, .next/types/**/*.ts, node_modules (+20 more)
 
-### Community 9 - "formatDate"
-Cohesion: 0.21
-Nodes (21): AdminAttendancePage(), ClubDay, AdminResumesPage(), CodingEvent, MemberCodingPage(), TournamentConfig, LeaderAttendancePage(), Mark (+13 more)
+### Community 9 - "dateFormat.ts"
+Cohesion: 0.20
+Nodes (18): ClubDay, CodingEvent, MemberCodingPage(), TournamentConfig, LeaderAttendancePage(), Mark, ConfirmDialog(), ExportButtons() (+10 more)
 
 ### Community 10 - "manifest.json"
 Cohesion: 0.09
 Nodes (24): action, default_popup, default_title, background, service_worker, type, content_scripts, description (+16 more)
 
-### Community 11 - "dashboard/courses/page.tsx"
-Cohesion: 0.08
-Nodes (33): dynamic, POST(), dynamic, GET(), CoursesPage(), rearmReminder(), DashboardHome(), metadata (+25 more)
+### Community 11 - "useStore"
+Cohesion: 0.20
+Nodes (14): AccessDeniedPage(), Reason, QuickLaunchers(), DashboardHome(), PlannerPage(), OnboardingPage(), OnboardingModal(), formatCourseLink() (+6 more)
 
 ### Community 13 - "Zen Focus Mode Fullscreen Timer"
 Cohesion: 0.40
@@ -188,11 +196,11 @@ Nodes (6): Distraction-Free Chrome Removal, Space to Pause / Esc to Leave Hints,
 
 ### Community 14 - "isCohort"
 Cohesion: 0.18
-Nodes (19): DELETE(), dynamic, loadModifiable(), PATCH(), dynamic, GET(), POST(), ALLOWED (+11 more)
+Nodes (20): AdminProvider(), DELETE(), dynamic, loadModifiable(), PATCH(), dynamic, GET(), POST() (+12 more)
 
-### Community 15 - "admin/certificates/page.tsx"
-Cohesion: 0.15
-Nodes (24): AdminContext, useAdmin(), AdminCertificatesPage(), PanelEmpty(), PanelError(), PanelLoading(), SectionHeader(), useSectionData() (+16 more)
+### Community 15 - "students/page.tsx"
+Cohesion: 0.13
+Nodes (26): PanelEmpty(), PanelError(), PanelLoading(), SectionHeader(), useSectionData(), AdminLeaderboardPage(), LeaderboardRow, PROFILES (+18 more)
 
 ### Community 16 - "dependencies"
 Cohesion: 0.11
@@ -203,28 +211,28 @@ Cohesion: 0.11
 Nodes (19): clerk, eslint, eslint-config-next, devDependencies, clerk, eslint, eslint-config-next, tailwindcss (+11 more)
 
 ### Community 18 - "ZenMode.tsx"
-Cohesion: 0.26
-Nodes (14): PHASE_ACCENT, ZenMode(), ZenModeProps, dayKey(), formatFocusDuration(), LOG_RETENTION_DAYS, nextPhase(), PHASE_LABEL (+6 more)
+Cohesion: 0.23
+Nodes (15): PHASE_ACCENT, ZenMode(), ZenModeProps, dayKey(), DEFAULT_POMODORO_SETTINGS, formatFocusDuration(), LOG_RETENTION_DAYS, nextPhase() (+7 more)
 
-### Community 19 - "dateFormat.ts"
-Cohesion: 0.17
-Nodes (19): AdminOverviewPage(), Counts, SyncPage, buildGrid(), EventsPage(), toKey(), WEEKDAYS, buildGrid() (+11 more)
+### Community 19 - "admin/events/page.tsx"
+Cohesion: 0.16
+Nodes (21): AdminEventsPage(), buildGrid(), StaffEvent, WEEKDAYS, StaffEvent, buildGrid(), CalendarEvent, EventsPage() (+13 more)
 
 ### Community 20 - "useStore.ts"
 Cohesion: 0.13
-Nodes (25): PlannerPage(), DEFAULT_POMODORO_SETTINGS, normalizeSettings(), PomodoroDay, Activity, Course, courseBlockFor(), DEFAULT_ROUTINE (+17 more)
+Nodes (24): DashboardLayout(), PomodoroDay, PomodoroSettings, Activity, Course, courseBlockFor(), DEFAULT_ROUTINE, resolveScheduleOverlaps() (+16 more)
 
-### Community 21 - "roster.ts"
+### Community 21 - "requireAdminCohort"
 Cohesion: 0.11
-Nodes (27): dynamic, emptyCounts(), GET(), GET(), dynamic, GET(), Range, VALID_RANGES (+19 more)
+Nodes (22): dynamic, GET(), dynamic, GET(), dynamic, GET(), Range, VALID_RANGES (+14 more)
 
 ### Community 22 - "Bearer Token Pairing (extension auth)"
 Cohesion: 0.21
 Nodes (12): Connect gate state, Quicklaunch panel + add-link form, Quick Access popup UI (360x480, two tabs), background.js (service worker / event page), Bearer Token Pairing (extension auth), build-zip.py (dual-manifest packager), connect.js content script (token relay), Cross-browser parity (Chromium vs Gecko, three divergences) (+4 more)
 
 ### Community 23 - "syncLogic.ts"
-Cohesion: 0.10
-Nodes (24): dynamic, GET(), maxDuration, dynamic, GET(), ActivityTotalsRow, DailyActivity, DailyActivityRow (+16 more)
+Cohesion: 0.08
+Nodes (31): maxDuration, POST(), dynamic, GET(), maxDuration, dynamic, Range, VALID_RANGES (+23 more)
 
 ### Community 24 - "syncLogic.ts (activity aggregator & points calculator)"
 Cohesion: 0.20
@@ -252,7 +260,7 @@ Nodes (8): name, private, scripts, build, dev, lint, start, version
 
 ### Community 30 - "extensionData.ts"
 Cohesion: 0.05
-Nodes (71): dynamic, GET(), OPTIONS(), dynamic, GET(), OPTIONS(), DELETE(), dynamic (+63 more)
+Nodes (69): dynamic, GET(), OPTIONS(), dynamic, GET(), OPTIONS(), DELETE(), dynamic (+61 more)
 
 ### Community 31 - "Resource Vault"
 Cohesion: 0.29
@@ -271,8 +279,8 @@ Cohesion: 0.47
 Nodes (5): build(), firefox_manifest(), main(), Package the extension for distribution. Writes two zips from the one source…, The Chromium manifest, with the three Gecko differences applied.
 
 ### Community 35 - "attendance.ts"
-Cohesion: 0.17
-Nodes (20): DAY_WIDTHS, downloadClubsDay(), emit(), ExportFormat, LONG_HEADER, longRows(), registerRows(), save() (+12 more)
+Cohesion: 0.15
+Nodes (28): AdminAttendancePage(), DrawerBody(), byName(), counts(), DAY_WIDTHS, downloadClubsDay(), downloadDay(), downloadHistory() (+20 more)
 
 ### Community 36 - "icon.tsx"
 Cohesion: 0.40
@@ -283,40 +291,40 @@ Cohesion: 0.67
 Nodes (3): Milestone Tracker & Global Stopwatch, Onboarding Portal (7-step routine wizard), Main Workspace Dashboard
 
 ### Community 39 - "notifications.ts"
-Cohesion: 0.12
-Nodes (31): AdminSettingsPage(), Connection, shortLabel(), SettingsPage(), LeaderSettingsPage(), DesktopAppPanel(), InterfacePanel(), RemindersControl() (+23 more)
+Cohesion: 0.09
+Nodes (41): AdminSettingsPage(), Connection, shortLabel(), LeaderSettingsPage(), DesktopAppPanel(), InterfacePanel(), RemindersControl(), ICONS (+33 more)
 
 ### Community 42 - "apiFetch"
 Cohesion: 0.09
-Nodes (41): AdminAccessPage(), AdminReportsPage(), Connection, ConnectState, ExtensionPage(), shortLabel(), CodingEvent, EMPTY (+33 more)
+Nodes (32): AdminReportsPage(), CodingEvent, EMPTY, LeaderCodingPage(), Member, memberLabel(), PLACE_LABEL, PLACES (+24 more)
 
 ### Community 43 - "cohorts.ts"
 Cohesion: 0.17
 Nodes (17): dynamic, GET(), POST(), dynamic, GET(), CLUB_TOURNAMENTS, ClubTournament, cohortCanSeeResource() (+9 more)
 
 ### Community 44 - "download/route.ts"
-Cohesion: 0.17
-Nodes (11): downloadUrl(), dynamic, EXTENSION_BY_TYPE, extensionFor(), GET(), entries(), CRC_TABLE, DirectoryRecord (+3 more)
+Cohesion: 0.16
+Nodes (11): downloadUrl(), dynamic, EXTENSION_BY_TYPE, extensionFor(), entries(), driveFileId(), CRC_TABLE, DirectoryRecord (+3 more)
 
-### Community 48 - "requireStudent"
-Cohesion: 0.05
-Nodes (57): StaffEvent, StaffEvent, DELETE(), dynamic, GET(), POST(), at(), CoursePayload (+49 more)
+### Community 48 - "Event.ts"
+Cohesion: 0.11
+Nodes (29): DELETE(), dynamic, GET(), POST(), dynamic, POST(), DELETE(), dynamic (+21 more)
 
-### Community 49 - "uploadToUserDrive"
-Cohesion: 0.48
-Nodes (4): POST(), DriveError, DriveFile, uploadToUserDrive()
+### Community 49 - "chat/upload/route.ts"
+Cohesion: 0.27
+Nodes (7): ALLOWED, dynamic, EXT, POST(), DriveError, DriveFile, uploadToUserDrive()
 
-### Community 50 - "NotificationAgent.tsx"
-Cohesion: 0.25
-Nodes (13): NotificationAgent(), agendaAnnouncement(), dueCourseReminders(), ensureServiceWorker(), hasBeenAskedForPermission(), hasReminderTimePassed(), isReminderDue(), markAskedForPermission() (+5 more)
+### Community 50 - "apiClient.ts"
+Cohesion: 0.20
+Nodes (14): AdminOverviewPage(), Counts, SyncPage, SettingsPage(), NotificationAgent(), ApiError, apiJson(), toDateKey() (+6 more)
 
 ### Community 51 - "cn"
 Cohesion: 0.53
 Nodes (6): TaskCheck(), TaskItem(), TaskLabel(), TaskList(), useTiming(), cn()
 
-### Community 54 - "desktop-auth/token/route.ts"
-Cohesion: 0.50
-Nodes (4): dynamic, POST(), rateLimited(), recent
+### Community 54 - "authz.ts"
+Cohesion: 0.16
+Nodes (17): dynamic, POST(), rateLimited(), recent, dynamic, GET(), POST(), dynamic (+9 more)
 
 ### Community 55 - "draw_mark"
 Cohesion: 0.40
@@ -334,64 +342,96 @@ Nodes (27): AnimatedCounter(), AnimatedCounterProps, Cell, clamp(), Digit, EASE,
 Cohesion: 0.25
 Nodes (5): Challenge, CHALLENGES, FACILITATOR_NOTES, MASTHEAD, metadata
 
-### Community 62 - "useClubChat.ts"
-Cohesion: 0.18
-Nodes (14): ChatComposer(), ChatMessage(), ChatMessageActions, fullLabel(), initialOf(), linkify(), timeLabel(), ChatMessageList() (+6 more)
+### Community 62 - "ChatMessage.tsx"
+Cohesion: 0.23
+Nodes (10): ChatComposer(), ChatMessage(), ChatMessageActions, fullLabel(), initialOf(), linkify(), timeLabel(), ChatMessageList() (+2 more)
 
-### Community 63 - "supabaseAdmin.ts"
-Cohesion: 0.20
-Nodes (21): DELETE(), dynamic, parseRole(), PATCH(), POST(), DELETE(), dynamic, GET() (+13 more)
+### Community 63 - "accessGrants.ts"
+Cohesion: 0.13
+Nodes (33): DELETE(), dynamic, GrantView, parseRole(), PATCH(), POST(), DELETE(), dynamic (+25 more)
 
-### Community 64 - "getRequester"
-Cohesion: 0.16
-Nodes (16): DELETE(), dynamic, GET(), POST(), requireStaff(), DELETE(), dynamic, GET() (+8 more)
+### Community 64 - "requireStudent"
+Cohesion: 0.12
+Nodes (20): dynamic, GET(), dynamic, POST(), dynamic, GET(), DELETE(), dynamic (+12 more)
 
 ### Community 65 - "task-list.tsx"
 Cohesion: 0.09
 Nodes (21): EASE_IN_OUT, EASE_OUT, FILL, FILLED, FLICK, FLICK_TIMES, INSTANT, NUDGE (+13 more)
 
-### Community 66 - "leader/layout.tsx"
-Cohesion: 0.11
-Nodes (21): AdminProvider(), AdminLayout(), MENU, normalise(), YEARLESS, YearSelector(), leaderCohortFromContext(), LeaderLayout() (+13 more)
+### Community 66 - "admin/layout.tsx"
+Cohesion: 0.22
+Nodes (12): AdminContext, useAdmin(), AdminLayout(), MENU, normalise(), YEARLESS, YearSelector(), AdminChatLauncher() (+4 more)
 
 ### Community 68 - "dashboard/leaderboard/page.tsx"
 Cohesion: 0.50
 Nodes (3): LeaderboardPage(), RangeStats, UserStats
 
+### Community 70 - "accessContext.ts"
+Cohesion: 0.30
+Nodes (12): dynamic, POST(), dynamic, GET(), areaForContext(), areaForContextString(), contextMatchesIdentity(), CTX_COOKIE (+4 more)
+
+### Community 71 - "limits.ts"
+Cohesion: 0.21
+Nodes (11): chatImageKey(), dynamic, GET(), isOld(), purgeChat(), StoredTask, LeaderQuickLaunchPage(), CHAT_RETENTION_DAYS (+3 more)
+
 ### Community 72 - "components.json"
 Cohesion: 0.11
 Nodes (17): aliases, components, hooks, lib, ui, utils, iconLibrary, rsc (+9 more)
 
-### Community 74 - "Cohort"
-Cohesion: 0.14
-Nodes (14): AddEmails(), AddResult, Grant, PendingRemove, Role, AdminContextValue, GrantView, LeaderContextValue (+6 more)
+### Community 73 - "LayoraMark.tsx"
+Cohesion: 0.21
+Nodes (4): LayoraMark(), LayoraMarkProps, MARK_PURPLE, COLLEGE_EMAIL_DOMAIN
 
-### Community 75 - "students/page.tsx"
+### Community 74 - "Cohort"
+Cohesion: 0.16
+Nodes (11): AdminContextValue, LeaderContextValue, UseClubChatOptions, ReportData, ActiveContext, Grant, Requester, Cohort (+3 more)
+
+### Community 75 - "admin/certificates/page.tsx"
 Cohesion: 0.09
-Nodes (37): Uploader, CertificatePreview(), AdminStudentsPage(), DAYS, formatLastSync(), Tab, TABS, TelemetryUser (+29 more)
+Nodes (36): Uploader, CertificatePreview(), CertificateUploader, dynamic, emptyCounts(), GET(), DELETE(), dynamic (+28 more)
 
 ### Community 76 - "extension.ts"
-Cohesion: 0.18
-Nodes (16): Build, BUILDS, ExtensionInstall(), dismissedRecently(), ExtensionNudge(), ExtensionPrompt(), snoozed(), BrowserFamily (+8 more)
+Cohesion: 0.21
+Nodes (13): Build, BUILDS, ExtensionInstall(), ExtensionPrompt(), snoozed(), BrowserFamily, CHROME_STORE_URL, detectBrowser() (+5 more)
 
 ### Community 77 - "notification-bell.tsx"
 Cohesion: 0.15
 Nodes (14): badgeMetrics(), clamp(), CLAPPER_SPRING, COLORS, COLUMN_SPRING, CountBadge(), DigitColumn(), digitOf() (+6 more)
 
-### Community 80 - "leetcodeService.ts"
-Cohesion: 0.13
-Nodes (22): POST(), fetchProfileHtml(), fetchTotalSolves(), validateUsername(), AxiosErrorLike, ContributionDay, fetchActivityForDate(), GitHubUserResponse (+14 more)
+### Community 79 - "SyncProvider.tsx"
+Cohesion: 0.22
+Nodes (6): metadata, mulish, sora, viewport, CookieConsent(), SyncProvider()
 
-### Community 90 - "useStore"
-Cohesion: 0.36
-Nodes (7): AccessDeniedPage(), Reason, QuickLaunchers(), DashboardLayout(), ChatLauncher(), resolveScheduleOverlaps(), useStore
+### Community 80 - "leetcodeService.ts"
+Cohesion: 0.27
+Nodes (10): difficultyCache, DifficultyCounts, fetchActivityForDate(), fetchTotalSolves(), getQuestionDifficulty(), LeetCodeQuestion, LeetCodeResponse, LeetCodeSubmission (+2 more)
+
+### Community 81 - "calendar/courses/route.ts"
+Cohesion: 0.31
+Nodes (9): at(), CoursePayload, dynamic, POST(), toDateKey(), untilStamp(), wallClock(), deny() (+1 more)
+
+### Community 82 - "dashboard/courses/page.tsx"
+Cohesion: 0.31
+Nodes (7): CoursesPage(), rearmReminder(), DateField(), Props, toDisplay(), parseTypedDate(), clearNotificationMark()
+
+### Community 83 - "choose-access/page.tsx"
+Cohesion: 0.32
+Nodes (5): cardFor(), ChooseAccessPage(), contextString(), Identity, CLUB_META
+
+### Community 86 - "githubService.ts"
+Cohesion: 0.32
+Nodes (7): AxiosErrorLike, ContributionDay, fetchActivityForDate(), GitHubUserResponse, GitHubValidationError, queryGitHub(), validateUsername()
+
+### Community 90 - "codechefService.ts"
+Cohesion: 0.83
+Nodes (3): fetchProfileHtml(), fetchTotalSolves(), validateUsername()
 
 ## Ambiguous Edges - Review These
 - `Layora Architecture & System Structure` → `Next.js Agent Rules (breaking-change warning)`  [AMBIGUOUS]
   AGENTS.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **465 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+460 more)
+- **466 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+461 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **21 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -400,15 +440,15 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `Layora Architecture & System Structure` and `Next.js Agent Rules (breaking-change warning)`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `Cohort` connect `Cohort` to `leader/attendance/route.ts`, `app/page.tsx`, `leader/layout.tsx`, `Report.ts`, `authz.ts`, `apiFetch`, `dashboard/courses/page.tsx`, `cohorts.ts`, `isCohort`, `admin/certificates/page.tsx`, `requireStudent`, `useStore.ts`, `roster.ts`, `useStore`, `ReportEditor.tsx`, `useClubChat.ts`, `supabaseAdmin.ts`?**
+- **Why does `Cohort` connect `Cohort` to `supabaseAdmin.ts`, `app/page.tsx`, `admin/layout.tsx`, `Report.ts`, `errorMessage`, `accessContext.ts`, `apiFetch`, `cohorts.ts`, `isCohort`, `SyncProvider.tsx`, `Event.ts`, `choose-access/page.tsx`, `useStore.ts`, `authz.ts`, `ReportEditor.tsx`, `accessGrants.ts`?**
   _High betweenness centrality (0.050) - this node is a cross-community bridge._
-- **Why does `apiFetch()` connect `apiFetch` to `app/page.tsx`, `leader/layout.tsx`, `dashboard/leaderboard/page.tsx`, `notifications.ts`, `formatDate`, `Cohort`, `students/page.tsx`, `dashboard/courses/page.tsx`, `extension.ts`, `admin/certificates/page.tsx`, `NotificationAgent.tsx`, `dateFormat.ts`, `useStore.ts`, `[id]/page.tsx`, `useStore`, `ReportEditor.tsx`, `useClubChat.ts`?**
+- **Why does `apiFetch()` connect `apiFetch` to `admin/layout.tsx`, `attendance.ts`, `dashboard/leaderboard/page.tsx`, `errorMessage`, `notifications.ts`, `dateFormat.ts`, `admin/certificates/page.tsx`, `useStore`, `students/page.tsx`, `SyncProvider.tsx`, `apiClient.ts`, `admin/events/page.tsx`, `choose-access/page.tsx`, `dashboard/courses/page.tsx`, `[id]/page.tsx`, `ReportEditor.tsx`?**
   _High betweenness centrality (0.041) - this node is a cross-community bridge._
-- **Why does `isCohort()` connect `isCohort` to `leader/attendance/route.ts`, `Report.ts`, `leader/layout.tsx`, `authz.ts`, `cohorts.ts`, `dashboard/courses/page.tsx`, `admin/certificates/page.tsx`, `requireStudent`, `roster.ts`, `extensionData.ts`, `supabaseAdmin.ts`?**
+- **Why does `isCohort()` connect `isCohort` to `supabaseAdmin.ts`, `Report.ts`, `admin/layout.tsx`, `accessContext.ts`, `apiFetch`, `cohorts.ts`, `useStore`, `Event.ts`, `chat/upload/route.ts`, `requireAdminCohort`, `authz.ts`, `syncLogic.ts`, `extensionData.ts`, `accessGrants.ts`?**
   _High betweenness centrality (0.030) - this node is a cross-community bridge._
 - **What connects `$schema`, `style`, `rsc` to the rest of the system?**
-  _465 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _466 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `app/page.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.07226890756302522 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.14285714285714285 - nodes in this community are weakly interconnected._
 - **Should `requireAdmin` be split into smaller, more focused modules?**
-  _Cohesion score 0.10606060606060606 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.12535612535612536 - nodes in this community are weakly interconnected._

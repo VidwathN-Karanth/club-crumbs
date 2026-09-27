@@ -32,6 +32,12 @@ export async function POST(
       );
     }
 
+    // Only solves made after linking score, so linking snapshots the current
+    // counts. Re-linking the same handle keeps the old snapshot — otherwise
+    // pressing "Link & Verify" again would erase what was earned today.
+    const todayStr = new Date().toISOString().split('T')[0];
+    const sameHandle = (a: string | null, b: string) => (a || '').trim().toLowerCase() === b.trim().toLowerCase();
+
     const updates: {
       leetcodeUsername?: string | null;
       githubUsername?: string | null;
@@ -41,6 +47,10 @@ export async function POST(
       leetcodeMediumTotal?: number;
       leetcodeHardTotal?: number;
       codechefSolvedTotal?: number;
+      leetcodeBaseline?: { Easy: number; Medium: number; Hard: number } | null;
+      leetcodeLinkedOn?: string | null;
+      codechefBaseline?: number | null;
+      codechefLinkedOn?: string | null;
     } = {};
 
     // 2. Validate LeetCode username and load initial totals
@@ -51,6 +61,10 @@ export async function POST(
         updates.leetcodeEasyTotal = totals.Easy;
         updates.leetcodeMediumTotal = totals.Medium;
         updates.leetcodeHardTotal = totals.Hard;
+        if (!sameHandle(user.leetcodeUsername, leetcodeUsername) || !user.leetcodeLinkedOn) {
+          updates.leetcodeBaseline = { Easy: totals.Easy, Medium: totals.Medium, Hard: totals.Hard };
+          updates.leetcodeLinkedOn = todayStr;
+        }
       } catch (err: unknown) {
         const errMsg = err instanceof Error ? err.message : String(err);
         return NextResponse.json(
@@ -63,6 +77,8 @@ export async function POST(
       updates.leetcodeEasyTotal = 0;
       updates.leetcodeMediumTotal = 0;
       updates.leetcodeHardTotal = 0;
+      updates.leetcodeBaseline = null;
+      updates.leetcodeLinkedOn = null;
     }
 
     // 2.5. Validate CodeChef username and load initial totals
@@ -71,6 +87,10 @@ export async function POST(
         const total = await codechefService.fetchTotalSolves(codechefUsername);
         updates.codechefUsername = codechefUsername;
         updates.codechefSolvedTotal = total;
+        if (!sameHandle(user.codechefUsername, codechefUsername) || !user.codechefLinkedOn) {
+          updates.codechefBaseline = total;
+          updates.codechefLinkedOn = todayStr;
+        }
       } catch (err: unknown) {
         const errMsg = err instanceof Error ? err.message : String(err);
         return NextResponse.json(
@@ -81,6 +101,8 @@ export async function POST(
     } else if (codechefUsername === null || codechefUsername === '') {
       updates.codechefUsername = null;
       updates.codechefSolvedTotal = 0;
+      updates.codechefBaseline = null;
+      updates.codechefLinkedOn = null;
     }
 
     // 3. Validate GitHub username
@@ -116,7 +138,6 @@ export async function POST(
     // 6. Run sync immediately for this user so they appear on the leaderboard
     if (updatedUser && (updatedUser.leetcodeUsername || updatedUser.githubUsername || updatedUser.codechefUsername)) {
       try {
-        const todayStr = new Date().toISOString().split('T')[0];
         await syncUser(updatedUser, todayStr);
       } catch (syncErr) {
         console.error(`Failed to trigger immediate sync for user ${userId}:`, syncErr);

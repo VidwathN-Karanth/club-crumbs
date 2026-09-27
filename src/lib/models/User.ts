@@ -12,6 +12,11 @@ export interface UserRow {
   leetcodeMediumTotal: number;
   leetcodeHardTotal: number;
   codechefSolvedTotal: number;
+  /** Solve counts at the moment each handle was linked; only solves above these score. */
+  leetcodeBaseline: { Easy: number; Medium: number; Hard: number };
+  leetcodeLinkedOn: string | null;
+  codechefBaseline: number;
+  codechefLinkedOn: string | null;
   resumeUrl: string | null;
   resumeName: string | null;
   resumeUploadedAt: string | null;
@@ -30,6 +35,12 @@ interface DatabaseUserRow {
   leetcode_medium_total: number;
   leetcode_hard_total: number;
   codechef_solved_total: number;
+  leetcode_baseline_easy: number | null;
+  leetcode_baseline_medium: number | null;
+  leetcode_baseline_hard: number | null;
+  leetcode_linked_on: string | null;
+  codechef_baseline: number | null;
+  codechef_linked_on: string | null;
   resume_url: string | null;
   resume_name: string | null;
   resume_uploaded_at: string | null;
@@ -53,6 +64,14 @@ function mapUserRow(row: DatabaseUserRow | null | undefined): UserRow | null {
     leetcodeMediumTotal: row.leetcode_medium_total || 0,
     leetcodeHardTotal: row.leetcode_hard_total || 0,
     codechefSolvedTotal: row.codechef_solved_total || 0,
+    leetcodeBaseline: {
+      Easy: row.leetcode_baseline_easy || 0,
+      Medium: row.leetcode_baseline_medium || 0,
+      Hard: row.leetcode_baseline_hard || 0,
+    },
+    leetcodeLinkedOn: row.leetcode_linked_on ?? null,
+    codechefBaseline: row.codechef_baseline || 0,
+    codechefLinkedOn: row.codechef_linked_on ?? null,
     resumeUrl: row.resume_url ?? null,
     resumeName: row.resume_name ?? null,
     resumeUploadedAt: row.resume_uploaded_at ?? null,
@@ -149,6 +168,10 @@ export class User {
       leetcodeMediumTotal?: number;
       leetcodeHardTotal?: number;
       codechefSolvedTotal?: number;
+      leetcodeBaseline?: { Easy: number; Medium: number; Hard: number } | null;
+      leetcodeLinkedOn?: string | null;
+      codechefBaseline?: number | null;
+      codechefLinkedOn?: string | null;
       resumeUrl?: string | null;
       resumeName?: string | null;
       resumeUploadedAt?: string | null;
@@ -165,6 +188,12 @@ export class User {
       leetcode_medium_total?: number;
       leetcode_hard_total?: number;
       codechef_solved_total?: number;
+      leetcode_baseline_easy?: number | null;
+      leetcode_baseline_medium?: number | null;
+      leetcode_baseline_hard?: number | null;
+      leetcode_linked_on?: string | null;
+      codechef_baseline?: number | null;
+      codechef_linked_on?: string | null;
       resume_url?: string | null;
       resume_name?: string | null;
       resume_uploaded_at?: string | null;
@@ -179,6 +208,14 @@ export class User {
     if (updates.leetcodeMediumTotal !== undefined) dbUpdates.leetcode_medium_total = updates.leetcodeMediumTotal;
     if (updates.leetcodeHardTotal !== undefined) dbUpdates.leetcode_hard_total = updates.leetcodeHardTotal;
     if (updates.codechefSolvedTotal !== undefined) dbUpdates.codechef_solved_total = updates.codechefSolvedTotal;
+    if (updates.leetcodeBaseline !== undefined) {
+      dbUpdates.leetcode_baseline_easy = updates.leetcodeBaseline?.Easy ?? null;
+      dbUpdates.leetcode_baseline_medium = updates.leetcodeBaseline?.Medium ?? null;
+      dbUpdates.leetcode_baseline_hard = updates.leetcodeBaseline?.Hard ?? null;
+    }
+    if (updates.leetcodeLinkedOn !== undefined) dbUpdates.leetcode_linked_on = updates.leetcodeLinkedOn;
+    if (updates.codechefBaseline !== undefined) dbUpdates.codechef_baseline = updates.codechefBaseline;
+    if (updates.codechefLinkedOn !== undefined) dbUpdates.codechef_linked_on = updates.codechefLinkedOn;
     if (updates.resumeUrl !== undefined) dbUpdates.resume_url = updates.resumeUrl;
     if (updates.resumeName !== undefined) dbUpdates.resume_name = updates.resumeName;
     if (updates.resumeUploadedAt !== undefined) dbUpdates.resume_uploaded_at = updates.resumeUploadedAt;

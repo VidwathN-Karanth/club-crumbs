@@ -354,3 +354,13 @@ create index if not exists idx_attendance_date on public.attendance(date);
 -- Presence: bumped by a heartbeat while a signed-in tab is open. The leader's
 -- take-attendance screen pre-marks anyone seen in the last couple of minutes.
 alter table public.users add column if not exists last_seen_at timestamp with time zone;
+
+-- Solve counts at the moment each coding handle was linked. Only solves above
+-- these score, so a student's history from before joining never counts.
+-- Backfill and ledger fix for existing students: supabase/solve-baselines.sql.
+alter table public.users add column if not exists leetcode_baseline_easy integer;
+alter table public.users add column if not exists leetcode_baseline_medium integer;
+alter table public.users add column if not exists leetcode_baseline_hard integer;
+alter table public.users add column if not exists leetcode_linked_on date;
+alter table public.users add column if not exists codechef_baseline integer;
+alter table public.users add column if not exists codechef_linked_on date;

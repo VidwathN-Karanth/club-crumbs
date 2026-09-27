@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { getRequester } from '@/lib/authz';
 import { User } from '@/lib/models/User';
 import { DailyActivity } from '@/lib/models/DailyActivity';
-import { pointsConfig } from '@/lib/points';
 
 export async function GET(
   request: Request,
@@ -49,29 +48,22 @@ export async function GET(
       month: { commits: 0, solves: 0, points: 0 },
       allTime: {
         commits: 0,
-        solves: user.leetcodeEasyTotal + user.leetcodeMediumTotal + user.leetcodeHardTotal + (user.codechefSolvedTotal || 0),
-        points: (user.leetcodeEasyTotal * pointsConfig.leetcode.Easy) +
-                (user.leetcodeMediumTotal * pointsConfig.leetcode.Medium) +
-                (user.leetcodeHardTotal * pointsConfig.leetcode.Hard) +
-                ((user.codechefSolvedTotal || 0) * (pointsConfig.codechef?.perSolve || 15)),
+        // Summed from the ledger below, so only solves since linking count.
+        solves: 0,
+        points: 0,
         leetcodeUsername: user.leetcodeUsername,
         githubUsername: user.githubUsername,
         codechefUsername: user.codechefUsername
       }
     };
 
-    // Calculate helper for git points (GitHub points are disabled, always 0)
-    const getGitPoints = (commits: number) => {
-      return 0;
-    };
-
     for (const act of activities) {
       const actDate = act.date;
-      const ghPoints = getGitPoints(act.githubContributionsToday);
 
       // All time github
       stats.allTime.commits += act.githubContributionsToday;
-      stats.allTime.points += ghPoints;
+      stats.allTime.solves += act.leetcodeSolvedToday + (act.codechefSolvedToday || 0);
+      stats.allTime.points += act.pointsEarned;
 
       // Today
       if (actDate === todayStr) {
