@@ -1,21 +1,22 @@
-# 🌌 LAYORA: Student Productivity Suite
+# Club Crumbs: MITE CSE Clubs Dashboard
 
 <div align="center">
-  <img src="./public/layora-logo.png" alt="Layora Logo" width="120" height="120" style="border-radius: 24px;" />
+  <img src="./public/club-crumbs-logo.png" alt="Club Crumbs logo" width="120" height="120" style="border-radius: 24px;" />
   <br />
-  <p><strong>A futuristic, glassmorphic academic workspace combining local-first persistence, cloud database synchronization, and secure Google API integrations.</strong></p>
+  <p><strong>The shared dashboard for the CSE branch clubs at Mangalore Institute of Technology &amp; Engineering (MITE): Coders Club, Crypton Club and DevStudio.</strong></p>
+  <p>Activity tracking, leaderboards, attendance, certificates, club chat and event reports in one place.</p>
 </div>
 
 ---
 
 ## 🌐 Live Application
-### **[layora239.vercel.app](https://layora239.vercel.app/)**
+### **[club-crumbs.vercel.app](https://club-crumbs.vercel.app/)**
 
 ---
 
 ## 🛠️ Technology Stack & Architecture
 
-Layora is built using modern, bleeding-edge web technologies designed for performance, security, and a premium user experience:
+Club Crumbs is built using modern, bleeding-edge web technologies designed for performance, security, and a premium user experience:
 
 | Layer | Technology | Purpose |
 | :--- | :--- | :--- |
@@ -32,7 +33,7 @@ Layora is built using modern, bleeding-edge web technologies designed for perfor
 ## 🚀 Key Architectural Features & Solutions
 
 ### 1. Hybrid Sync & The Server-Side Database Proxy
-To prevent client-side network blockers (like uBlock Origin, Privacy Badger, or corporate firewalls) from intercepting and breaking database connections, Layora routes all Supabase queries through a **Server-Side API Proxy** (`/api/user/state/`):
+To prevent client-side network blockers (like uBlock Origin, Privacy Badger, or corporate firewalls) from intercepting and breaking database connections, Club Crumbs routes all Supabase queries through a **Server-Side API Proxy** (`/api/user/state/`):
 - The client talks to the same origin (`/api/user/state/`), which is never blocked by privacy extensions.
 - The serverless route fetches the authenticated Clerk User ID via server-side session headers.
 - It queries the Supabase DB server-to-server securely using API keys, completely bypassing browser CORS and extension blocks.
@@ -43,10 +44,10 @@ To address the race condition where database updates triggered real-time websock
 - **Ignore Stale Echoes**: The client keeps a ref tracking its last local write time. If a websocket update arrives with an older or equal `clientTimestamp`, the client ignores it, preventing stale write echo overrides while maintaining flawless multi-device synchronization.
 
 ### 3. Secure Google Drive Uploads & Size Guards
-Layora respects user data privacy: **no PDFs or study materials are saved on Supabase storage buckets**. All files are saved directly in your personal Google Drive account.
+Club Crumbs respects user data privacy: **no PDFs or study materials are saved on Supabase storage buckets**. All files are saved directly in your personal Google Drive account.
 - **Vercel Size Guard (4.5MB)**: Because direct file proxying travels through Vercel's serverless infrastructure, uploads are subject to Vercel’s **4.5MB request body size limit**. The UI dynamically validates file sizes, shows a warning for files exceeding the limit, and locks uploads.
 - **Robust Link Fallbacks**: If Google’s API response omits a direct `webViewLink` metadata field during upload, the backend automatically constructs a fallback URL using the file's ID (`https://drive.google.com/file/d/[id]/view?usp=drivesdk`) so your resources are always viewable under your subjects.
-- **Web Link Alternative**: For files larger than 4.5MB (such as massive lecture slides/PPTs), users can upload directly to Google Drive and index them in Layora via the **Web Link** tab.
+- **Web Link Alternative**: For files larger than 4.5MB (such as massive lecture slides/PPTs), users can upload directly to Google Drive and index them in Club Crumbs via the **Web Link** tab.
 
 ### 4. Weekly Timetable
 A weekly planner the student fills themselves. Nothing is placed without them:
@@ -57,7 +58,7 @@ A weekly planner the student fills themselves. Nothing is placed without them:
 
 ## 🧩 Module Breakdown & Cloud Portability
 
-Layora is structured into modular academic components that synchronize across all user devices. Because data is linked to your secure Clerk credentials and synced in real-time to Supabase, **any subject, resource file link, or task you modify on one device is instantly available on all others (laptop, phone, or tablet)**.
+Club Crumbs is structured into modular academic components that synchronize across all user devices. Because data is linked to your secure Clerk credentials and synced in real-time to Supabase, **any subject, resource file link, or task you modify on one device is instantly available on all others (laptop, phone, or tablet)**.
 
 ### 1. 🏁 Onboarding Portal
 A step-by-step routine-capturing wizard that gathers baseline student routines (sleep schedules, wake times, college hours), active courses, and subject parameters to configure your personalized database profile.
@@ -182,4 +183,4 @@ When deploying this repository to Vercel, make sure you configure the environmen
 ---
 
 ## 🔒 Security & Privacy Statement
-Layora prioritizes user privacy. Clerk manages authorization tokens safely. Supabase database row-level security (RLS) ensures that user profiles can only be queried, updated, or deleted by the Clerk user account owning the row. Files are uploaded directly to the user's private Google Drive folders and never pass through or get saved on Layora-controlled storage servers.
+Club Crumbs prioritizes user privacy. Clerk manages authorization tokens safely. Supabase database row-level security (RLS) ensures that user profiles can only be queried, updated, or deleted by the Clerk user account owning the row. Files are uploaded directly to the user's private Google Drive folders and never pass through or get saved on Club Crumbs-controlled storage servers.
