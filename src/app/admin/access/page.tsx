@@ -186,6 +186,7 @@ export default function AdminAccessPage() {
         <p className="text-[11px] text-white/40 font-mono">
           Full access to every club. Admins can add admins, leaders and members.
         </p>
+        <AddEmails placeholder="new-admin@example.com" onAdd={(emails) => post({ emails, role: 'admin' })} />
         <div className="space-y-2">
           {admins.map((email) => (
             <div key={email} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5">
@@ -205,7 +206,6 @@ export default function AdminAccessPage() {
             </div>
           ))}
         </div>
-        <AddEmails placeholder="new-admin@example.com" onAdd={(emails) => post({ emails, role: 'admin' })} />
       </section>
 
       {/* --- Per-club leaders & members --- */}
@@ -235,6 +235,7 @@ export default function AdminAccessPage() {
           <p className="text-[11px] text-white/40 font-mono">
             Leaders manage this club&apos;s members. They cannot appoint other leaders.
           </p>
+          <AddEmails placeholder="lead@mite.ac.in" onAdd={(emails) => post({ emails, role: 'leader', cohort: club })} />
           <div className="space-y-2">
             {leaders.length === 0 && <p className="text-[11px] text-white/30 font-mono">No leaders yet.</p>}
             {leaders.map((email) => (
@@ -253,7 +254,6 @@ export default function AdminAccessPage() {
               </div>
             ))}
           </div>
-          <AddEmails placeholder="lead@mite.ac.in" onAdd={(emails) => post({ emails, role: 'leader', cohort: club })} />
         </div>
 
         {/* Members */}
@@ -262,6 +262,7 @@ export default function AdminAccessPage() {
             <Users className="w-4 h-4 text-white/50" /> {club} · Members
             <span className="text-[10px] font-mono text-white/40">({members.length})</span>
           </h3>
+          <AddEmails placeholder="student@mite.ac.in" onAdd={(emails) => post({ emails, role: 'member', cohort: club })} />
           <div className="space-y-2">
             {members.length === 0 && <p className="text-[11px] text-white/30 font-mono">No members yet.</p>}
             {members.map((email) => (
@@ -280,7 +281,6 @@ export default function AdminAccessPage() {
               </div>
             ))}
           </div>
-          <AddEmails placeholder="student@mite.ac.in" onAdd={(emails) => post({ emails, role: 'member', cohort: club })} />
         </div>
       </section>
 
