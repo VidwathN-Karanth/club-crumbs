@@ -306,9 +306,9 @@
     "semantic_hash": ""
   },
   "src/app/dashboard/settings/page.tsx": {
-    "mtime": 1790265046.336636,
-    "seen": 1790266237.6220293,
-    "ast_hash": "9abf26375f01dd22f84d9b02b2f29a76",
+    "mtime": 1790526091.0828283,
+    "seen": 1790526124.644361,
+    "ast_hash": "04fff776cff0072569102dfd75db8810",
     "semantic_hash": ""
   },
   "src/app/dashboard/tasks/page.tsx": {
@@ -642,9 +642,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789118188.6589093,
-    "seen": 1789132232.8865964,
-    "ast_hash": "2c75dc49200c1a341cb7836df87f95e3",
+    "mtime": 1790504023.4026875,
+    "seen": 1790526124.6444774,
+    "ast_hash": "c144a6dfd1f4028db2a098815cf2c988",
     "semantic_hash": ""
   },
   "extension/README.md": {
@@ -816,9 +816,9 @@
     "semantic_hash": ""
   },
   "src/app/admin/settings/page.tsx": {
-    "mtime": 1789364924.4402144,
-    "seen": 1789475970.089679,
-    "ast_hash": "c751c449f28c5968eb2038c8b2ea4521",
+    "mtime": 1790526091.2952216,
+    "seen": 1790526124.6442926,
+    "ast_hash": "ad50aeff1684506c0c07a8c1a43defa4",
     "semantic_hash": ""
   },
   "src/app/admin/students/page.tsx": {
@@ -1026,9 +1026,9 @@
     "semantic_hash": ""
   },
   "src/app/leader/settings/page.tsx": {
-    "mtime": 1790163539.2284756,
-    "seen": 1790163756.2257562,
-    "ast_hash": "0a18d009acee34bc2633f512da4ce9d1",
+    "mtime": 1790526091.5940332,
+    "seen": 1790526124.6443822,
+    "ast_hash": "55c91ea1b99960a79a3c7c056996dbd3",
     "semantic_hash": ""
   },
   "src/lib/clubMembers.ts": {
@@ -1326,9 +1326,9 @@
     "semantic_hash": ""
   },
   "src/components/DeviceSettings.tsx": {
-    "mtime": 1790095099.931714,
-    "seen": 1790095215.3258147,
-    "ast_hash": "85ebfcae091248714081404e2ce9f92d",
+    "mtime": 1790526077.0055535,
+    "seen": 1790526124.6443932,
+    "ast_hash": "99e113653ce49ff8c12c7e1e140485ef",
     "semantic_hash": ""
   },
   "src/components/map/DeletableEdge.tsx": {

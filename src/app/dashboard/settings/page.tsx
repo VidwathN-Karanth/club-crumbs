@@ -6,6 +6,7 @@ import { useStore } from '@/store/useStore';
 import { apiFetch, readJson, errorMessage } from '@/lib/apiClient';
 import ResumePanel from '@/components/ResumePanel';
 import InfoPopover from '@/components/InfoPopover';
+import { DesktopAppPanel } from '@/components/DeviceSettings';
 import { 
   Check, Sparkles, User, Bell, BellOff, Calendar,
   ShieldCheck, Loader2, Lock, Puzzle, ArrowRight
@@ -498,10 +499,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* --- PANEL 3: RESUME / CV --- */}
-          <ResumePanel />
-
-          {/* --- PANEL 4: BROWSER EXTENSION --- */}
+          {/* --- PANEL 3: BROWSER EXTENSION (second row, beside the desktop app) --- */}
           <div className="glass-card rounded-2xl p-5 space-y-4">
             <div className="flex items-center gap-2.5 border-b border-outline-variant pb-2">
               <Puzzle className="w-4 h-4 text-primary" />
@@ -547,7 +545,13 @@ export default function SettingsPage() {
             </a>
           </div>
 
-          {/* --- PANEL 5: VISUAL THEMING --- */}
+          {/* --- PANEL 4: DESKTOP APP --- */}
+          <DesktopAppPanel />
+
+          {/* --- PANEL 5: RESUME / CV --- */}
+          <ResumePanel />
+
+          {/* --- PANEL 6: VISUAL THEMING --- */}
           <div className="glass-card rounded-2xl p-5 space-y-4">
             <div className="flex items-center gap-2.5 border-b border-outline-variant pb-2">
               <Sparkles className="w-4 h-4 text-primary" />

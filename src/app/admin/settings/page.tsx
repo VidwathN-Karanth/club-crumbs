@@ -14,6 +14,7 @@ import {
   announce, clearTodaysNotificationMarks, permissionState, requestPermission,
   type NotificationPermissionState,
 } from '@/lib/notifications';
+import { DesktopAppPanel } from '@/components/DeviceSettings';
 import { SectionHeader } from '../_components/PanelState';
 import { useSectionData } from '../_components/useSectionData';
 
@@ -296,6 +297,8 @@ export default function AdminSettingsPage() {
             )}
           </div>
         </div>
+
+        <DesktopAppPanel />
 
         {/* --- PANEL 3: INTERFACE --- */}
         <div className="glass-card rounded-2xl p-5 space-y-4">

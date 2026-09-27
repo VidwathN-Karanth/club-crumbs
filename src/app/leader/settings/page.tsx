@@ -2,7 +2,7 @@
 
 import { ChevronRight, Lock, Puzzle, Settings, User } from 'lucide-react';
 import ResumePanel from '@/components/ResumePanel';
-import { RemindersControl, InterfacePanel } from '@/components/DeviceSettings';
+import { RemindersControl, InterfacePanel, DesktopAppPanel } from '@/components/DeviceSettings';
 import { useLeader } from '../LeaderContext';
 
 export default function LeaderSettingsPage() {
@@ -48,6 +48,8 @@ export default function LeaderSettingsPage() {
 
         {/* --- INTERFACE --- */}
         <InterfacePanel />
+
+        <DesktopAppPanel />
       </div>
 
       {/* Reuses the shared CV panel, pointed at the staff endpoint. Admins can

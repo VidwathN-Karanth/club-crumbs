@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Bell, Sparkles } from 'lucide-react';
+import { Bell, Download, Monitor, Sparkles } from 'lucide-react';
 
 import { useStore } from '@/store/useStore';
 import {
@@ -174,6 +174,35 @@ export function InterfacePanel() {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+const DESKTOP_APP_URL =
+  'https://github.com/VidwathN-Karanth/Club-Crumbs-DesktopApp/releases/download/v1.0.0/Club-Crumbs-Setup-1.0.0.exe';
+
+/** The Windows desktop app download — same card for members, leaders and admins. */
+export function DesktopAppPanel() {
+  return (
+    <div className="glass-card rounded-2xl p-5 space-y-4">
+      <div className="flex items-center gap-2.5 border-b border-outline-variant pb-2">
+        <Monitor className="w-4 h-4 text-primary" />
+        <h3 className="text-xs font-mono font-bold tracking-wider text-primary">Desktop App</h3>
+      </div>
+
+      <p className="text-xs text-on-surface-variant leading-relaxed">
+        Club Crumbs in its own window on Windows — sign in once and it opens straight to
+        your workspace.
+      </p>
+
+      <a
+        href={DESKTOP_APP_URL}
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-on-primary transition hover:opacity-90"
+      >
+        <Download className="w-3.5 h-3.5" /> Download Desktop App
+      </a>
+      <span className="block text-[10px] font-mono text-outline">Windows · v1.0.0</span>
     </div>
   );
 }
