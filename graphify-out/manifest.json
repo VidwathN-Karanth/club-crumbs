@@ -288,9 +288,9 @@
     "semantic_hash": ""
   },
   "src/app/dashboard/leaderboard/page.tsx": {
-    "mtime": 1789916380.8014917,
-    "seen": 1790095215.3257313,
-    "ast_hash": "fbf223eaf10748d82c8782b5dc6c37f3",
+    "mtime": 1790554511.9940872,
+    "seen": 1790554527.8389456,
+    "ast_hash": "314f7dd8b43e22ccd82187db38353ae0",
     "semantic_hash": ""
   },
   "src/app/dashboard/page.tsx": {
@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "src/lib/points.ts": {
-    "mtime": 1790163539.2284756,
-    "seen": 1790163756.2260158,
-    "ast_hash": "62a5099f39a08844c7cfba9b332b7210",
+    "mtime": 1790554495.2368288,
+    "seen": 1790554527.8390853,
+    "ast_hash": "40aca31d431a62c4a15779493f702238",
     "semantic_hash": ""
   },
   "src/lib/pomodoro.ts": {
@@ -1488,9 +1488,9 @@
     "semantic_hash": ""
   },
   "supabase/solve-baselines.sql": {
-    "mtime": 1790552427.7428732,
-    "seen": 1790552443.44613,
-    "ast_hash": "2818062d85d63c62a5608bea3a880d4d",
+    "mtime": 1790554495.2872453,
+    "seen": 1790554527.8391135,
+    "ast_hash": "0596885b6b4011d87a45764f1d1d49dd",
     "semantic_hash": ""
   }
 }

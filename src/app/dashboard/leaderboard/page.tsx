@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useStore } from '@/store/useStore';
 import { apiFetch } from '@/lib/apiClient';
+import { pointsConfig } from '@/lib/points';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { 
   Trophy, Award, TrendingUp, Calendar, RefreshCw,
@@ -339,21 +340,21 @@ export default function LeaderboardPage() {
             
             <div className="space-y-2 border-t border-outline-variant/30 pt-3">
               <h4 className="text-[11px] font-bold text-on-surface flex items-center gap-1.5">
-                <Terminal className="w-3.5 h-3.5 text-yellow-500" /> LeetCode Solves (Cumulative)
+                <Terminal className="w-3.5 h-3.5 text-yellow-500" /> LeetCode Solves (since linking)
               </h4>
               <ul className="list-disc pl-4 space-y-1">
-                <li>Easy solves: <strong className="text-on-surface">10 pts each</strong></li>
-                <li>Medium solves: <strong className="text-on-surface">20 pts each</strong></li>
-                <li>Hard solves: <strong className="text-on-surface">30 pts each</strong></li>
+                <li>Easy solves: <strong className="text-on-surface">{pointsConfig.leetcode.Easy} pts each</strong></li>
+                <li>Medium solves: <strong className="text-on-surface">{pointsConfig.leetcode.Medium} pts each</strong></li>
+                <li>Hard solves: <strong className="text-on-surface">{pointsConfig.leetcode.Hard} pts each</strong></li>
               </ul>
             </div>
 
             <div className="space-y-2 border-t border-outline-variant/30 pt-3">
               <h4 className="text-[11px] font-bold text-on-surface flex items-center gap-1.5">
-                <Terminal className="w-3.5 h-3.5 text-orange-500" /> CodeChef Solves (Cumulative)
+                <Terminal className="w-3.5 h-3.5 text-orange-500" /> CodeChef Solves (since linking)
               </h4>
               <ul className="list-disc pl-4 space-y-1">
-                <li>Problem solved: <strong className="text-on-surface">5 pts each</strong></li>
+                <li>Problem solved: <strong className="text-on-surface">{pointsConfig.codechef.perSolve} pts each</strong></li>
               </ul>
             </div>
 

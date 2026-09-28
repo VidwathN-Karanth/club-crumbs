@@ -1,8 +1,8 @@
 export const pointsConfig = {
   leetcode: {
-    Easy: 10,
-    Medium: 20,
-    Hard: 30
+    Easy: 30,
+    Medium: 45,
+    Hard: 60
   },
   github: {
     activeBonus: 0,

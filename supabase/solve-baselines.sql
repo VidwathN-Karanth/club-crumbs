@@ -38,7 +38,7 @@ update public.users set
 where codechef_username is not null and codechef_linked_on is null;
 
 -- 3. Re-score every ledger row the way syncLogic.ts now does. Weights mirror
---    src/lib/points.ts (LeetCode 10/20/30, CodeChef 5, GitHub 0) — change both
+--    src/lib/points.ts (LeetCode 30/45/60, CodeChef 5, GitHub 0) — change both
 --    together.
 with ordered as (
   select a.id, a.date, u.leetcode_linked_on lc_on, u.codechef_linked_on cc_on,
@@ -63,7 +63,7 @@ with ordered as (
 update public.daily_activities a set
   leetcode_solved_today = d.de + d.dm + d.dh,
   codechef_solved_today = d.dc,
-  points_earned = d.de * 10 + d.dm * 20 + d.dh * 30 + d.dc * 5
+  points_earned = d.de * 30 + d.dm * 45 + d.dh * 60 + d.dc * 5
 from diffs d
 where d.id = a.id;
 
