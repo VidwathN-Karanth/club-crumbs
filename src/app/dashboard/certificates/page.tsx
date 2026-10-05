@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { apiFetch, readJson, errorMessage } from '@/lib/apiClient';
+import { apiFetch, readJson, errorMessage, snapshotFile, UNREADABLE_FILE_MESSAGE } from '@/lib/apiClient';
 import { drivePreviewUrl } from '@/lib/driveLinks';
 import CertificateThumb from '@/components/CertificateThumb';
 import InfoPopover from '@/components/InfoPopover';
@@ -102,16 +102,21 @@ export default function CertificatesPage() {
     return () => { cancelled = true; };
   }, [clerkUser?.id]);
 
-  const applyPick = (f: File | null | undefined) => {
+  const applyPick = async (f: File | null | undefined) => {
     if (!f) return;
     const result = validateCertificateFile(f);
-    if (result.ok) {
-      setFile(result.file);
-      setFormErrors(prev => ({ ...prev, file: undefined }));
-      setError('');
-    } else {
+    if (!result.ok) {
       setFile(null);
       setFormErrors(prev => ({ ...prev, file: result.error }));
+      return;
+    }
+    try {
+      setFile(await snapshotFile(result.file));
+      setFormErrors(prev => ({ ...prev, file: undefined }));
+      setError('');
+    } catch {
+      setFile(null);
+      setFormErrors(prev => ({ ...prev, file: UNREADABLE_FILE_MESSAGE }));
     }
   };
 

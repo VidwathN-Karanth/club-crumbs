@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   FileText, UploadCloud, Link2, X, ExternalLink, Loader2, Check, Lock,
 } from 'lucide-react';
-import { apiFetch, readJson, errorMessage } from '@/lib/apiClient';
+import { apiFetch, readJson, errorMessage, snapshotFile, UNREADABLE_FILE_MESSAGE } from '@/lib/apiClient';
 import { formatDate } from '@/lib/dateFormat';
 
 interface Resume {
@@ -74,15 +74,20 @@ export default function ResumePanel({ endpoint = '/api/user/resume' }: { endpoin
     return () => { cancelled = true; };
   }, []);
 
-  const applyPick = (f: File | null | undefined) => {
+  const applyPick = async (f: File | null | undefined) => {
     if (!f) return;
     const result = validateResumeFile(f);
-    if (result.ok) {
-      setError('');
-      setFile(result.file);
-    } else {
+    if (!result.ok) {
       setFile(null);
       setError(result.error);
+      return;
+    }
+    try {
+      setFile(await snapshotFile(result.file));
+      setError('');
+    } catch {
+      setFile(null);
+      setError(UNREADABLE_FILE_MESSAGE);
     }
   };
 

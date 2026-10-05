@@ -76,6 +76,20 @@ export async function apiJson<T = unknown>(path: string, init?: RequestInit): Pr
   return readJson<T>(await apiFetch(path, init));
 }
 
+/**
+ * Copies a picked file into memory. On Android a picked File is only a handle
+ * to a content:// URI (Drive, Downloads, ...); if the provider touches it before
+ * the form is submitted, Chrome aborts the upload with a bare "Failed to fetch"
+ * (ERR_UPLOAD_FILE_CHANGED) and nothing reaches the server. Call this at pick
+ * time so the upload sends bytes we already hold.
+ */
+export async function snapshotFile(f: File): Promise<File> {
+  return new File([await f.arrayBuffer()], f.name, { type: f.type, lastModified: f.lastModified });
+}
+
+export const UNREADABLE_FILE_MESSAGE =
+  'Could not read that file. Download it to your device first, then pick it again.';
+
 /** Best-effort message for a caught error, for use in `catch` blocks. */
 export function errorMessage(err: unknown, fallback: string): string {
   if (err instanceof ApiError) return err.message;

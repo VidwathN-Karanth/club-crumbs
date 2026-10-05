@@ -264,9 +264,9 @@
     "semantic_hash": "ac4c133d0209f1cb47d49640becb90a0"
   },
   "src/app/dashboard/certificates/page.tsx": {
-    "mtime": 1789140867.0318685,
-    "seen": 1789142422.593754,
-    "ast_hash": "6626771aaedbe47213fe9ed0e2820e16",
+    "mtime": 1791202118.2356968,
+    "seen": 1791202229.9599338,
+    "ast_hash": "fbb0fd05a3f77a07ed36ac40ceeddde0",
     "semantic_hash": ""
   },
   "src/app/dashboard/courses/page.tsx": {
@@ -420,9 +420,9 @@
     "semantic_hash": ""
   },
   "src/components/ResumePanel.tsx": {
-    "mtime": 1789364924.4612932,
-    "seen": 1789475970.0897694,
-    "ast_hash": "256d8ab909148b37205240f4987dbab8",
+    "mtime": 1791202124.4612508,
+    "seen": 1791202229.9600155,
+    "ast_hash": "d2088ad09ea6dc88fd5baf8873afca4e",
     "semantic_hash": ""
   },
   "src/components/SyncProvider.tsx": {
@@ -438,10 +438,10 @@
     "semantic_hash": ""
   },
   "src/lib/apiClient.ts": {
-    "mtime": 1789118188.7172518,
-    "seen": 1789132232.886566,
-    "ast_hash": "76281ddffdb6f1da0ffff8b865cf7d28",
-    "semantic_hash": "76281ddffdb6f1da0ffff8b865cf7d28"
+    "mtime": 1791202117.83326,
+    "seen": 1791202229.9600573,
+    "ast_hash": "d42b29fb958a1bb7eeb554bde1c2c412",
+    "semantic_hash": ""
   },
   "src/lib/authz.ts": {
     "mtime": 1789731679.1383698,
