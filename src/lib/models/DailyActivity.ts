@@ -140,7 +140,7 @@ export class DailyActivity {
    * cron jobs want.
    */
   static async getLeaderboard(
-    range: 'today' | 'week' | 'all',
+    range: 'today' | 'week' | 'all' | 'lifetime',
     opts: { restrictToEmails?: string[] } = {}
   ): Promise<LeaderboardUser[]> {
     // 1. Fetch the candidates and drop anyone without a linked handle.
@@ -234,13 +234,23 @@ export class DailyActivity {
       summary.totalCodechefSolved += Number(row.codechef_solved);
     }
 
+    // 4.5 Lifetime (admin only): the profile's own totals, pre-club solves
+    // included. Points stay the ledger — solves from before linking never score.
+    if (range === 'lifetime') {
+      for (const u of users) {
+        leaderboardMap[u.id].totalLeetcodeSolved = u.leetcodeEasyTotal + u.leetcodeMediumTotal + u.leetcodeHardTotal;
+        leaderboardMap[u.id].totalCodechefSolved = u.codechefSolvedTotal;
+      }
+    }
+
     // 4.6 Competition podiums (Coding / Gym results). Winners score even with
     // no linked coding handle, so they are added to the board if missing.
     await addEventPoints(leaderboardMap, users, { startDate, endDate, allowedEmails });
 
     // 5. Convert to array and sort descending by totalPoints
     const sortedLeaderboard = Object.values(leaderboardMap).sort((a, b) => {
-      if (b.totalPoints !== a.totalPoints) {
+      // Lifetime ranks by solves; points would just repeat the "all" board.
+      if (range !== 'lifetime' && b.totalPoints !== a.totalPoints) {
         return b.totalPoints - a.totalPoints;
       }
       const totalSolvedB = b.totalLeetcodeSolved + b.totalCodechefSolved;

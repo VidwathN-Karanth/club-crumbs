@@ -625,7 +625,7 @@
       "file_type": "code",
       "norm_label": "range",
       "source_file": "src/app/api/admin/leaderboard/route.ts",
-      "source_location": "L7"
+      "source_location": "L8"
     },
     {
       "id": "src_lib_synclogic_sliceoptions",
@@ -2120,7 +2120,7 @@
       "file_type": "code",
       "norm_label": "eventresult",
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L300"
+      "source_location": "L310"
     },
     {
       "id": "src_lib_models_dailyactivity_leaderboarduser",
@@ -4139,7 +4139,7 @@
       "file_type": "code",
       "norm_label": "get()",
       "source_file": "src/app/api/admin/leaderboard/route.ts",
-      "source_location": "L15"
+      "source_location": "L16"
     },
     {
       "id": "src_app_api_admin_resumes_download_route_get",
@@ -8831,7 +8831,7 @@
       "file_type": "code",
       "norm_label": "addeventpoints()",
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L303"
+      "source_location": "L313"
     },
     {
       "id": "src_lib_models_dailyactivity_dailyactivity_findbyuserid",
@@ -8843,7 +8843,7 @@
       "file_type": "code",
       "norm_label": ".findbyuserid()",
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L260"
+      "source_location": "L270"
     },
     {
       "id": "src_lib_models_dailyactivity_dailyactivity_footprint",
@@ -8855,7 +8855,7 @@
       "file_type": "code",
       "norm_label": ".footprint()",
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L288"
+      "source_location": "L298"
     },
     {
       "id": "src_lib_models_dailyactivity_dailyactivity_getleaderboard",
@@ -11939,7 +11939,7 @@
       "file_type": "code",
       "norm_label": "dynamic",
       "source_file": "src/app/api/admin/leaderboard/route.ts",
-      "source_location": "L41"
+      "source_location": "L42"
     },
     {
       "id": "src_app_api_admin_leaderboard_route_valid_ranges",
@@ -11950,7 +11950,7 @@
       "file_type": "code",
       "norm_label": "valid_ranges",
       "source_file": "src/app/api/admin/leaderboard/route.ts",
-      "source_location": "L6"
+      "source_location": "L7"
     },
     {
       "id": "src_app_api_admin_resumes_route",
@@ -19726,7 +19726,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/admin/leaderboard/page.tsx",
-      "source_location": "L164",
+      "source_location": "L166",
       "weight": 1.0
     },
     {
@@ -21022,7 +21022,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/api/admin/leaderboard/route.ts",
-      "source_location": "L16",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
@@ -21034,7 +21034,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/api/admin/leaderboard/route.ts",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -21046,7 +21046,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/api/admin/leaderboard/route.ts",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -29134,7 +29134,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L271",
+      "source_location": "L281",
       "weight": 1.0
     },
     {
@@ -29158,7 +29158,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L239",
+      "source_location": "L248",
       "weight": 1.0
     },
     {
@@ -51067,7 +51067,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/admin/leaderboard/route.ts",
-      "source_location": "L15",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -51078,7 +51078,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/admin/leaderboard/route.ts",
-      "source_location": "L41",
+      "source_location": "L42",
       "weight": 1.0
     },
     {
@@ -51089,7 +51089,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/admin/leaderboard/route.ts",
-      "source_location": "L6",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -51100,7 +51100,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/admin/leaderboard/route.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -58668,7 +58668,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L300",
+      "source_location": "L310",
       "weight": 1.0
     },
     {
@@ -58679,7 +58679,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L303",
+      "source_location": "L313",
       "weight": 1.0
     },
     {
@@ -60965,7 +60965,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L260",
+      "source_location": "L270",
       "weight": 1.0
     },
     {
@@ -60976,7 +60976,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L288",
+      "source_location": "L298",
       "weight": 1.0
     },
     {
@@ -62548,5 +62548,5 @@
       "source_file": "structure.md"
     }
   ],
-  "built_at_commit": "eef93fde3ba1d5024c48f5fb7cfe838b53f67a3b"
+  "built_at_commit": "c9fb48b8119f66cdcb94bcabd222899b4c921dac"
 }

@@ -3,7 +3,8 @@ import { DailyActivity } from '@/lib/models/DailyActivity';
 import { requireAdminCohort } from '@/lib/authz';
 import { emailsForCohort } from '@/lib/roster';
 
-const VALID_RANGES = ['today', 'week', 'all'] as const;
+// `lifetime` is admin-only: the leader and member routes keep their own list.
+const VALID_RANGES = ['today', 'week', 'all', 'lifetime'] as const;
 type Range = (typeof VALID_RANGES)[number];
 
 /**

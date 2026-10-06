@@ -30,7 +30,7 @@ interface LeaderboardRow {
   totalPoints: number;
 }
 
-type Range = 'today' | 'week' | 'all';
+type Range = 'today' | 'week' | 'all' | 'lifetime';
 
 /** A handle or a full URL, both of which students type. */
 function profileUrl(handle: string | null | undefined, base: string): string | null {
@@ -85,10 +85,12 @@ export default function AdminLeaderboardPage() {
       <SectionHeader
         icon={Trophy}
         title="Activity Leaderboard"
-        subtitle={`${selectedCohort} coding activity, recalculated on the nightly sync.`}
+        subtitle={range === 'lifetime'
+          ? `${selectedCohort} lifetime solves from each profile, including before they joined. Points are club points only.`
+          : `${selectedCohort} coding activity, recalculated on the nightly sync.`}
       >
         <div className="flex items-center gap-2">
-          {(['today', 'week', 'all'] as const).map((r) => (
+          {(['today', 'week', 'all', 'lifetime'] as const).map((r) => (
             <button
               key={r}
               onClick={() => setRange(r)}
@@ -99,7 +101,7 @@ export default function AdminLeaderboardPage() {
                   : 'border-white/10 bg-white/5 text-white/60 hover:text-white'
               }`}
             >
-              {r === 'week' ? '7 Days' : r}
+              {r === 'week' ? '7 Days' : r === 'lifetime' ? 'All Time' : r}
             </button>
           ))}
           <button
