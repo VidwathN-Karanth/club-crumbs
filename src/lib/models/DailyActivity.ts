@@ -138,10 +138,14 @@ export class DailyActivity {
    * ever compete within their own year, so callers pass that year's roster
    * addresses; omitting it ranks everybody, which is what the CSV export and
    * cron jobs want.
+   *
+   * Students with nothing to show — no LeetCode or CodeChef solves and no
+   * contest (HackerRank / Unstop) points — are left off the board.
+   * `includeZeroScores` keeps them, for callers that read it as a stats lookup.
    */
   static async getLeaderboard(
     range: 'today' | 'week' | 'all' | 'lifetime',
-    opts: { restrictToEmails?: string[] } = {}
+    opts: { restrictToEmails?: string[]; includeZeroScores?: boolean } = {}
   ): Promise<LeaderboardUser[]> {
     // 1. Fetch the candidates and drop anyone without a linked handle.
     //
@@ -247,8 +251,13 @@ export class DailyActivity {
     // no linked coding handle, so they are added to the board if missing.
     await addEventPoints(leaderboardMap, users, { startDate, endDate, allowedEmails });
 
-    // 5. Convert to array and sort descending by totalPoints
-    const sortedLeaderboard = Object.values(leaderboardMap).sort((a, b) => {
+    // 5. Drop zero scorers, then sort descending by totalPoints. GitHub earns no
+    // points, so totalPoints > 0 means LeetCode, CodeChef or contest points;
+    // the solve counts also cover lifetime, where points stay the ledger.
+    const ranked = Object.values(leaderboardMap).filter((u) =>
+      opts.includeZeroScores || u.totalLeetcodeSolved > 0 || u.totalCodechefSolved > 0 || u.totalPoints > 0
+    );
+    const sortedLeaderboard = ranked.sort((a, b) => {
       // Lifetime ranks by solves; points would just repeat the "all" board.
       if (range !== 'lifetime' && b.totalPoints !== a.totalPoints) {
         return b.totalPoints - a.totalPoints;

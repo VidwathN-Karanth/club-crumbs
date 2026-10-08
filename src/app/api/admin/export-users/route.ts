@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     const users = allUsers.filter((u) => allowed.has((u.email || '').trim().toLowerCase()));
 
     // Points and contribution totals, scoped to the same year
-    const leaderboard = await DailyActivity.getLeaderboard('all', { restrictToEmails: rosterEmails });
+    const leaderboard = await DailyActivity.getLeaderboard('all', { restrictToEmails: rosterEmails, includeZeroScores: true });
 
     // Create a map from userId to totalGithubContributions
     const githubContributionsMap = new Map<string, number>();

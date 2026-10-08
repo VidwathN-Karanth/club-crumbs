@@ -70,7 +70,7 @@ export default function LeaderLeaderboardPage() {
         ) : error ? (
           <p className="p-8 text-center text-xs text-rose-400 font-mono">{error}</p>
         ) : rows.length === 0 ? (
-          <p className="p-8 text-center text-xs text-white/40 font-mono">No ranked members yet — they need a linked LeetCode/GitHub/CodeChef handle.</p>
+          <p className="p-8 text-center text-xs text-white/40 font-mono">No ranked members yet — they need a LeetCode or CodeChef solve, or a contest podium.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
