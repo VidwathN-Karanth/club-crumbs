@@ -2120,7 +2120,7 @@
       "file_type": "code",
       "norm_label": "eventresult",
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L310"
+      "source_location": "L319"
     },
     {
       "id": "src_lib_models_dailyactivity_leaderboarduser",
@@ -8831,7 +8831,7 @@
       "file_type": "code",
       "norm_label": "addeventpoints()",
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L313"
+      "source_location": "L322"
     },
     {
       "id": "src_lib_models_dailyactivity_dailyactivity_findbyuserid",
@@ -8843,7 +8843,7 @@
       "file_type": "code",
       "norm_label": ".findbyuserid()",
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L270"
+      "source_location": "L279"
     },
     {
       "id": "src_lib_models_dailyactivity_dailyactivity_footprint",
@@ -8855,7 +8855,7 @@
       "file_type": "code",
       "norm_label": ".footprint()",
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L298"
+      "source_location": "L307"
     },
     {
       "id": "src_lib_models_dailyactivity_dailyactivity_getleaderboard",
@@ -8867,7 +8867,7 @@
       "file_type": "code",
       "norm_label": ".getleaderboard()",
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L142"
+      "source_location": "L146"
     },
     {
       "id": "src_lib_models_dailyactivity_dailyactivity_upsert",
@@ -24922,7 +24922,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/leader/attendance/page.tsx",
-      "source_location": "L145",
+      "source_location": "L146",
       "weight": 1.0
     },
     {
@@ -24934,7 +24934,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/leader/attendance/page.tsx",
-      "source_location": "L198",
+      "source_location": "L199",
       "weight": 1.0
     },
     {
@@ -24946,7 +24946,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/leader/attendance/page.tsx",
-      "source_location": "L216",
+      "source_location": "L217",
       "weight": 1.0
     },
     {
@@ -24958,7 +24958,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/leader/attendance/page.tsx",
-      "source_location": "L217",
+      "source_location": "L218",
       "weight": 1.0
     },
     {
@@ -24970,7 +24970,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/leader/attendance/page.tsx",
-      "source_location": "L219",
+      "source_location": "L220",
       "weight": 1.0
     },
     {
@@ -24994,7 +24994,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/leader/attendance/page.tsx",
-      "source_location": "L263",
+      "source_location": "L264",
       "weight": 1.0
     },
     {
@@ -25018,7 +25018,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/leader/attendance/page.tsx",
-      "source_location": "L426",
+      "source_location": "L427",
       "weight": 1.0
     },
     {
@@ -29134,7 +29134,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L281",
+      "source_location": "L290",
       "weight": 1.0
     },
     {
@@ -29146,7 +29146,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L157",
+      "source_location": "L161",
       "weight": 1.0
     },
     {
@@ -29158,7 +29158,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L248",
+      "source_location": "L252",
       "weight": 1.0
     },
     {
@@ -58668,7 +58668,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L310",
+      "source_location": "L319",
       "weight": 1.0
     },
     {
@@ -58679,7 +58679,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L313",
+      "source_location": "L322",
       "weight": 1.0
     },
     {
@@ -60954,7 +60954,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L142",
+      "source_location": "L146",
       "weight": 1.0
     },
     {
@@ -60965,7 +60965,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L270",
+      "source_location": "L279",
       "weight": 1.0
     },
     {
@@ -60976,7 +60976,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/models/DailyActivity.ts",
-      "source_location": "L298",
+      "source_location": "L307",
       "weight": 1.0
     },
     {
@@ -61414,7 +61414,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "src/app/leader/attendance/page.tsx",
-      "source_location": "L94",
+      "source_location": "L95",
       "weight": 1.0
     },
     {
@@ -62548,5 +62548,5 @@
       "source_file": "structure.md"
     }
   ],
-  "built_at_commit": "c9fb48b8119f66cdcb94bcabd222899b4c921dac"
+  "built_at_commit": "16f25ae26a3e9b892e516e7a8896431d5cb2a1d5"
 }
