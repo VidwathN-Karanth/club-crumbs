@@ -80,13 +80,14 @@ export default function LeaderAttendancePage() {
   const today = todayKey();
   const todayRecord = records.find((r) => r.date === today) || null;
 
-  /** Loads a date into the sheet: its saved register (plus anyone who joined since), or today's members unmarked. */
+  /** Loads a date into the sheet: its saved register (plus anyone who joined since), or today's members. Anyone without a saved mark starts present. */
   const loadSheet = (date: string, from: AttendanceRecord[]) => {
     const existing = from.find((r) => r.date === date) || null;
     const people = new Map<string, RosterEntry>();
     for (const m of existing?.roster || []) people.set(m.email, m);
     for (const m of members) if (!people.has(m.email)) people.set(m.email, m);
     const next = new Map<string, Mark>();
+    for (const email of people.keys()) next.set(email, 'P');
     if (existing) for (const m of existing.roster) next.set(m.email, existing.present.includes(m.email) ? 'P' : 'A');
     setTakeDate(date);
     takeDateRef.current = date;
@@ -243,7 +244,7 @@ export default function LeaderAttendancePage() {
               <CheckSquare className="w-5 h-5" /> {base ? 'Edit attendance' : 'Take attendance'}
             </h1>
             <p className="text-xs text-white/40 mt-0.5">
-              Tap a member to mark them present; tap again for absent. Members online right now are marked present for you. Everyone must be marked before you can save.
+              Everyone starts present — tap a member to mark them absent. Members with the app open are tagged online.
             </p>
           </div>
           <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wider text-white/40 font-bold">
