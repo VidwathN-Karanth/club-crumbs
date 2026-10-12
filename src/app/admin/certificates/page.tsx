@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Award, Eye, RefreshCw, X } from 'lucide-react';
@@ -92,6 +93,12 @@ export default function AdminCertificatesPage() {
         title="Certificates"
         subtitle={`Every ${selectedCohort} student who has uploaded a certificate, by category.`}
       >
+        <Link
+          href="/leader/certificates"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 hover:border-primary text-primary transition cursor-pointer text-[10px] uppercase font-bold tracking-wider"
+        >
+          <Award className="w-3.5 h-3.5" /> Bulk Generator
+        </Link>
         <span className="px-3 py-2 rounded-xl border border-outline-variant bg-white/3 text-[10px] font-mono uppercase tracking-wider text-outline">
           {uploaders.length} student{uploaders.length === 1 ? '' : 's'}
         </span>
