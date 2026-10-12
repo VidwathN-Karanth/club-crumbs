@@ -16,6 +16,7 @@ import {
   type Grant,
   type Identity,
 } from './accessGrants';
+import { isTestAuthEnabledServer } from './testAuth';
 
 export type AccessDenialReason = 'signed_out' | 'wrong_domain' | 'not_on_roster';
 
@@ -51,10 +52,57 @@ export interface Requester {
  * The active-context cookie says which one they are acting as right now.
  */
 export async function getRequester(): Promise<Requester | null> {
-  const { userId } = await auth();
+  const cookieStore = await cookies();
+  const testSession = cookieStore.get('cc_test_session')?.value;
+
+  if (isTestAuthEnabledServer() && testSession === 'testadmin@mite.ac.in') {
+    const email = 'testadmin@mite.ac.in';
+    const name = 'Test Administrator';
+    const grants: Grant[] = [
+      { email, role: 'admin', cohort: null },
+      { email, role: 'leader', cohort: 'Coders Club' },
+      { email, role: 'leader', cohort: 'Crypton Club' },
+      { email, role: 'leader', cohort: 'DevStudio' },
+      { email, role: 'member', cohort: 'Coders Club' },
+    ];
+    const identities = identitiesFor(grants);
+    const isAdmin = true;
+    const led: Cohort[] = ['Coders Club', 'Crypton Club', 'DevStudio'];
+    const cohort: Cohort = 'Coders Club';
+
+    const rawCtx = cookieStore.get(CTX_COOKIE)?.value ?? null;
+    const activeContext = resolveActiveContext(rawCtx, identities);
+
+    return {
+      userId: 'test_admin_user_id',
+      email,
+      name,
+      grants,
+      identities,
+      isAdmin,
+      ledCohorts: led,
+      cohort,
+      activeContext,
+      allowed: true,
+      denialReason: null,
+    };
+  }
+
+  let userId: string | null = null;
+  let user: any = null;
+  try {
+    const a = await auth();
+    userId = a.userId;
+    if (userId) {
+      user = await currentUser();
+    }
+  } catch (err) {
+    console.warn('[authz] Clerk auth failed or unconfigured:', err);
+    return null;
+  }
+
   if (!userId) return null;
 
-  const user = await currentUser();
   const email = user?.primaryEmailAddress?.emailAddress || '';
   const name = user?.fullName || user?.firstName || email.split('@')[0] || 'Student';
 

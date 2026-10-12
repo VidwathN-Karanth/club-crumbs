@@ -1,0 +1,21 @@
+services:
+  club-crumbs-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: club-crumbs-test-env
+    ports:
+      - "${TEST_PORT:-3002}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - NEXT_TELEMETRY_DISABLED=1
+      # Test mode flags (enables test credentials & mock login UI in Docker)
+      - NEXT_PUBLIC_ENABLE_TEST_AUTH=true
+      - ENABLE_TEST_DOCKER=true
+      - ENABLE_TEST_AUTH=true
+      # Test credentials / mock keys for Clerk
+      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_Y2xlcmsuY2x1Yi1jcnVtYnMudGVzdCQ=
+      - CLERK_SECRET_KEY=sk_test_mocksecretkey1234567890abcdefghijklmnopqrstuvwxyz
+    restart: unless-stopped

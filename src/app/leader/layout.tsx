@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth, useUser } from '@clerk/nextjs';
-import { BookMarked, CalendarDays, CheckSquare, ChevronLeft, ChevronRight, Clock, Code2, FilePenLine, LayoutDashboard, LogOut, Menu, Moon, Network, Rocket, Settings, Sun, Timer, Trophy, Users, X } from 'lucide-react';
+import { Award, BookMarked, CalendarDays, CheckSquare, ChevronLeft, ChevronRight, Clock, Code2, FilePenLine, LayoutDashboard, LogOut, Menu, Moon, Network, Rocket, Settings, Sun, Timer, Trophy, Users, X } from 'lucide-react';
 
 import { useStore } from '@/store/useStore';
 import { apiFetch } from '@/lib/apiClient';
@@ -19,6 +19,7 @@ import NotificationNudge from '@/components/NotificationNudge';
 import ZenMode from '@/components/ZenMode';
 import LeaderChatLauncher from '@/components/chat/LeaderChatLauncher';
 import { LeaderProvider } from './LeaderContext';
+import { isTestSessionClient } from '@/lib/testAuth';
 
 /* ────────────────────────────────────────────────────────────────
    The club leader's console — a deliberately narrow cousin of the admin
@@ -35,6 +36,7 @@ const MENU = [
   { name: 'Attendance', path: '/leader/attendance', icon: CheckSquare },
   { name: 'Quick Launch', path: '/leader/quick-launch', icon: Rocket },
   { name: 'Courses', path: '/leader/courses', icon: BookMarked },
+  { name: 'Certificates', path: '/leader/certificates', icon: Award },
   { name: 'Map', path: '/leader/map', icon: Network },
   { name: 'Reports', path: '/leader/reports', icon: FilePenLine },
 ];
@@ -44,9 +46,10 @@ const normalise = (path: string) => path.replace(/\/$/, '') || '/leader';
 /** Pull the club out of an active-context string like `leader:Crypton%20Club`. */
 function leaderCohortFromContext(active: string | null): Cohort | null {
   if (!active) return null;
-  const idx = active.indexOf(':');
-  if (idx === -1 || active.slice(0, idx) !== 'leader') return null;
-  const cohort = decodeURIComponent(active.slice(idx + 1));
+  const decoded = decodeURIComponent(active);
+  const idx = decoded.indexOf(':');
+  if (idx === -1 || decoded.slice(0, idx) !== 'leader') return null;
+  const cohort = decodeURIComponent(decoded.slice(idx + 1));
   return isCohort(cohort) ? cohort : null;
 }
 
@@ -79,16 +82,19 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
     return () => clearInterval(interval);
   }, [is24HourFormat]);
 
-  const leaderName = user?.fullName || user?.firstName || 'Club Lead';
-  const leaderEmail = user?.primaryEmailAddress?.emailAddress || '';
+  const isTest = isTestSessionClient();
+  const leaderName = isTest ? 'Test Administrator' : (user?.fullName || user?.firstName || 'Club Lead');
+  const leaderEmail = isTest ? 'testadmin@mite.ac.in' : (user?.primaryEmailAddress?.emailAddress || '');
   const current = normalise(pathname);
 
   const checkedRef = useRef(false);
   useEffect(() => {
-    if (!isUserLoaded || !isAuthLoaded) return;
-    if (!isSignedIn) {
-      router.replace('/login');
-      return;
+    if (!isTest) {
+      if (!isUserLoaded || !isAuthLoaded) return;
+      if (!isSignedIn) {
+        router.replace('/login');
+        return;
+      }
     }
     if (checkedRef.current) return;
     checkedRef.current = true;
@@ -107,10 +113,9 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
           return;
         }
 
-        // The active club comes from the chosen context; a single-club leader
-        // resolves to it automatically. Anything ambiguous → pick on /choose-access.
+        // The active club comes from the chosen context; fall back to first led club
         const fromCtx = leaderCohortFromContext(data.activeContext);
-        const resolved = fromCtx ?? (led.length === 1 ? led[0] : null);
+        const resolved = fromCtx ?? (led.length > 0 ? led[0] : null);
         if (!resolved) {
           router.replace('/choose-access');
           return;
@@ -122,13 +127,18 @@ export default function LeaderLayout({ children }: { children: React.ReactNode }
     })();
 
     return () => { cancelled = true; };
-  }, [isUserLoaded, isAuthLoaded, isSignedIn, router]);
+  }, [isUserLoaded, isAuthLoaded, isSignedIn, router, isTest]);
 
   const handleSignOut = async () => {
     setSigningOut(true);
     try {
       useStore.getState().logout();
-      await signOut();
+      if (isTest) {
+        localStorage.removeItem('cc_test_user');
+        await apiFetch('/api/test-logout', { method: 'POST' });
+      } else {
+        await signOut();
+      }
       router.replace('/login');
     } catch {
       setSigningOut(false);

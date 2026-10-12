@@ -22,6 +22,7 @@ import ExtensionNudge from '@/components/ExtensionNudge';
 import NotificationNudge from '@/components/NotificationNudge';
 import SwitchRoleButton from '@/components/SwitchRoleButton';
 import { AdminProvider, useAdmin } from './AdminContext';
+import { isTestSessionClient } from '@/lib/testAuth';
 
 /* ────────────────────────────────────────────────────────────────
    The admin console's shell.
@@ -77,8 +78,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [timeStr, setTimeStr] = useState('');
   const [dateStr, setDateStr] = useState('');
 
-  const adminName = user?.fullName || user?.firstName || 'Administrator';
-  const adminEmail = user?.primaryEmailAddress?.emailAddress || '';
+  const isTest = isTestSessionClient();
+  const adminName = isTest ? 'Test Administrator' : (user?.fullName || user?.firstName || 'Administrator');
+  const adminEmail = isTest ? 'testadmin@mite.ac.in' : (user?.primaryEmailAddress?.emailAddress || '');
   const adminAvatar = user?.imageUrl || '';
   const adminInitial = (adminName || adminEmail || 'A').charAt(0).toUpperCase();
 
@@ -100,11 +102,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
    */
   const checkedRef = useRef(false);
   useEffect(() => {
-    if (!isUserLoaded || !isAuthLoaded) return;
-
-    if (!isSignedIn) {
-      router.replace('/login');
-      return;
+    if (!isTest) {
+      if (!isUserLoaded || !isAuthLoaded) return;
+      if (!isSignedIn) {
+        router.replace('/login');
+        return;
+      }
     }
     // The shell survives navigation between sections, but React still re-runs
     // this on a fast refresh; one check per mount is enough.
@@ -130,7 +133,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     })();
 
     return () => { cancelled = true; };
-  }, [isUserLoaded, isAuthLoaded, isSignedIn, router]);
+  }, [isUserLoaded, isAuthLoaded, isSignedIn, router, isTest]);
 
   useEffect(() => {
     const tick = () => {
@@ -149,7 +152,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setIsSigningOut(true);
     try {
       useStore.getState().logout();
-      await signOut();
+      if (isTest) {
+        localStorage.removeItem('cc_test_user');
+        await apiFetch('/api/test-logout', { method: 'POST' });
+      } else {
+        await signOut();
+      }
       router.replace('/login');
     } catch (err) {
       console.error('Sign out failed:', err);

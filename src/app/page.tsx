@@ -154,6 +154,14 @@ function Nav({ onSignIn }: { onSignIn: () => void }) {
 
 function Hero({ onSignIn }: { onSignIn: () => void }) {
   const reduce = useReducedMotion();
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  }, []);
+
   const rise = (delay: number) => ({
     initial: { opacity: 0, y: reduce ? 0 : 18 },
     animate: { opacity: 1, y: 0 },
@@ -163,47 +171,80 @@ function Hero({ onSignIn }: { onSignIn: () => void }) {
   return (
     <section id="top" className="relative px-5 pt-28 sm:px-8 sm:pt-36">
       <div className="mx-auto max-w-7xl">
-        <motion.div {...rise(0)}>
-          <Eyebrow>MITE · Coders Club · Crypton Club · DevStudio</Eyebrow>
-        </motion.div>
+        <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-8 xl:gap-12">
+          {/* Left Column: Heading and CTAs */}
+          <div className="lg:col-span-7 xl:col-span-6">
+            <motion.div {...rise(0)}>
+              <Eyebrow>MITE · Coders Club · Crypton Club · DevStudio</Eyebrow>
+            </motion.div>
 
-        <motion.h1
-          {...rise(0.08)}
-          className="mt-6 max-w-4xl font-hanken text-[2.6rem] font-extrabold leading-[1.02] tracking-[-0.035em] text-white sm:text-6xl lg:text-[4.75rem]"
-        >
-          Three clubs.
-          <br className="hidden sm:block" /> One dashboard.
-        </motion.h1>
+            <motion.h1
+              {...rise(0.08)}
+              className="mt-6 max-w-2xl font-hanken text-[2.6rem] font-extrabold leading-[1.02] tracking-[-0.035em] text-white sm:text-6xl lg:text-[3.5rem] xl:text-[4.25rem]"
+            >
+              Three clubs.
+              <br className="hidden sm:block" /> One dashboard.
+            </motion.h1>
 
-        <motion.p {...rise(0.16)} className="mt-7 max-w-xl text-[15px] leading-relaxed text-white/55 sm:text-base">
-          Club Crumbs is the shared home for MITE&rsquo;s CSE branch clubs. Sign in with your college
-          account and land straight in your club&rsquo;s workspace — a live leaderboard from your
-          GitHub and LeetCode, a planner, your certificates and everything your club is working on.
-        </motion.p>
+            <motion.p {...rise(0.16)} className="mt-7 max-w-xl text-[15px] leading-relaxed text-white/55 sm:text-base">
+              Club Crumbs is the shared home for MITE&rsquo;s CSE branch clubs. Sign in with your college
+              account and land straight in your club&rsquo;s workspace — a live leaderboard from your
+              GitHub and LeetCode, a planner, your certificates and everything your club is working on.
+            </motion.p>
 
-        <motion.div {...rise(0.24)} className="mt-9 flex flex-wrap items-center gap-3">
-          <button
-            onClick={onSignIn}
-            className="group flex cursor-pointer items-center gap-2 rounded-xl bg-[#2E95FF] px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-[#0A7CF0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            <motion.div {...rise(0.24)} className="mt-9 flex flex-wrap items-center gap-3">
+              <button
+                onClick={onSignIn}
+                className="group flex cursor-pointer items-center gap-2 rounded-xl bg-[#2E95FF] px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-[#0A7CF0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                Sign in with your college account
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" strokeWidth={2} />
+              </button>
+              <a
+                href="#features"
+                className="flex items-center gap-2 rounded-xl border border-white/12 px-6 py-3.5 text-sm font-semibold text-white/70 transition hover:border-white/25 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2E95FF]"
+              >
+                See what is inside
+                <ArrowDown className="h-4 w-4" strokeWidth={2} />
+              </a>
+            </motion.div>
+
+            <motion.p {...rise(0.3)} className="mt-6 font-jetbrains text-[11px] leading-relaxed tracking-wide text-white/35">
+              @mite.ac.in accounts on a club roster · Coders Club · Crypton Club · DevStudio
+            </motion.p>
+          </div>
+
+          {/* Right Column: 3D Video Logo */}
+          <motion.div
+            {...rise(0.2)}
+            className="relative flex items-center justify-center lg:col-span-5 xl:col-span-6"
           >
-            Sign in with your college account
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" strokeWidth={2} />
-          </button>
-          <a
-            href="#features"
-            className="flex items-center gap-2 rounded-xl border border-white/12 px-6 py-3.5 text-sm font-semibold text-white/70 transition hover:border-white/25 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2E95FF]"
-          >
-            See what is inside
-            <ArrowDown className="h-4 w-4" strokeWidth={2} />
-          </a>
-        </motion.div>
+            {/* Ambient cyber glow */}
+            <div
+              className="absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-tr from-emerald-500/20 via-[#2E95FF]/15 to-[#C56BF5]/20 blur-2xl opacity-60"
+              aria-hidden="true"
+            />
 
-        <motion.p {...rise(0.3)} className="mt-6 font-jetbrains text-[11px] leading-relaxed tracking-wide text-white/35">
-          @mite.ac.in accounts on a club roster · Coders Club · Crypton Club · DevStudio
-        </motion.p>
-
-        {/* The screenshot is cropped at the fold on purpose: the workspace
-            continues past the edge, which is the invitation to scroll. */}
+            {/* Video container */}
+            <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-black/60 shadow-2xl shadow-emerald-500/10 sm:rounded-3xl">
+              <video
+                ref={videoRef}
+                src="/video-logo.mp4"
+                poster="/video-poster.jpg"
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                className="h-full w-full object-cover"
+              />
+              <div
+                className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 sm:rounded-3xl"
+                aria-hidden="true"
+              />
+            </div>
+          </motion.div>
+        </div>
       </div>
 
       {/* Fact strip — the four things people ask before signing in. */}
@@ -640,9 +681,8 @@ export default function RootPage() {
         <motion.div
           animate={{ opacity: [0.55, 1, 0.55] }}
           transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-          className="flex h-14 w-14 items-center justify-center rounded-[22%] bg-[#C56BF5]"
         >
-          <span className="text-2xl font-bold tracking-tighter text-white">C</span>
+          <LayoraMark className="h-14 w-14" />
         </motion.div>
         <div className="text-center">
           <h1 className="font-jetbrains text-lg font-bold tracking-[0.2em] text-white">CLUB CRUMBS</h1>

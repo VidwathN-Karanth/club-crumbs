@@ -55,6 +55,13 @@ export const metadata: Metadata = {
   // The manifest is what lets a phone install Club Crumbs to the Home Screen,
   // which on iOS is the only way the Notification API exists at all.
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/club-crumbs-logo.png", type: "image/png" },
+    ],
+    apple: "/club-crumbs-logo.png",
+  },
   appleWebApp: {
     capable: true,
     title: "Club Crumbs",
