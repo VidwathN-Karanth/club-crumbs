@@ -33,6 +33,12 @@ export default function LayoraMark({
         className="w-full h-full object-cover select-none"
         loading="eager"
         decoding="async"
+        onError={(e) => {
+          const target = e.currentTarget;
+          if (!target.src.endsWith('.jpeg')) {
+            target.src = '/club-crumbs-logo.jpeg';
+          }
+        }}
       />
     </span>
   );
