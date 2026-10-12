@@ -24,13 +24,16 @@ import NotificationNudge from '@/components/NotificationNudge';
 import LayoraMark from '@/components/LayoraMark';
 import ExtensionPrompt from '@/components/ExtensionPrompt';
 import ChatLauncher from '@/components/chat/ChatLauncher';
+import { isTestSessionClient } from '@/lib/testAuth';
+import { apiFetch } from '@/lib/apiClient';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const store = useStore();
 
-  const mockAuth = false; // Set to true to bypass Clerk login for local testing
+  const isTest = isTestSessionClient();
+  const mockAuth = isTest; // Bypass Clerk when test session is active
 
   const { isLoaded, isSignedIn, user: clerkUser } = useUser();
   const { signOut } = useAuth();
@@ -38,17 +41,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (mockAuth && store.hasHydrated) {
       if (!store.isAuthenticated) {
-        store.login('mock-student@layora.edu', 'Mock Student');
+        store.login('testadmin@mite.ac.in', 'Test Administrator');
       } else {
         if (store.user && !store.user.isOnboarded) {
           store.updateOnboardingStatus(true);
         }
-        if (store.themeMode !== 'light') {
-          store.setThemeMode('light');
-        }
       }
     }
-  }, [mockAuth, store.hasHydrated, store.isAuthenticated, store.user?.isOnboarded, store.themeMode]);
+  }, [mockAuth, store.hasHydrated, store.isAuthenticated, store.user?.isOnboarded]);
 
   useEffect(() => {
     if (mockAuth) return;
@@ -146,7 +146,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const handleLogout = async () => {
     store.logout();
-    await signOut();
+    if (isTest) {
+      localStorage.removeItem('cc_test_user');
+      await apiFetch('/api/test-logout', { method: 'POST' });
+    } else {
+      await signOut();
+    }
     router.replace('/login');
   };
 

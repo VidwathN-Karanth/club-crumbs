@@ -9,6 +9,7 @@ import { ArrowRight, Loader2, Shield, Users, GraduationCap } from 'lucide-react'
 import { apiFetch } from '@/lib/apiClient';
 import { CLUB_META, type Cohort } from '@/lib/cohorts';
 import LayoraMark from '@/components/LayoraMark';
+import { isTestSessionClient } from '@/lib/testAuth';
 
 type Identity =
   | { kind: 'admin' }
@@ -50,17 +51,20 @@ function cardFor(identity: Identity) {
 export default function ChooseAccessPage() {
   const router = useRouter();
   const { isLoaded, isSignedIn } = useUser();
+  const isTest = isTestSessionClient();
 
   const [identities, setIdentities] = useState<Identity[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.replace('/login');
-      return;
+    if (!isTest) {
+      if (isLoaded && !isSignedIn) {
+        router.replace('/login');
+        return;
+      }
+      if (!isLoaded || !isSignedIn) return;
     }
-    if (!isLoaded || !isSignedIn) return;
 
     let cancelled = false;
     (async () => {
@@ -82,7 +86,7 @@ export default function ChooseAccessPage() {
     })();
 
     return () => { cancelled = true; };
-  }, [isLoaded, isSignedIn, router]);
+  }, [isLoaded, isSignedIn, router, isTest]);
 
   const choose = async (identity: Identity) => {
     const value = contextString(identity);

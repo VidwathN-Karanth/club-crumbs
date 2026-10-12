@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getRequester } from '@/lib/authz';
 import { CTX_COOKIE, resolveActiveContext, serializeContext } from '@/lib/accessContext';
+import { isTestAuthEnabledServer } from '@/lib/testAuth';
 
 /**
  * Who am I, and everything I may act as?
@@ -30,6 +31,7 @@ export async function GET() {
   return NextResponse.json({
     signedIn: true,
     email: requester.email,
+    name: requester.name,
     isAdmin: requester.isAdmin,
     // Kept for backward compatibility with SyncProvider's roster gate.
     cohort: requester.cohort,
@@ -39,6 +41,7 @@ export async function GET() {
     ledCohorts: requester.ledCohorts,
     activeContext: active ? serializeContext(active) : null,
     needsChoice: requester.identities.length > 1 && active === null,
+    isTestUser: isTestAuthEnabledServer() && requester.email === 'testadmin@mite.ac.in',
   });
 }
 

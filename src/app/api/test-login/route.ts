@@ -6,9 +6,23 @@ import {
   TEST_ADMIN_NAME,
   TEST_SESSION_COOKIE,
   TEST_USER_COOKIE,
+  isTestAuthEnabledServer,
 } from '@/lib/testAuth';
 
+export async function GET() {
+  return NextResponse.json({
+    enabled: isTestAuthEnabledServer(),
+  });
+}
+
 export async function POST(request: Request) {
+  if (!isTestAuthEnabledServer()) {
+    return NextResponse.json(
+      { error: 'Test authentication is not enabled on this environment.' },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = await request.json().catch(() => ({}));
     const email = String(body.email || '').trim().toLowerCase();
@@ -63,8 +77,11 @@ export async function POST(request: Request) {
         maxAge: 60 * 60 * 24 * 30,
       });
       redirectUrl = '/admin/';
-    } else if (preferredRole.startsWith('leader:')) {
-      cookieStore.set('cc_ctx', preferredRole, {
+    } else if (preferredRole.startsWith('leader')) {
+      const cohortName = preferredRole.includes(':')
+        ? decodeURIComponent(preferredRole.slice(preferredRole.indexOf(':') + 1))
+        : 'Coders Club';
+      cookieStore.set('cc_ctx', `leader:${encodeURIComponent(cohortName)}`, {
         httpOnly: true,
         sameSite: 'lax',
         secure: false,

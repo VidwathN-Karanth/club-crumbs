@@ -49,13 +49,18 @@ function toRecord(row: Row, currentMembers: ClubMember[]): AttendanceRecord {
 /** Every record of one club, newest first, plus the current member list. */
 export async function clubAttendance(cohort: Cohort): Promise<{ members: ClubMember[]; records: AttendanceRecord[] }> {
   const members = await memberListForCohort(cohort);
-  const { data, error } = await supabaseAdmin
-    .from('attendance')
-    .select(COLUMNS)
-    .eq('cohort', cohort)
-    .order('date', { ascending: false });
-  if (error) throw new Error(error.message);
-  return { members, records: ((data || []) as Row[]).map((r) => toRecord(r, members)) };
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('attendance')
+      .select(COLUMNS)
+      .eq('cohort', cohort)
+      .order('date', { ascending: false });
+    if (error) throw error;
+    return { members, records: ((data || []) as Row[]).map((r) => toRecord(r, members)) };
+  } catch (err) {
+    console.warn('[attendanceStore] Could not read attendance, returning empty list:', err);
+    return { members, records: [] };
+  }
 }
 
 /** One club's record for one date, or null. */

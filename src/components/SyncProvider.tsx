@@ -9,6 +9,7 @@ import { apiFetch } from '@/lib/apiClient';
 import { areaForContextString } from '@/lib/accessContext';
 import type { Cohort } from '@/lib/cohorts';
 import LayoraMark from '@/components/LayoraMark';
+import { isTestSessionClient } from '@/lib/testAuth';
 
 // Module-level flag to suppress ALL database writes during a purge.
 let suppressSync = false;
@@ -52,10 +53,11 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
   const isAccessDeniedRoute = pathname === '/access-denied';
 
   useEffect(() => {
-    if (!isLoaded) return;
+    const isTest = isTestSessionClient();
+    if (!isLoaded && !isTest) return;
 
     // Signed out: nothing to gate. Public pages must stay public.
-    if (!user) {
+    if (!user && !isTest) {
       setAccessState('allowed');
       return;
     }
@@ -106,10 +108,14 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
     };
 
     const handleAllowed = (data: {
-      cohort?: Cohort | null; isAdmin?: boolean; needsChoice?: boolean; activeContext?: string | null;
+      cohort?: Cohort | null; isAdmin?: boolean; needsChoice?: boolean; activeContext?: string | null; email?: string; name?: string;
     }) => {
       useStore.getState().setCohort(data.cohort ?? null);
       useStore.getState().setIsAdmin(Boolean(data.isAdmin));
+      if (isTest) {
+        useStore.getState().login(data.email || 'testadmin@mite.ac.in', data.name || 'Test Administrator');
+        useStore.getState().setIsCloudLoaded(true);
+      }
       // If we redirect, leave accessState as 'checking' so the splash stays up
       // until the destination loads rather than flashing this shell.
       if (routeForRole(data)) return;

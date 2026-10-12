@@ -24,9 +24,12 @@ const isProtectedRoute = createRouteMatcher([
  * loop-safe and with no per-navigation backend calls. Every API route still
  * enforces access on its own, so nothing here is a security boundary.
  */
+import { isTestAuthEnabledServer } from "@/lib/testAuth";
+
 export default clerkMiddleware(async (auth, req) => {
+  const isTestEnabled = isTestAuthEnabledServer();
   const testSession = req.cookies.get('cc_test_session')?.value;
-  if (testSession === 'testadmin@mite.ac.in') {
+  if (isTestEnabled && testSession === 'testadmin@mite.ac.in') {
     return NextResponse.next();
   }
 

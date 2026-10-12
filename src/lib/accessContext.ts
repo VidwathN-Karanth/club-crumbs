@@ -43,12 +43,13 @@ export function serializeContext(ctx: ActiveContext): string {
 
 export function parseContext(raw: string | null | undefined): ActiveContext | null {
   if (!raw) return null;
-  if (raw === 'admin') return { role: 'admin' };
+  const decodedRaw = decodeURIComponent(raw);
+  if (decodedRaw === 'admin') return { role: 'admin' };
 
-  const idx = raw.indexOf(':');
+  const idx = decodedRaw.indexOf(':');
   if (idx === -1) return null;
-  const role = raw.slice(0, idx);
-  const cohort = decodeURIComponent(raw.slice(idx + 1));
+  const role = decodedRaw.slice(0, idx);
+  const cohort = decodeURIComponent(decodedRaw.slice(idx + 1));
   if (!isCohort(cohort)) return null;
   if (role === 'leader') return { role: 'leader', cohort };
   if (role === 'member') return { role: 'member', cohort };
